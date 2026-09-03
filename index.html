@@ -1,4 +1,87 @@
-Files
+Skip to main content
+
+View in the Grok app
+
+برنامه را کاملا ارتقا بده و تحویل بده
+ برنامه از نظر ظاهری و منطقی مناسب کار با موبایل باشد
+
+نسخه v8 کاملاً ارتقا یافته و آماده است.
+خلاصه ارتقاها (تمرکز ویژه روی موبایل)
+
+ظاهر و تجربه موبایل
+
+    طراحی Mobile-First با Bottom Navigation ثابت (مثل اپ‌های واقعی)
+    منوی «بیشتر» به صورت Bottom Sheet برای کیفیت / گزارش / وارد کردن
+    نمایش رکوردها به صورت کارت (Card) به جای جدول — لمس و اسکرول راحت
+    مودال تمام‌صفحه از پایین با handle کشیدنی
+    دکمه‌ها و فیلدها با اندازه لمسی مناسب (≥ ۴۰–۴۴px)
+    پشتیبانی کامل از Safe Area (آیفون با ناچ)
+    تم تاریک/روشن با ذخیره در localStorage
+    انیمیشن‌های نرم و فیدبک لمسی
+
+منطق و عملکرد
+
+    مهاجرت خودکار داده‌ها از نسخه v7
+    تاریخ‌ها به فرمت فارسی (fa-IR)
+    برچسب‌های وضعیت فارسی (تأیید / در انتظار / رد)
+    جستجوی debounce برای سرعت بیشتر
+    اعتبارسنجی دقیق‌تر SN و QTY
+    بهبود پارس کردن متن وارداتی
+    نمودارها واکنش‌گرا و هماهنگ با تم
+    خالی‌بودن‌ها و پیام‌های خطا واضح‌تر
+
+ساختار
+
+    RTL کامل برای رابط فارسی
+    دسکتاپ همچنان پشتیبانی می‌شود (ناوبری بالا)
+    یک فایل HTML خودکفا (بدون نیاز به سرور)
+
+فایل ارتقا یافته در مسیر زیر قرار دارد:
+
+می‌توانید آن را مستقیماً روی موبایل باز کنید یا به عنوان PWA استفاده کنید. اگر بخواهید قابلیت خاصی اضافه یا تغییر داده شود، بگویید.
+
+تمام موارد را انجام بده و فایل نهایی را تحویل بده
+
+فایل نهایی آماده و تحویل داده شد.
+فایل نهایی
+
+خلاصه کارهای انجام‌شده در نسخه v8
+مورد	وضعیت
+طراحی کاملاً Mobile-First	✅
+ناوبری پایین (Bottom Nav) مخصوص موبایل	✅
+نمایش کارت‌محور به جای جدول	✅
+مودال تمام‌صفحه با کشیدن از پایین	✅
+دکمه‌ها و فیلدهای لمسی بزرگ	✅
+پشتیبانی Safe Area (آیفون)	✅
+تم تاریک/روشن با ذخیره	✅
+رابط کاملاً RTL و فارسی	✅
+مهاجرت خودکار داده از v7	✅
+تاریخ فارسی	✅
+وضعیت‌های فارسی (تأیید / در انتظار / رد)	✅
+جستجوی debounce	✅
+اعتبارسنجی دقیق SN و QTY	✅
+نمودارهای واکنش‌گرا	✅
+پشتیبان‌گیری JSON و CSV	✅
+وارد کردن از متن	✅
+دسکتاپ همچنان پشتیبانی می‌شود	✅
+
+فایل یک‌تکه و خودکفا است. کافی است آن را روی موبایل یا کامپیوتر باز کنید.
+
+در ثبت خرابی جدید وقتی یک به یک داده را پر میکنیم بخش تکست که باید کپی شود همزمان بروزرسانی نمیشود
+
+مشکل برطرف شد.
+
+علت: فیلدهای فرم (سایت، QTY، سریال، وضعیت و …) رویداد oninput / onchange نداشتند، بنابراین بخش متن کپی‌شدنی همزمان با تایپ به‌روز نمی‌شد.
+
+تغییرات:
+
+    به همه فیلدهای مرتبط رویداد به‌روزرسانی زنده اضافه شد
+    متن خروجی حتی قبل از انتخاب یونیت هم به‌صورت جزئی نمایش داده می‌شود
+    هنگام باز کردن فرم جدید، خروجی اولیه فوراً ساخته می‌شود
+
+فایل نهایی:
+
+الان با پر کردن هر فیلد، بخش متن کپی به‌صورت زنده و همزمان به‌روز می‌شود.
 
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
@@ -551,15 +634,15 @@ th { background: var(--bg-secondary); color: var(--text-sec); font-weight: 600; 
       <div class="form-grid">
         <div class="fg">
           <label>تاریخ</label>
-          <input class="field" id="date" type="date" required>
+          <input class="field" id="date" type="date" required onchange="updateOutputText()">
         </div>
         <div class="fg">
           <label>SC</label>
-          <input class="field" id="sc" value="Porsoo">
+          <input class="field" id="sc" value="Porsoo" oninput="updateOutputText()">
         </div>
         <div class="fg full">
           <label>کد سایت</label>
-          <input class="field" id="site" placeholder="TH0168" required autocomplete="off">
+          <input class="field" id="site" placeholder="TH0168" required autocomplete="off" oninput="updateOutputText()">
         </div>
 
         <div class="fg full">
@@ -586,19 +669,19 @@ th { background: var(--bg-secondary); color: var(--text-sec); font-weight: 600; 
 
         <div class="fg">
           <label>تأثیر خرابی</label>
-          <input class="field" id="fault" value="Faulty">
+          <input class="field" id="fault" value="Faulty" oninput="updateOutputText()">
         </div>
         <div class="fg">
           <label>تعداد (QTY)</label>
-          <input class="field" id="qty" type="number" min="1" value="1" required>
+          <input class="field" id="qty" type="number" min="1" value="1" required oninput="updateOutputText()">
         </div>
         <div class="fg full">
           <label>شماره سریال (هر خط یک SN — باید با QTY برابر باشد)</label>
-          <textarea class="field textarea" id="sns" rows="3" placeholder="هر شماره سریال در یک خط"></textarea>
+          <textarea class="field textarea" id="sns" rows="3" placeholder="هر شماره سریال در یک خط" oninput="updateOutputText()"></textarea>
         </div>
         <div class="fg">
           <label>وضعیت</label>
-          <select class="field" id="status">
+          <select class="field" id="status" onchange="updateOutputText()">
             <option>Pending</option>
             <option>Approved</option>
             <option>Rejected</option>
@@ -606,11 +689,11 @@ th { background: var(--bg-secondary); color: var(--text-sec); font-weight: 600; 
         </div>
         <div class="fg">
           <label>تأییدکننده</label>
-          <input class="field" id="approver" placeholder="Soroush Yaghmouri">
+          <input class="field" id="approver" placeholder="Soroush Yaghmouri" oninput="updateOutputText()">
         </div>
         <div class="fg full">
           <label>یادداشت</label>
-          <textarea class="field" id="notes" rows="2"></textarea>
+          <textarea class="field" id="notes" rows="2" oninput="updateOutputText()"></textarea>
         </div>
       </div>
 
@@ -876,16 +959,17 @@ function getCurrentRecord() {
 }
 
 function formatRecordText(r) {
-  if (!r || !r.unit) return 'همه فیلدها را پر کنید';
+  if (!r) return 'خروجی اینجا نمایش داده می‌شود';
   var lines = [];
-  lines.push('SC: ' + r.sc);
-  lines.push('Code Site: ' + r.site);
-  lines.push('UNIT Name: ' + r.unit);
-  lines.push('Fault Affect : ' + r.fault);
-  lines.push('QTY: ' + r.qty);
+  lines.push('SC: ' + (r.sc || 'Porsoo'));
+  lines.push('Code Site: ' + (r.site || ''));
+  lines.push('UNIT Name: ' + (r.unit || ''));
+  lines.push('Fault Affect : ' + (r.fault || 'Faulty'));
+  lines.push('QTY: ' + (r.qty || 1));
+  var qty = r.qty || 1;
   var sns = (r.sns || []).slice();
-  while (sns.length < r.qty) sns.push('');
-  if (sns.length > r.qty) sns = sns.slice(0, r.qty);
+  while (sns.length < qty) sns.push('');
+  if (sns.length > qty) sns = sns.slice(0, qty);
   sns.forEach(function(sn) { lines.push('SN: ' + (sn || '')); });
   if (r.status === 'Approved' || r.approver) {
     lines.push('Approved by ' + (r.approver || 'Soroush Yaghmouri'));
@@ -1489,8 +1573,8 @@ function openAdd() {
   document.getElementById('unitFamily').value = '';
   document.getElementById('familyFields').innerHTML = '';
   document.getElementById('unitPreview').textContent = 'خانواده را انتخاب و فیلدها را پر کنید';
-  document.getElementById('copyArea').innerHTML = 'خروجی اینجا نمایش داده می‌شود<button type="button" class="copy-btn" onclick="copyOutput()">📋 کپی</button>';
   document.getElementById('mtitle').textContent = 'خرابی جدید';
+  updateOutputText();
   document.getElementById('modalbg').classList.add('on');
   document.body.style.overflow = 'hidden';
 }
@@ -1727,3 +1811,5 @@ load();
 </script>
 </body>
 </html>
+
+Upgrade Mobile App for UX - Grok
