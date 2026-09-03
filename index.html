@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+<title>Porsoo Fault Manager</title>
+<style>
+/* ─── RESET & BASE ─── */
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f4f7fb;color:#172033;font-family:'Segoe UI',Tahoma,sans-serif;font-size:15px;line-height:1.5;padding:10px}
+.app{max-width:1100px;margin:0 auto}
+
+/* ─── HEADER ─── */
+.top{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;background:#fff;border-radius:14px;padding:14px 16px;box-shadow:0 4px 16px rgba(0,0,0,.06);margin-bottom:12px}
+.brand h1{font-size:20px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.brand h1 small{font-size:12px;font-weight:400;color:#68758a}
+.brand p{font-size:12px;color:#68758a;margin-top:2px}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.actions .btn{padding:10px 14px;font-size:14px}
+.btn{border:0;border-radius:10px;padding:10px 16px;cursor:pointer;font-weight:600;background:#eef2f7;color:#233047;transition:.15s;touch-action:manipulation}
+.btn:active{transform:scale(.96)}
+.primary{background:#2563eb;color:#fff}
+.green{background:#16a34a;color:#fff}
+.red{background:#dc2626;color:#fff}
+.outline{background:transparent;border:1px solid #d8dfeb}
+
+/* ─── NAV ─── */
+.nav{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+.nav button{flex:1 0 auto;border:1px solid #e4e9f1;background:#fff;padding:10px 12px;border-radius:10px;cursor:pointer;font-weight:600;color:#43516a;font-size:13px;touch-action:manipulation;min-width:60px;text-align:center}
+.nav button.active{background:#eaf1ff;color:#1d4ed8;border-color:#b9d0ff}
+
+/* ─── VIEWS ─── */
+.view{display:none}.view.active{display:block}
+
+/* ─── STATS ─── */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;margin-bottom:14px}
+.stat{background:#fff;border:1px solid #e4e9f1;border-radius:12px;padding:10px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.03)}
+.stat small{display:block;font-size:11px;color:#68758a;font-weight:600}
+.stat b{display:block;font-size:22px;margin-top:2px}
+
+/* ─── PANELS ─── */
+.panel{background:#fff;border:1px solid #e4e9f1;border-radius:14px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.03);margin-bottom:14px}
+.panel h3{font-size:16px;margin:0 0 10px}
+
+/* ─── CHARTS ─── */
+.chart{height:200px;display:flex;align-items:flex-end;gap:4px;overflow-x:auto;padding:8px 2px}
+.bar{min-width:28px;background:#5b8def;border-radius:4px 4px 2px 2px;position:relative;flex-shrink:0}
+.bar span{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);font-size:9px;font-weight:700}
+.bar i{position:absolute;top:100%;left:50%;transform:translateX(-50%);font-size:8px;color:#68758a;white-space:nowrap;font-style:normal;margin-top:3px}
+
+/* ─── FILTERS ─── */
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.filters .full{grid-column:1/-1}
+.field{width:100%;padding:10px 12px;border:1px solid #d8dfeb;border-radius:10px;background:#fbfcfe;font-size:15px;outline:none;-webkit-appearance:none}
+.field:focus{border-color:#7aa2f7;box-shadow:0 0 0 3px #2563eb18}
+
+/* ─── TABLE ─── */
+.tablebox{overflow-x:auto;border:1px solid #e4e9f1;border-radius:12px;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:700px}
+th,td{padding:8px 10px;border-bottom:1px solid #e4e9f1;text-align:left;vertical-align:middle}
+th{background:#f7f9fc;position:sticky;top:0;z-index:2;color:#45536a;font-size:12px}
+tr:active{background:#f0f4ff}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-weight:700;font-size:10px}
+.approved{background:#dcfce7;color:#15803d}
+.pending{background:#fef3c7;color:#a16207}
+.rejected{background:#fee2e2;color:#b91c1c}
+.sn{display:inline-block;background:#eef2f7;border-radius:4px;padding:2px 6px;margin:2px;font-family:Consolas;font-size:10px}
+
+/* ─── MODAL ─── */
+.modalbg{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:12px;z-index:100}
+.modalbg.on{display:flex}
+.modal{background:#fff;border-radius:18px;width:100%;max-width:600px;max-height:95vh;overflow-y:auto;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal h2{font-size:20px;margin:0 0 4px}
+.sub{color:#68758a;font-size:13px;margin-bottom:14px}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fg{margin-bottom:6px}
+.fg label{display:block;font-weight:600;font-size:13px;margin-bottom:3px}
+.full{grid-column:1/-1}
+.textarea{min-height:80px;resize:vertical}
+.unit-preview{background:#f0f4ff;padding:10px;border-radius:8px;border:1px dashed #7aa2f7;color:#1d4ed8;font-weight:600;margin:8px 0;font-size:14px;word-break:break-word}
+.copy-area{background:#f8fafc;border:1px solid #dce3ec;border-radius:10px;padding:12px;font-family:Consolas,monospace;font-size:13px;white-space:pre-wrap;word-break:break-all;position:relative;margin-top:10px}
+.copy-btn{position:absolute;right:6px;top:6px;background:#2563eb;color:#fff;border:0;border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer}
+.modalfoot{display:flex;gap:8px;justify-content:flex-end;border-top:1px solid #e4e9f1;padding-top:14px;margin-top:10px}
+.modalfoot .btn{flex:1;text-align:center;padding:12px}
+.unit-structure{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px}
+.unit-structure .field{font-size:14px;padding:8px 10px}
+
+/* ─── LISTS ─── */
+.list{display:grid;gap:8px}
+.item{padding:10px;border:1px solid #e4e9f1;border-radius:10px;display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fff}
+.item .muted{font-size:12px;color:#68758a}
+
+/* ─── TOAST ─── */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#172033;color:#fff;padding:12px 20px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.3);font-weight:500;display:none;z-index:200;max-width:90%;text-align:center;font-size:15px}
+
+/* ─── RESPONSIVE TWEAKS ─── */
+@media(max-width:600px){
+  .top{flex-direction:column;align-items:stretch}
+  .actions{justify-content:center}
+  .stats{grid-template-columns:repeat(3,1fr)}
+  .filters{grid-template-columns:1fr}
+  .formgrid{grid-template-columns:1fr}
+  .full{grid-column:auto}
+  .unit-structure{grid-template-columns:1fr 1fr}
+  .modal{padding:14px;max-width:100%}
+  .nav button{font-size:12px;padding:8px 8px;min-width:50px}
+  .brand h1{font-size:18px}
+  .btn{padding:10px 12px;font-size:14px}
+  table{font-size:12px;min-width:550px}
+  th,td{padding:6px 6px}
+  .chart{height:160px}
+  .bar{min-width:22px}
+}
+@media(max-width:400px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .unit-structure{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header class="top">
+  <div class="brand"><h1>🧰 Porsoo Fault <small>v6.1</small></h1><p>Mobile‑first · Structured units · Copy output</p></div>
+  <div class="actions">
+    <button class="btn primary" onclick="openAdd()">＋ New</button>
+    <button class="btn" onclick="document.getElementById('jsonFile').click()">📤 Import</button><input id="jsonFile" type="file" accept=".json" hidden onchange="importJSON(event)">
+    <button class="btn" onclick="exportJSON()">💾 Backup</button>
+    <button class="btn" onclick="exportCSV()">📊 CSV</button>
+  </div>
+</header>
+
+<nav class="nav">
+  <button class="active" onclick="showView('dashboard',this)">📊</button>
+  <button onclick="showView('records',this)">📋</button>
+  <button onclick="showView('approval',this)">✅</button>
+  <button onclick="showView('sites',this)">📍</button>
+  <button onclick="showView('quality',this)">⚠</button>
+  <button onclick="showView('reports',this)">📑</button>
+</nav>
+
+<!-- DASHBOARD -->
+<section id="dashboard" class="view active">
+  <div class="stats" id="statsContainer">
+    <div class="stat"><small>Requests</small><b id="kRecords">0</b></div>
+    <div class="stat"><small>Faulty QTY</small><b id="kQty">0</b></div>
+    <div class="stat"><small>Sites</small><b id="kSites">0</b></div>
+    <div class="stat"><small>Unit Types</small><b id="kTypes">0</b></div>
+    <div class="stat"><small>Approved</small><b id="kApproved">0</b></div>
+    <div class="stat"><small>Pending</small><b id="kPending">0</b></div>
+    <div class="stat"><small>Rejected</small><b id="kRejected">0</b></div>
+  </div>
+  <div class="panel"><h3>Top Faulty Equipment</h3><div id="equipmentChart" class="chart"></div></div>
+  <div class="panel"><h3>Top Sites by Faulty QTY</h3><div id="siteChart" class="chart"></div></div>
+  <div class="panel"><h3>Recent Activity</h3><div id="recent" class="list"></div></div>
+  <div class="panel"><h3>Operational Alerts</h3><div id="alerts" class="list"></div></div>
+</section>
+
+<!-- RECORDS -->
+<section id="records" class="view">
+  <div class="panel">
+    <h3>Fault Records</h3>
+    <div class="filters">
+      <input class="field full" id="q" placeholder="🔍 Search..." oninput="renderAll()">
+      <input class="field" id="fs" placeholder="Site" oninput="renderAll()">
+      <input class="field" id="fu" placeholder="Unit" oninput="renderAll()">
+      <select class="field" id="fst" onchange="renderAll()"><option value="">Status</option><option>Approved</option><option>Pending</option><option>Rejected</option></select>
+      <input class="field" id="fd1" type="date" onchange="renderAll()" placeholder="From">
+      <input class="field" id="fd2" type="date" onchange="renderAll()" placeholder="To">
+      <button class="btn outline full" onclick="clearFilters()">Clear filters</button>
+    </div>
+  </div>
+  <div class="panel"><div class="tablebox"><table><thead><tr><th>Date</th><th>Site</th><th>Unit</th><th>Fault</th><th>QTY</th><th>SN</th><th>Status</th><th>Actions</th></tr></thead><tbody id="tbody"></tbody></table></div></div>
+</section>
+
+<!-- APPROVAL -->
+<section id="approval" class="view">
+  <div class="panel"><h3>Approval Center</h3><p class="muted">Approve or reject pending requests.</p><div class="tablebox"><table><thead><tr><th>Date</th><th>Site</th><th>Unit</th><th>QTY</th><th>Fault</th><th>Status</th><th>Action</th></tr></thead><tbody id="approvals"></tbody></table></div></div>
+</section>
+
+<!-- SITES -->
+<section id="sites" class="view">
+  <div class="panel"><h3>Site Overview</h3><div class="tablebox"><table><thead><tr><th>Site</th><th>Req</th><th>Units</th><th>Types</th><th>Approved</th><th>Pending</th><th>Last</th><th></th></tr></thead><tbody id="sitesBody"></tbody></table></div></div>
+</section>
+
+<!-- QUALITY -->
+<section id="quality" class="view">
+  <div class="panel"><h3>Duplicate Serial Numbers</h3><div id="dupSN" class="list"></div></div>
+  <div class="panel"><h3>Data Consistency</h3><div id="qualityList" class="list"></div></div>
+</section>
+
+<!-- REPORTS -->
+<section id="reports" class="view">
+  <div class="panel"><h3>Management Report</h3><div id="reportContent"></div><button class="btn primary" onclick="printReport()" style="margin-top:10px">🖨 Print</button></div>
+</section>
+
+<!-- ===== MODAL ===== -->
+<div id="modalbg" class="modalbg"><div class="modal">
+  <h2 id="mtitle">New Fault</h2>
+  <div class="sub">Fill in details. Output is ready to copy.</div>
+  <form id="form" onsubmit="saveRecord(event)"><input type="hidden" id="eid">
+    <div class="formgrid">
+      <div class="fg"><label>Date</label><input class="field" id="date" type="date" required></div>
+      <div class="fg"><label>SC</label><input class="field" id="sc" value="Porsoo"></div>
+      <div class="fg full"><label>Code Site</label><input class="field" id="site" placeholder="TH0168" required></div>
+
+      <div class="fg full">
+        <label>Unit Family</label>
+        <select class="field" id="unitFamily" onchange="onFamilyChange()">
+          <option value="">-- Select Family --</option>
+          <option value="NCU_NCR">NCU / NCR</option>
+          <option value="PSU">PSU AC</option>
+          <option value="CLU">CLU / BBU</option>
+          <option value="CCU">CCU / Climate</option>
+          <option value="DC_AC">DC Air Conditioner</option>
+          <option value="RECTIFIER">Rectifier</option>
+          <option value="DCC">DCC</option>
+          <option value="PDU">PDU</option>
+          <option value="AIRCOND">Air Conditioner - ITMC</option>
+          <option value="CONTROLLER">Controller Unit</option>
+          <option value="SMARTPACK">Smartpack</option>
+          <option value="SCU">SCU</option>
+          <option value="CUSTOM">Custom</option>
+        </select>
+      </div>
+
+      <div class="fg full" id="familyFields"></div>
+
+      <div class="fg"><label>Fault Affect</label><input class="field" id="fault" value="Faulty"></div>
+      <div class="fg"><label>QTY</label><input class="field" id="qty" type="number" min="1" value="1" required></div>
+      <div class="fg full"><label>Serial Numbers (one per line)</label><textarea class="field textarea" id="sns" rows="3"></textarea></div>
+      <div class="fg"><label>Status</label><select class="field" id="status"><option>Pending</option><option>Approved</option><option>Rejected</option></select></div>
+      <div class="fg"><label>Approved By</label><input class="field" id="approver" placeholder="Soroush Yaghmouri"></div>
+      <div class="fg full"><label>Notes</label><textarea class="field" id="notes" rows="2"></textarea></div>
+    </div>
+
+    <div class="unit-preview" id="unitPreview">Select family and fill fields</div>
+    <div class="copy-area" id="copyArea">Output will appear here<button class="copy-btn" onclick="copyOutput()">📋 Copy</button></div>
+
+    <div class="modalfoot">
+      <button type="button" class="btn outline" onclick="closeModal()">Cancel</button>
+      <button type="submit" class="btn primary">💾 Save</button>
+    </div>
+  </form>
+</div></div>
+
+<div id="toast" class="toast"></div>
+</div>
+
+<script>
+// ============================================================
+//  UNIT FAMILY CONFIGURATIONS (full definitions)
+// ============================================================
+var FAMILY_CONFIG = {
+  NCU_NCR: {
+    label:'NCU / NCR',
+    fields:[
+      {id:'ncuPrefix',type:'select',label:'Type',options:['NCU','NCR'],default:'NCR'},
+      {id:'ncuVoltage',type:'text',label:'Voltage',default:'48',placeholder:'48'},
+      {id:'ncuVersion',type:'text',label:'Version',default:'U',placeholder:'U'},
+      {id:'ncuSubtype',type:'text',label:'Subtype (e.g. C/11)',placeholder:'C/11'},
+      {id:'ncuPower',type:'select',label:'Power',options:['3KW','2KW','1.5KW','N/A'],default:'3KW'}
+    ],
+    build:function(v){ var p=v.ncuPrefix||'NCR'; var vol=v.ncuVoltage||'48'; var ver=v.ncuVersion||'U'; var sub=v.ncuSubtype?' '+v.ncuSubtype.trim():''; var pw=(v.ncuPower&&v.ncuPower!=='N/A')?' - '+v.ncuPower:''; return p+vol+ver+sub+pw; }
+  },
+  PSU:{
+    label:'PSU AC',
+    fields:[
+      {id:'psuVersion',type:'select',label:'Version',options:['AC 01 (1KW)','AC 02 (2KW)','AC 03 (3KW)'],default:'AC 03 (3KW)'},
+      {id:'psuSuffix',type:'text',label:'Suffix',placeholder:'- Ericsson (optional)'}
+    ],
+    build:function(v){ var base=v.psuVersion?v.psuVersion.split('(')[0].trim():'PSU AC 03'; var suff=v.psuSuffix?' '+v.psuSuffix.trim():''; return 'PSU '+base+suff; }
+  },
+  CLU:{
+    label:'CLU / BBU',
+    fields:[
+      {id:'cluType',type:'select',label:'Type',options:['CLU','BBU6102 CLU'],default:'CLU'},
+      {id:'cluSuffix',type:'text',label:'Suffix',placeholder:'- Ericsson (or empty)'}
+    ],
+    build:function(v){ var base=v.cluType||'CLU'; var suff=v.cluSuffix?' '+v.cluSuffix.trim():''; if(base==='CLU' && !suff) suff=' - Ericsson'; return base+suff; }
+  },
+  CCU:{
+    label:'CCU / Climate Control',
+    fields:[
+      {id:'ccuType',type:'select',label:'Type',options:['CCU - Climate Control Board','CCU - Thermo Electric Co','Climate Control Board - CCU','Climat Control Board'],default:'CCU - Climate Control Board'},
+      {id:'ccuSuffix',type:'text',label:'Extra',placeholder:'- Ericsson etc.'}
+    ],
+    build:function(v){ var base=v.ccuType||'CCU - Climate Control Board'; var suff=v.ccuSuffix?' '+v.ccuSuffix.trim():''; return base+suff; }
+  },
+  DC_AC:{
+    label:'DC Air Conditioner',
+    fields:[
+      {id:'dcacModel',type:'select',label:'Model',options:['DC Cabinet Air Conditioner - Envicool','DC Cabinet Air Conditioner - ITMC','NAC550D - DC Air Conditioner - Nian','NAC650D - DC Air Conditioner - Nian','NAC1250D - DC Air Conditioner - Nian','NAC2400D - DC Air Conditioner - Nian','NAC3000D - DC Air Conditioner - Nian','NAC3500D - DC Air Conditioner - Nian'],default:'DC Cabinet Air Conditioner - Envicool'},
+      {id:'dcacSuffix',type:'text',label:'Suffix',placeholder:'e.g. - Cooler, - Compressor'}
+    ],
+    build:function(v){ var base=v.dcacModel||'DC Cabinet Air Conditioner - Envicool'; var suff=v.dcacSuffix?' '+v.dcacSuffix.trim():''; return base+suff; }
+  },
+  RECTIFIER:{
+    label:'Rectifier',
+    fields:[
+      {id:'recType',type:'select',label:'Type',options:['RECTIFIER 48VDC3000 - ITMC','Rectifier - Flatpack2 2000W 48V BF','PEC-4860 - Rectifier Porsoo'],default:'RECTIFIER 48VDC3000 - ITMC'},
+      {id:'recSuffix',type:'text',label:'Suffix',placeholder:''}
+    ],
+    build:function(v){ var base=v.recType||'RECTIFIER 48VDC3000 - ITMC'; var suff=v.recSuffix?' '+v.recSuffix.trim():''; return base+suff; }
+  },
+  DCC:{
+    label:'DCC',
+    fields:[
+      {id:'dccType',type:'select',label:'Type',options:['DCC - Porsoo Electronic','DCC - Porsoo Electronic - Cabinet Conditioner'],default:'DCC - Porsoo Electronic'}
+    ],
+    build:function(v){ return v.dccType||'DCC - Porsoo Electronic'; }
+  },
+  PDU:{
+    label:'PDU',
+    fields:[
+      {id:'pduType',type:'text',label:'PDU Type',default:'PDU 01 01',placeholder:'PDU 01 01'}
+    ],
+    build:function(v){ return v.pduType||'PDU 01 01'; }
+  },
+  AIRCOND:{
+    label:'Air Conditioner - ITMC',
+    fields:[
+      {id:'airType',type:'text',label:'Model',default:'Air Conditioner - ITMC',placeholder:'Air Conditioner - ITMC'}
+    ],
+    build:function(v){ return v.airType||'Air Conditioner - ITMC'; }
+  },
+  CONTROLLER:{
+    label:'Controller Unit',
+    fields:[
+      {id:'ctrlType',type:'text',label:'Model',default:'Controller Unit - ITMC',placeholder:'Controller Unit - ITMC'}
+    ],
+    build:function(v){ return v.ctrlType||'Controller Unit - ITMC'; }
+  },
+  SMARTPACK:{
+    label:'Smartpack',
+    fields:[
+      {id:'smartType',type:'text',label:'Model',default:'Smartpack Extended - ELTEK',placeholder:'Smartpack Extended - ELTEK'}
+    ],
+    build:function(v){ return v.smartType||'Smartpack Extended - ELTEK'; }
+  },
+  SCU:{
+    label:'SCU',
+    fields:[
+      {id:'scuType',type:'text',label:'Model',default:'SCU 01 01 - Ericsson',placeholder:'SCU 01 01 - Ericsson'}
+    ],
+    build:function(v){ return v.scuType||'SCU 01 01 - Ericsson'; }
+  },
+  CUSTOM:{
+    label:'Custom',
+    fields:[
+      {id:'customName',type:'text',label:'Full Unit Name',placeholder:'Type exact unit name',required:true}
+    ],
+    build:function(v){ return v.customName||''; }
+  }
+};
+
+// ============================================================
+//  CANONICAL & ALIASES
+// ============================================================
+var ALIAS_MAP = {
+  "BBU CLU":"BBU6102 CLU - Ericsson",
+  "BBU6102 CLU":"BBU6102 CLU - Ericsson",
+  "BBU6102 CLU - ERICSSON":"BBU6102 CLU - Ericsson",
+  "CLU":"CLU - Ericsson",
+  "CLU - ERICSSON":"CLU - Ericsson",
+  "CLU - BBUB102 CLU - Ericsson":"CLU - Ericsson",
+  "Climat Control Board":"CCU - Climate Control Board",
+  "Climat Control Board - Ericsson":"CCU - Climate Control Board",
+  "Climate Control Board - CCU":"CCU - Climate Control Board",
+  "CCU - Climate Control Board":"CCU - Climate Control Board",
+  "Thermo Electric Co - CCU":"CCU - Thermo Electric Co",
+  "DC cabinet air conditioner - Envicool":"DC Cabinet Air Conditioner - Envicool",
+  "DC Cabinet Air Conditioner - Envicool":"DC Cabinet Air Conditioner - Envicool",
+  "DCC-PORSOO ELECTRONIC":"DCC - Porsoo Electronic",
+  "DCC-PORSOO ELECTRONIC - Cabinet Conditioner":"DCC - Porsoo Electronic - Cabinet Conditioner",
+  "PSU AC 03":"PSU AC 03 - Ericsson",
+  "PEC- 4860 - Rectifier Porsoo":"PEC-4860 - Rectifier Porsoo",
+  "PECSU - 2020 - Porsoo":"PECSU-2020 - Porsoo",
+  "NCR48U - Nian":"NCR48U - 3KW - Nian",
+  "NCR48U - NIAN":"NCR48U - 3KW - Nian",
+  "NCR48U 3KW":"NCR48U - 3KW - Nian",
+  "NCR48U - 3KW":"NCR48U - 3KW - Nian"
+};
+function canonicalUnitName(n){ if(!n)return ''; var norm=String(n).replace(/\s+/g,' ').trim(); if(ALIAS_MAP[norm])return ALIAS_MAP[norm]; var low=norm.toLowerCase(); for(var k in ALIAS_MAP){ if(k.toLowerCase()===low)return ALIAS_MAP[k]; } return norm; }
+
+// ============================================================
+//  DYNAMIC FORM
+// ============================================================
+function onFamilyChange(){ var fam=document.getElementById('unitFamily').value; var cfg=FAMILY_CONFIG[fam]; var container=document.getElementById('familyFields'); if(!cfg){container.innerHTML=''; updatePreview(); return;} var html='<div class="fg full"><label>'+cfg.label+' fields</label><div class="unit-structure">'; cfg.fields.forEach(function(f){ var id=f.id; var label=f.label||''; var val=f.default||''; var ph=f.placeholder||''; var req=f.required?' required':''; var input=''; if(f.type==='select'){ input='<select class="field" id="'+id+'" onchange="updatePreview()">'; (f.options||[]).forEach(function(o){ var sel=(o===val)?' selected':''; input+='<option value="'+o+'"'+sel+'>'+o+'</option>'; }); input+='</select>'; }else{ input='<input class="field" id="'+id+'" type="text" value="'+val+'" placeholder="'+ph+'" oninput="updatePreview()"'+req+'>'; } html+='<div><label style="font-size:11px;color:#68758a">'+label+'</label>'+input+'</div>'; }); html+='</div></div>'; container.innerHTML=html; updatePreview(); }
+function getFamilyValues(){ var fam=document.getElementById('unitFamily').value; var cfg=FAMILY_CONFIG[fam]; if(!cfg)return{}; var vals={}; cfg.fields.forEach(function(f){ var el=document.getElementById(f.id); if(el) vals[f.id]=el.value; }); return vals; }
+function buildUnitName(){ var fam=document.getElementById('unitFamily').value; var cfg=FAMILY_CONFIG[fam]; if(!cfg)return''; var vals=getFamilyValues(); var raw=cfg.build(vals); return canonicalUnitName(raw); }
+function updatePreview(){ var name=buildUnitName(); document.getElementById('unitPreview').textContent=name||'Select family and fill fields'; updateOutputText(); }
+function updateOutputText(){ var rec=getCurrentRecord(); var txt=formatRecordText(rec); document.getElementById('copyArea').innerHTML=txt+'<button class="copy-btn" onclick="copyOutput()">📋 Copy</button>'; }
+function getCurrentRecord(){ return { date:document.getElementById('date').value, sc:document.getElementById('sc').value.trim()||'Porsoo', site:document.getElementById('site').value.trim().toUpperCase(), unit:buildUnitName(), fault:document.getElementById('fault').value.trim()||'Faulty', qty:parseInt(document.getElementById('qty').value)||1, sns:document.getElementById('sns').value.split(/[\n,;]+/).map(function(s){return s.trim();}).filter(Boolean), status:document.getElementById('status').value, approver:document.getElementById('approver').value.trim(), notes:document.getElementById('notes').value.trim() }; }
+function formatRecordText(r){ if(!r||!r.unit)return 'Fill in all fields'; var lines=[]; lines.push('SC: '+r.sc); lines.push('Code Site: '+r.site); lines.push('UNIT Name: '+r.unit); lines.push('Fault Affect : '+r.fault); lines.push('QTY: '+r.qty); r.sns.forEach(function(s){ lines.push('SN: '+s); }); if(r.status==='Approved' || r.approver){ lines.push('Approved by '+(r.approver||'Soroush Yaghmouri')); }else if(r.status==='Rejected'){ lines.push('Rejected'); }else{ lines.push('Pending'); } if(r.notes)lines.push('Notes: '+r.notes); return lines.join('\n'); }
+function copyOutput(){ var text=document.getElementById('copyArea').innerText.replace('📋 Copy','').trim(); navigator.clipboard.writeText(text).then(function(){toast('Copied!');}).catch(function(){toast('Copy failed');}); }
+
+// ============================================================
+//  DATA LAYER
+// ============================================================
+var STORAGE_KEY='porsooFaultManager_v6'; var records=[]; var editId=null;
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
+function normalize(r){ return { id:r.id||uid(), date:r.date||'', sc:r.sc||'Porsoo', codeSite:String(r.codeSite||'').trim().toUpperCase(), unitName:canonicalUnitName(r.unitName||''), faultAffect:r.faultAffect||'Faulty', qty:Number(r.qty)||1, serialNumbers:Array.isArray(r.serialNumbers)?r.serialNumbers.map(function(x){return String(x).trim();}).filter(Boolean):String(r.serialNumbers||'').split(/[\n,;]+/).map(function(x){return x.trim();}).filter(Boolean), status:r.status||(r.approved===true?'Approved':'Pending'), approvedBy:r.approvedBy||'', approvedAt:r.approvedAt||'', notes:r.notes||'' }; }
+function load(){ try{ records=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); }catch(e){records=[];} records=records.filter(Boolean).map(normalize); var uniq={}; records.forEach(function(r){ if(!uniq[r.id])uniq[r.id]=r; }); records=Object.values(uniq); records.forEach(function(r){ r.unitName=canonicalUnitName(r.unitName); }); persist(); }
+function persist(){ localStorage.setItem(STORAGE_KEY,JSON.stringify(records)); renderAll(); }
+
+// ============================================================
+//  RENDER HELPERS
+// ============================================================
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
+function formatDate(s){ if(!s)return'—'; var d=new Date(s+'T00:00:00'); return isNaN(d)?s:d.toLocaleDateString('en-GB'); }
+function badge(st){ var cls=st==='Approved'?'approved':st==='Rejected'?'rejected':'pending'; return '<span class="badge '+cls+'">'+esc(st)+'</span>'; }
+
+// ============================================================
+//  RENDER ALL
+// ============================================================
+function stats(){ var q=0,sites=new Set(),types=new Set(),a=0,p=0,rej=0; records.forEach(function(r){ q+=r.qty; if(r.codeSite)sites.add(r.codeSite); if(r.unitName)types.add(r.unitName); if(r.status==='Approved')a++; else if(r.status==='Pending')p++; else if(r.status==='Rejected')rej++; }); return {n:records.length,q:q,s:sites.size,t:types.size,a:a,p:p,r:rej}; }
+function renderAll(){ var x=stats(); var ids=['kRecords','kQty','kSites','kTypes','kApproved','kPending','kRejected']; var vals=[x.n,x.q,x.s,x.t,x.a,x.p,x.r]; for(var i=0;i<ids.length;i++)document.getElementById(ids[i]).textContent=vals[i]; renderDashboard(); renderRecords(); renderApprovals(); renderSites(); renderQuality(); renderReport(); }
+
+function renderDashboard(){ var eqMap={}, siteMap={}; records.forEach(function(r){ var k=r.unitName||'Unknown'; eqMap[k]=(eqMap[k]||0)+r.qty; var s=r.codeSite||'Unknown'; siteMap[s]=(siteMap[s]||0)+r.qty; }); var eq=Object.entries(eqMap).sort(function(a,b){return b[1]-a[1];}).slice(0,10); var site=Object.entries(siteMap).sort(function(a,b){return b[1]-a[1];}).slice(0,10); renderChart('equipmentChart',eq); renderChart('siteChart',site); var recent=records.slice().sort(function(a,b){return b.date.localeCompare(a.date);}).slice(0,7); document.getElementById('recent').innerHTML=recent.map(function(r){return '<div class="item"><span><b>'+esc(r.codeSite)+'</b> — '+esc(r.unitName)+'<br><span class="muted">'+formatDate(r.date)+' • QTY '+r.qty+'</span></span>'+badge(r.status)+'</div>';}).join('')||'<div class="item">No activity</div>'; var dup=duplicateSN(); var alerts=[]; if(!records.length)alerts.push('Database empty'); if(dup.length)alerts.push(dup.length+' duplicate SN groups'); var pend=records.filter(function(r){return r.status==='Pending';}).length; if(pend)alerts.push(pend+' pending approvals'); document.getElementById('alerts').innerHTML=alerts.length?alerts.map(function(x){return '<div class="item">⚠ '+esc(x)+'</div>';}).join(''):'<div class="item ok">✓ All clear</div>'; }
+function renderChart(id,data){ var el=document.getElementById(id); if(!data.length){el.innerHTML='<div class="empty">No data</div>';return;} var max=Math.max.apply(null,data.map(function(x){return x[1];})); el.innerHTML=data.map(function(x){var h=Math.max(15,(x[1]/max)*180); return '<div class="bar" style="height:'+h+'px"><span>'+x[1]+'</span><i>'+esc(String(x[0]).slice(0,14))+'</i></div>';}).join(''); }
+
+// ============================================================
+//  RECORDS
+// ============================================================
+function filtered(){ var q=(document.getElementById('q')?.value||'').toLowerCase().trim(); var site=(document.getElementById('fs')?.value||'').toLowerCase().trim(); var unit=(document.getElementById('fu')?.value||'').toLowerCase().trim(); var st=document.getElementById('fst')?.value||''; var d1=document.getElementById('fd1')?.value||''; var d2=document.getElementById('fd2')?.value||''; return records.filter(function(r){ var haystack=[r.codeSite,r.unitName,r.faultAffect].concat(r.serialNumbers,[r.approvedBy,r.notes]).join(' ').toLowerCase(); if(q&&!haystack.includes(q))return false; if(site&&!r.codeSite.toLowerCase().includes(site))return false; if(unit&&!r.unitName.toLowerCase().includes(unit))return false; if(st&&r.status!==st)return false; if(d1&&r.date<d1)return false; if(d2&&r.date>d2)return false; return true; }); }
+function renderRecords(){ var list=filtered(); var tbody=document.getElementById('tbody'); if(!list.length){tbody.innerHTML='<tr><td colspan="8" class="empty">No records</td></tr>';return;} var html=''; list.forEach(function(r){ html+='<tr><td>'+esc(formatDate(r.date))+'</td><td><b>'+esc(r.codeSite)+'</b></td><td>'+esc(r.unitName)+'</td><td>'+esc(r.faultAffect)+'</td><td>'+r.qty+'</td><td>'+r.serialNumbers.map(function(s){return '<span class="sn">'+esc(s)+'</span>';}).join('')||'—'+'</td><td>'+badge(r.status)+'</td><td><button class="btn" onclick="editRecord(\''+r.id+'\')">✎</button> <button class="btn red" onclick="delRecord(\''+r.id+'\')">✕</button></td></tr>'; }); tbody.innerHTML=html; }
+
+// ============================================================
+//  APPROVALS
+// ============================================================
+function renderApprovals(){ var list=records.filter(function(r){return r.status==='Pending';}); var tbody=document.getElementById('approvals'); if(!list.length){tbody.innerHTML='<tr><td colspan="7" class="empty">No pending</td></tr>';return;} var html=''; list.forEach(function(r){ html+='<tr><td>'+esc(formatDate(r.date))+'</td><td>'+esc(r.codeSite)+'</td><td>'+esc(r.unitName)+'</td><td>'+r.qty+'</td><td>'+esc(r.faultAffect)+'</td><td>'+badge(r.status)+'</td><td><button class="btn green" onclick="decision(\''+r.id+'\',\'Approved\')">✓</button> <button class="btn red" onclick="decision(\''+r.id+'\',\'Rejected\')">✕</button></td></tr>'; }); tbody.innerHTML=html; }
+
+// ============================================================
+//  SITES
+// ============================================================
+function renderSites(){ var map={}; records.forEach(function(r){ if(!map[r.codeSite])map[r.codeSite]={n:0,q:0,t:new Set(),a:0,p:0,last:''}; var x=map[r.codeSite]; x.n++; x.q+=r.qty; if(r.unitName)x.t.add(r.unitName); if(r.status==='Approved')x.a++; if(r.status==='Pending')x.p++; if(!x.last||r.date>x.last)x.last=r.date; }); var entries=Object.entries(map).sort(function(a,b){return b[1].q-a[1].q;}); var tbody=document.getElementById('sitesBody'); if(!entries.length){tbody.innerHTML='<tr><td colspan="8" class="empty">No sites</td></tr>';return;} var html=''; entries.forEach(function(item){ var s=item[0],x=item[1]; html+='<tr><td><b>'+esc(s)+'</b></td><td>'+x.n+'</td><td>'+x.q+'</td><td>'+x.t.size+'</td><td>'+x.a+'</td><td>'+x.p+'</td><td>'+esc(formatDate(x.last))+'</td><td><button class="btn" onclick="siteFilter(\''+esc(s)+'\')">View</button></td></tr>'; }); tbody.innerHTML=html; }
+function siteFilter(s){ showView('records',document.querySelectorAll('.nav button')[1]); document.getElementById('fs').value=s; renderRecords(); }
+
+// ============================================================
+//  QUALITY
+// ============================================================
+function duplicateSN(){ var m={}; records.forEach(function(r){ r.serialNumbers.forEach(function(sn){ if(sn&&sn.toUpperCase()!=='NA'){ if(!m[sn])m[sn]=[]; m[sn].push(r.codeSite); } }); }); return Object.entries(m).filter(function(e){return e[1].length>1;}); }
+function renderQuality(){ var dup=duplicateSN(); document.getElementById('dupSN').innerHTML=dup.length?dup.map(function(e){return '<div class="item"><span><b>'+esc(e[0])+'</b><br><span class="muted">'+esc([...new Set(e[1])].join(', '))+'</span></span><span class="danger">DUPLICATE</span></div>';}).join(''):'<div class="item ok">✓ No duplicates</div>'; var issues=[]; records.forEach(function(r){ if(!r.unitName)issues.push(r.codeSite+': empty Unit'); if(r.serialNumbers.length&&r.serialNumbers.length!==r.qty)issues.push(r.codeSite+': QTY mismatch'); if(!r.serialNumbers.length)issues.push(r.codeSite+': no SN'); if(r.serialNumbers.includes('NA'))issues.push(r.codeSite+': SN marked NA'); }); document.getElementById('qualityList').innerHTML=issues.length?issues.map(function(x){return '<div class="item danger">⚠ '+esc(x)+'</div>';}).join(''):'<div class="item ok">✓ All consistent</div>'; }
+
+// ============================================================
+//  REPORTS
+// ============================================================
+function renderReport(){ var x=stats(); var html='<div class="stats" style="margin-bottom:12px">'+['Requests','Faulty Units','Sites','Approved','Pending','Rejected'].map(function(label,i){ return '<div class="stat"><small>'+label+'</small><b>'+Object.values(x)[i]+'</b></div>'; }).join('')+'</div><h4>Top 10 Sites</h4><div class="tablebox"><table><thead><tr><th>Site</th><th>Units</th><th>Requests</th></tr></thead><tbody>'; var map={}; records.forEach(function(r){ var k=r.codeSite||'Unknown'; map[k]=(map[k]||0)+r.qty; }); var sorted=Object.entries(map).sort(function(a,b){return b[1]-a[1];}).slice(0,10); sorted.forEach(function(item){ var s=item[0],q=item[1]; var cnt=records.filter(function(r){return r.codeSite===s;}).length; html+='<tr><td>'+esc(s)+'</td><td>'+q+'</td><td>'+cnt+'</td></tr>'; }); html+='</tbody></table></div>'; document.getElementById('reportContent').innerHTML=html; }
+
+// ============================================================
+//  CRUD
+// ============================================================
+function openAdd(){ editId=null; document.getElementById('form').reset(); document.getElementById('eid').value=''; document.getElementById('date').value=new Date().toISOString().slice(0,10); document.getElementById('sc').value='Porsoo'; document.getElementById('fault').value='Faulty'; document.getElementById('status').value='Pending'; document.getElementById('qty').value=1; document.getElementById('unitFamily').value=''; document.getElementById('familyFields').innerHTML=''; document.getElementById('unitPreview').textContent='Select family and fill fields'; document.getElementById('copyArea').innerHTML='Output will appear here<button class="copy-btn" onclick="copyOutput()">📋 Copy</button>'; document.getElementById('mtitle').textContent='New Fault'; document.getElementById('modalbg').classList.add('on'); }
+function editRecord(id){ var r=records.find(function(x){return x.id===id;}); if(!r)return; editId=id; document.getElementById('eid').value=id; document.getElementById('date').value=r.date||''; document.getElementById('sc').value=r.sc||'Porsoo'; document.getElementById('site').value=r.codeSite||''; document.getElementById('fault').value=r.faultAffect||'Faulty'; document.getElementById('qty').value=r.qty||1; document.getElementById('sns').value=(r.serialNumbers||[]).join('\n'); document.getElementById('status').value=r.status||'Pending'; document.getElementById('approver').value=r.approvedBy||''; document.getElementById('notes').value=r.notes||''; document.getElementById('unitFamily').value='CUSTOM'; document.getElementById('familyFields').innerHTML='<div class="fg full"><label>Custom Unit</label><input class="field" id="customName" value="'+esc(r.unitName)+'" placeholder="Exact unit name" oninput="updatePreview()"></div>'; updatePreview(); document.getElementById('mtitle').textContent='Edit Fault'; document.getElementById('modalbg').classList.add('on'); }
+function closeModal(){ document.getElementById('modalbg').classList.remove('on'); }
+function saveRecord(e){ e.preventDefault(); var unitName=buildUnitName(); if(!unitName){toast('Select a family and fill fields.');return;} var id=document.getElementById('eid').value; var record={ id:id||uid(), date:document.getElementById('date').value, sc:document.getElementById('sc').value.trim()||'Porsoo', codeSite:document.getElementById('site').value.trim().toUpperCase(), unitName:unitName, faultAffect:document.getElementById('fault').value.trim()||'Faulty', qty:Number(document.getElementById('qty').value)||1, serialNumbers:document.getElementById('sns').value.split(/[\n,;]+/).map(function(x){return x.trim();}).filter(Boolean), status:document.getElementById('status').value, approvedBy:document.getElementById('approver').value.trim(), approvedAt:'', notes:document.getElementById('notes').value.trim() }; if(record.status==='Approved'&&!record.approvedBy)record.approvedBy='Soroush Yaghmouri'; if(record.status==='Approved')record.approvedAt=new Date().toISOString(); var idx=records.findIndex(function(r){return r.id===record.id;}); if(idx>=0)records[idx]=record; else records.push(record); persist(); closeModal(); toast(idx>=0?'Updated':'Saved'); }
+function decision(id,st){ var r=records.find(function(x){return x.id===id;}); if(!r)return; r.status=st; r.approvedBy=st==='Approved'?(r.approvedBy||'Soroush Yaghmouri'):''; r.approvedAt=new Date().toISOString(); persist(); toast(st==='Approved'?'Approved':'Rejected'); }
+function delRecord(id){ if(!confirm('Delete?'))return; records=records.filter(function(r){return r.id!==id;}); persist(); toast('Deleted'); }
+function clearFilters(){ ['q','fs','fu','fst','fd1','fd2'].forEach(function(id){ var el=document.getElementById(id); if(el)el.value=''; }); renderRecords(); }
+
+// ============================================================
+//  VIEW SWITCH
+// ============================================================
+function showView(id,btn){ document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');}); document.getElementById(id).classList.add('active'); document.querySelectorAll('.nav button').forEach(function(b){b.classList.remove('active');}); if(btn)btn.classList.add('active'); renderAll(); }
+
+// ============================================================
+//  EXPORT / IMPORT
+// ============================================================
+function exportJSON(){ if(!records.length)return toast('No data'); download(JSON.stringify(records,null,2),'porsoo_backup.json','application/json'); toast('Backup'); }
+function importJSON(e){ var f=e.target.files[0]; if(!f)return; var rd=new FileReader(); rd.onload=function(){ try{ var data=JSON.parse(rd.result); if(!Array.isArray(data))throw Error('Invalid'); var added=0; data.forEach(function(item){ var r=normalize(item); var idx=records.findIndex(function(x){return x.id===r.id;}); if(idx>=0)records[idx]=r; else{records.push(r);added++;} }); persist(); toast(added+' imported'); }catch(err){toast('Import failed');} }; rd.readAsText(f); e.target.value=''; }
+function exportCSV(){ if(!records.length)return toast('No data'); var h=['Date','SC','CodeSite','UnitName','FaultAffect','QTY','SerialNumbers','Status','ApprovedBy','Notes']; var rows=records.map(function(r){ return [r.date,r.sc,r.codeSite,r.unitName,r.faultAffect,r.qty,r.serialNumbers.join('; '),r.status,r.approvedBy,r.notes]; }); var csv='\ufeff'+[h].concat(rows).map(function(row){ return row.map(function(cell){ return '"'+String(cell==null?'':cell).replace(/"/g,'""')+'"'; }).join(','); }).join('\n'); download(csv,'porsoo_report.csv','text/csv;charset=utf-8'); toast('CSV exported'); }
+function download(content,filename,mime){ var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([content],{type:mime})); a.download=filename; a.click(); setTimeout(function(){URL.revokeObjectURL(a.href);},500); }
+function printReport(){ var w=window.open('','_blank'); w.document.write('<html><head><title>Report</title><style>body{font-family:Arial;padding:25px}table{width:100%;border-collapse:collapse}td,th{border:1px solid #ccc;padding:7px;text-align:left}</style></head><body><h1>Porsoo Fault Report</h1>'+document.getElementById('reportContent').innerHTML+'</body></html>'); w.document.close(); w.print(); }
+
+// ============================================================
+//  TOAST
+// ============================================================
+function toast(msg){ var el=document.getElementById('toast'); el.textContent=msg; el.style.display='block'; clearTimeout(window._tt); window._tt=setTimeout(function(){el.style.display='none';},2800); }
+
+// ============================================================
+//  INIT
+// ============================================================
+document.getElementById('modalbg').addEventListener('click',function(e){if(e.target.id==='modalbg')closeModal();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
+load();
+</script>
+</body>
+</html>
