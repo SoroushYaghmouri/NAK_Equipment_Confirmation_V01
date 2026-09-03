@@ -1,448 +1,873 @@
+Files
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-<title>Porsoo Fault Manager · v8</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b0f19">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Porsoo Fault Manager v8</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
-/* ─── CSS Variables (Grafana Dark · Light) ─── */
+/* ═══════════════════════════════════════════════════════════
+   PORSOO FAULT MANAGER v8 — Mobile-First Upgrade
+   ═══════════════════════════════════════════════════════════ */
 :root {
   --bg-primary: #0b0f19;
-  --bg-secondary: #141b2b;
+  --bg-secondary: #121826;
   --bg-card: #1a2332;
   --bg-input: #1e2a3a;
-  --border-color: #2a3a52;
-  --text-primary: #e5e9f0;
-  --text-secondary: #8a9bb5;
-  --text-muted: #5a6f8a;
-  --accent-blue: #3b82f6;
-  --accent-green: #22c55e;
-  --accent-red: #ef4444;
-  --accent-yellow: #eab308;
-  --accent-purple: #8b5cf6;
-  --shadow: 0 4px 24px rgba(0,0,0,0.4);
-  --radius: 12px;
-  --transition: 0.2s ease;
+  --bg-elevated: #222d3f;
+  --border: #2a3a52;
+  --border-light: #364960;
+  --text: #e8edf5;
+  --text-sec: #9aabc4;
+  --text-muted: #6b7f9a;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --green: #22c55e;
+  --red: #ef4444;
+  --yellow: #eab308;
+  --purple: #8b5cf6;
+  --shadow: 0 4px 20px rgba(0,0,0,.35);
+  --radius: 14px;
+  --radius-sm: 10px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --nav-h: 64px;
+  --header-h: 56px;
+  --transition: .2s ease;
+  --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
+
 [data-theme="light"] {
-  --bg-primary: #f0f2f5;
+  --bg-primary: #f0f2f7;
   --bg-secondary: #ffffff;
   --bg-card: #ffffff;
   --bg-input: #f4f6f9;
-  --border-color: #dce0e8;
-  --text-primary: #1a2332;
-  --text-secondary: #4a5a74;
-  --text-muted: #8a9bb5;
-  --shadow: 0 4px 20px rgba(0,0,0,0.08);
+  --bg-elevated: #eef1f6;
+  --border: #d8dee8;
+  --border-light: #c5cedb;
+  --text: #1a2332;
+  --text-sec: #4a5a74;
+  --text-muted: #7a8ba3;
+  --shadow: 0 4px 16px rgba(0,0,0,.08);
 }
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg-primary);color:var(--text-primary);font-family:'Segoe UI','Inter',system-ui,sans-serif;font-size:14px;line-height:1.5;padding:8px;transition:background var(--transition),color var(--transition);min-height:100vh}
-.app{max-width:1200px;margin:0 auto}
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-track{background:var(--bg-secondary);border-radius:10px}
-::-webkit-scrollbar-thumb{background:var(--accent-blue);border-radius:10px}
-.top{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center;background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius);padding:12px 16px;box-shadow:var(--shadow);margin-bottom:10px}
-.brand{display:flex;align-items:center;gap:8px}
-.brand .logo{width:36px;height:36px;background:linear-gradient(135deg,var(--accent-blue),var(--accent-purple));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;font-weight:700}
-.brand h1{font-size:18px;font-weight:700}
-.brand h1 small{font-size:11px;font-weight:400;color:var(--text-secondary)}
-.brand p{font-size:11px;color:var(--text-muted);margin-top:-2px}
-.actions{display:flex;gap:5px;flex-wrap:wrap}
-.btn{border:0;border-radius:8px;padding:8px 12px;cursor:pointer;font-weight:600;font-size:12px;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border-color);transition:all var(--transition);touch-action:manipulation;display:inline-flex;align-items:center;gap:4px}
-.btn:active{transform:scale(.95)}
-.btn-primary{background:var(--accent-blue);color:#fff;border-color:var(--accent-blue)}
-.btn-primary:hover{filter:brightness(1.1)}
-.btn-green{background:var(--accent-green);color:#fff;border-color:var(--accent-green)}
-.btn-red{background:var(--accent-red);color:#fff;border-color:var(--accent-red)}
-.btn-outline{background:transparent;border-color:var(--border-color)}
-.btn-outline:hover{background:var(--bg-input)}
-.btn-sm{padding:5px 10px;font-size:11px}
-.btn-xs{padding:2px 8px;font-size:10px;border-radius:6px}
-.nav{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius);padding:6px;box-shadow:var(--shadow)}
-.nav button{flex:1;border:0;background:transparent;padding:8px 10px;border-radius:8px;cursor:pointer;font-weight:600;color:var(--text-secondary);font-size:12px;transition:all var(--transition);touch-action:manipulation;min-width:44px;text-align:center}
-.nav button:hover{color:var(--text-primary);background:var(--bg-input)}
-.nav button.active{background:var(--accent-blue);color:#fff}
-.view{display:none}.view.active{display:block}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:6px;margin-bottom:10px}
-.stat{background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius);padding:8px 10px;text-align:center;box-shadow:var(--shadow)}
-.stat small{display:block;font-size:10px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.3px}
-.stat b{display:block;font-size:20px;margin-top:2px;font-weight:700}
-.panel{background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius);padding:12px;box-shadow:var(--shadow);margin-bottom:10px}
-.panel h3{font-size:14px;margin:0 0 8px;display:flex;align-items:center;gap:6px;color:var(--text-primary)}
-.panel .panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:4px}
-.chart-container{position:relative;height:180px;width:100%}
-.chart-container canvas{width:100%!important;height:100%!important}
-.filters{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.filters .full{grid-column:1/-1}
-.field{width:100%;padding:8px 10px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-input);color:var(--text-primary);font-size:13px;outline:none;transition:border var(--transition)}
-.field:focus{border-color:var(--accent-blue);box-shadow:0 0 0 3px rgba(59,130,246,0.15)}
-.field::placeholder{color:var(--text-muted)}
-.field option{background:var(--bg-card);color:var(--text-primary)}
-textarea.field{font-family:monospace;font-size:12px;resize:vertical}
-.tablebox{overflow-x:auto;border:1px solid var(--border-color);border-radius:8px;-webkit-overflow-scrolling:touch}
-table{width:100%;border-collapse:collapse;font-size:12px;min-width:600px}
-th,td{padding:6px 8px;border-bottom:1px solid var(--border-color);text-align:left;vertical-align:middle}
-th{background:var(--bg-secondary);color:var(--text-secondary);font-weight:600;font-size:11px;position:sticky;top:0;z-index:2}
-tr:hover td{background:var(--bg-input)}
-.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-weight:600;font-size:10px}
-.badge.approved{background:rgba(34,197,94,.2);color:var(--accent-green)}
-.badge.pending{background:rgba(234,179,8,.2);color:var(--accent-yellow)}
-.badge.rejected{background:rgba(239,68,68,.2);color:var(--accent-red)}
-.sn-tag{display:inline-block;background:var(--bg-input);border-radius:4px;padding:1px 6px;margin:1px;font-family:monospace;font-size:10px;border:1px solid var(--border-color)}
-.modalbg{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:8px;z-index:100}
-.modalbg.on{display:flex}
-.modal{background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius);width:100%;max-width:640px;max-height:95vh;overflow-y:auto;padding:16px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
-.modal h2{font-size:18px;margin:0 0 4px;color:var(--text-primary)}
-.modal .sub{color:var(--text-muted);font-size:12px;margin-bottom:12px}
-.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.fg{margin-bottom:4px}
-.fg label{display:block;font-weight:600;font-size:12px;color:var(--text-secondary);margin-bottom:2px}
-.full{grid-column:1/-1}
-.unit-preview{background:var(--bg-input);padding:8px 12px;border-radius:8px;border:1px solid var(--accent-blue);color:var(--accent-blue);font-weight:600;margin:6px 0;font-size:13px;word-break:break-word}
-.copy-area{background:var(--bg-input);border:1px solid var(--border-color);border-radius:8px;padding:10px;font-family:monospace;font-size:12px;white-space:pre-wrap;word-break:break-all;position:relative;margin-top:8px;color:var(--text-primary);min-height:60px}
-.copy-btn{position:absolute;right:4px;top:4px;background:var(--accent-blue);color:#fff;border:0;border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer}
-.modalfoot{display:flex;gap:6px;justify-content:flex-end;border-top:1px solid var(--border-color);padding-top:10px;margin-top:8px}
-.modalfoot .btn{flex:1;text-align:center;padding:10px;font-size:13px}
-.unit-structure{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px}
-.unit-structure .field{font-size:13px;padding:6px 8px}
-.list{display:grid;gap:6px}
-.item{padding:8px 10px;border:1px solid var(--border-color);border-radius:8px;display:flex;justify-content:space-between;align-items:center;gap:6px;background:var(--bg-secondary)}
-.item .muted{font-size:11px;color:var(--text-muted)}
-.item .actions{display:flex;gap:4px}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--bg-card);border:1px solid var(--accent-blue);color:var(--text-primary);padding:10px 18px;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.4);font-weight:500;display:none;z-index:200;max-width:92%;text-align:center;font-size:13px}
-.theme-toggle{background:var(--bg-input);border:1px solid var(--border-color);border-radius:8px;padding:6px 10px;cursor:pointer;color:var(--text-primary);font-size:16px;display:flex;align-items:center;gap:4px}
-@media(max-width:600px){
-  .top{flex-direction:column;align-items:stretch;gap:6px;padding:10px 12px}
-  .brand h1{font-size:16px}
-  .brand .logo{width:30px;height:30px;font-size:16px}
-  .actions{justify-content:center}
-  .actions .btn{font-size:11px;padding:6px 10px}
-  .stats{grid-template-columns:repeat(3,1fr)}
-  .stats .stat b{font-size:17px}
-  .stats .stat{padding:6px 8px}
-  .filters{grid-template-columns:1fr}
-  .formgrid{grid-template-columns:1fr}
-  .full{grid-column:auto}
-  .unit-structure{grid-template-columns:1fr 1fr}
-  .modal{padding:12px;max-width:100%}
-  .nav button{font-size:10px;padding:6px 6px;min-width:40px}
-  .panel{padding:10px}
-  .chart-container{height:140px}
-  table{font-size:11px;min-width:480px}
-  th,td{padding:4px 6px}
-  .btn-sm{padding:4px 6px;font-size:10px}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: 100%; -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--bg-primary);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.45;
+  min-height: 100%;
+  min-height: 100dvh;
+  padding: 0;
+  padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 8px);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: contain;
+  touch-action: manipulation;
 }
-@media(max-width:400px){
-  .stats{grid-template-columns:repeat(2,1fr)}
-  .unit-structure{grid-template-columns:1fr}
-  .brand h1{font-size:14px}
+button, input, select, textarea { font-family: inherit; font-size: inherit; }
+button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+a { color: inherit; text-decoration: none; }
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+
+/* ─── App Shell ─── */
+.app { max-width: 640px; margin: 0 auto; position: relative; }
+
+/* ─── Header (sticky) ─── */
+.header {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 12px;
+  padding-top: max(10px, env(safe-area-inset-top));
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  box-shadow: var(--shadow);
 }
+.brand { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.logo {
+  width: 36px; height: 36px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  font-size: 18px; color: #fff; font-weight: 700;
+}
+.brand-text h1 { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.brand-text p { font-size: 10px; color: var(--text-muted); margin-top: -1px; }
+.header-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.icon-btn {
+  width: 40px; height: 40px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--bg-input);
+  color: var(--text); display: flex; align-items: center; justify-content: center;
+  font-size: 18px; transition: all var(--transition);
+}
+.icon-btn:active { transform: scale(.92); background: var(--bg-elevated); }
+.icon-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ─── Bottom Nav ─── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 60;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border);
+  padding: 6px 4px calc(6px + var(--safe-bottom));
+  display: flex; justify-content: space-around; align-items: center;
+  box-shadow: 0 -4px 20px rgba(0,0,0,.25);
+  max-width: 640px; margin: 0 auto;
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 6px 2px; border: 0; background: transparent; color: var(--text-muted);
+  font-size: 10px; font-weight: 600; border-radius: 10px;
+  transition: all var(--transition); min-width: 0;
+}
+.nav-item span.icon { font-size: 20px; line-height: 1; }
+.nav-item.active { color: var(--accent); background: rgba(59,130,246,.12); }
+.nav-item:active { transform: scale(.95); }
+
+/* ─── Views ─── */
+.view { display: none; padding: 10px 10px 16px; animation: fadeIn .2s ease; }
+.view.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* ─── Stats ─── */
+.stats {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px;
+}
+.stat {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 8px 4px; text-align: center; box-shadow: var(--shadow);
+}
+.stat small { display: block; font-size: 9px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: .2px; }
+.stat b { display: block; font-size: 16px; font-weight: 700; margin-top: 2px; }
+.stat.green b { color: var(--green); }
+.stat.yellow b { color: var(--yellow); }
+.stat.red b { color: var(--red); }
+
+/* ─── Panels ─── */
+.panel {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 12px; margin-bottom: 10px; box-shadow: var(--shadow);
+}
+.panel-title {
+  font-size: 13px; font-weight: 700; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px; color: var(--text);
+}
+.panel-title .count {
+  background: var(--bg-input); color: var(--text-sec); font-size: 11px;
+  padding: 2px 7px; border-radius: 20px; font-weight: 600;
+}
+
+/* ─── Charts ─── */
+.chart-wrap { position: relative; height: 160px; width: 100%; }
+.chart-wrap canvas { width: 100% !important; height: 100% !important; }
+
+/* ─── Filters ─── */
+.filters { display: flex; flex-direction: column; gap: 6px; }
+.filter-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.field {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px;
+  background: var(--bg-input); color: var(--text); font-size: 14px; outline: none;
+  transition: border var(--transition); -webkit-appearance: none;
+}
+.field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,.18); }
+.field::placeholder { color: var(--text-muted); }
+select.field { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239aabc4' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: left 12px center; padding-left: 28px; }
+
+/* ─── Cards (mobile-friendly records) ─── */
+.card-list { display: flex; flex-direction: column; gap: 8px; }
+.card {
+  background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 12px; display: flex; flex-direction: column; gap: 6px;
+  transition: border-color var(--transition);
+}
+.card:active { border-color: var(--accent); }
+.card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.card-site { font-weight: 700; font-size: 14px; }
+.card-unit { font-size: 12px; color: var(--text-sec); line-height: 1.3; word-break: break-word; }
+.card-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 11px; color: var(--text-muted); }
+.card-actions { display: flex; gap: 6px; margin-top: 4px; }
+.sn-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.sn-tag {
+  background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px;
+  padding: 2px 6px; font-family: ui-monospace, monospace; font-size: 10px;
+}
+
+/* ─── Badge ─── */
+.badge {
+  display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 20px;
+  font-weight: 600; font-size: 10px; white-space: nowrap;
+}
+.badge.approved { background: rgba(34,197,94,.18); color: var(--green); }
+.badge.pending { background: rgba(234,179,8,.18); color: var(--yellow); }
+.badge.rejected { background: rgba(239,68,68,.18); color: var(--red); }
+
+/* ─── Buttons ─── */
+.btn {
+  border: 0; border-radius: 10px; padding: 10px 14px; font-weight: 600; font-size: 13px;
+  background: var(--bg-input); color: var(--text); border: 1px solid var(--border);
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  transition: all var(--transition); min-height: 42px;
+}
+.btn:active { transform: scale(.96); }
+.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-primary:active { background: var(--accent-hover); }
+.btn-green { background: var(--green); color: #fff; border-color: var(--green); }
+.btn-red { background: var(--red); color: #fff; border-color: var(--red); }
+.btn-outline { background: transparent; }
+.btn-sm { padding: 7px 10px; font-size: 12px; min-height: 34px; border-radius: 8px; }
+.btn-block { width: 100%; }
+.btn-row { display: flex; gap: 6px; }
+.btn-row .btn { flex: 1; }
+
+/* ─── Empty / List items ─── */
+.empty-state {
+  text-align: center; padding: 28px 16px; color: var(--text-muted); font-size: 13px;
+}
+.empty-state .icon { font-size: 36px; margin-bottom: 8px; opacity: .6; }
+.list-item {
+  padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px;
+  background: var(--bg-secondary); display: flex; justify-content: space-between;
+  align-items: center; gap: 8px; margin-bottom: 6px;
+}
+.list-item .muted { font-size: 11px; color: var(--text-muted); }
+
+/* ─── Modal (full-screen friendly) ─── */
+.modal-bg {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(0,0,0,.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  display: none; align-items: flex-end; justify-content: center;
+  padding: 0; overscroll-behavior: contain;
+}
+.modal-bg.on { display: flex; }
+.modal {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 20px 20px 0 0; width: 100%; max-width: 640px;
+  max-height: 92dvh; overflow-y: auto; padding: 16px 14px calc(16px + var(--safe-bottom));
+  box-shadow: 0 -10px 40px rgba(0,0,0,.4); animation: slideUp .25s ease;
+}
+@keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+.modal-handle {
+  width: 40px; height: 4px; background: var(--border-light); border-radius: 4px;
+  margin: 0 auto 12px;
+}
+.modal h2 { font-size: 17px; margin-bottom: 2px; }
+.modal .sub { color: var(--text-muted); font-size: 12px; margin-bottom: 14px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fg { display: flex; flex-direction: column; gap: 4px; }
+.fg.full { grid-column: 1 / -1; }
+.fg label { font-size: 11px; font-weight: 600; color: var(--text-sec); }
+.textarea { min-height: 70px; resize: vertical; font-family: ui-monospace, monospace; font-size: 13px; }
+.unit-preview {
+  background: rgba(59,130,246,.1); border: 1px solid var(--accent); color: var(--accent);
+  padding: 10px 12px; border-radius: 10px; font-weight: 600; font-size: 13px;
+  word-break: break-word; margin: 8px 0;
+}
+.copy-area {
+  background: var(--bg-input); border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px; font-family: ui-monospace, monospace; font-size: 12px;
+  white-space: pre-wrap; word-break: break-all; position: relative; margin-top: 8px;
+  color: var(--text); line-height: 1.5;
+}
+.copy-btn {
+  position: absolute; left: 6px; top: 6px;
+  background: var(--accent); color: #fff; border: 0; border-radius: 8px;
+  padding: 5px 10px; font-size: 11px; font-weight: 600;
+}
+.modal-foot {
+  display: flex; gap: 8px; margin-top: 14px; padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.modal-foot .btn { flex: 1; min-height: 46px; font-size: 14px; }
+.unit-structure { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
+.unit-structure .field { font-size: 13px; padding: 8px 10px; }
+
+/* ─── Toast ─── */
+.toast {
+  position: fixed; bottom: calc(var(--nav-h) + var(--safe-bottom) + 16px);
+  left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--bg-elevated); border: 1px solid var(--accent);
+  color: var(--text); padding: 12px 20px; border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0,0,0,.4); font-weight: 500; font-size: 13px;
+  z-index: 200; max-width: 90%; text-align: center; opacity: 0;
+  pointer-events: none; transition: all .25s ease;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ─── Table (desktop fallback) ─── */
+.table-box { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; -webkit-overflow-scrolling: touch; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 520px; }
+th, td { padding: 8px; border-bottom: 1px solid var(--border); text-align: right; vertical-align: middle; }
+th { background: var(--bg-secondary); color: var(--text-sec); font-weight: 600; font-size: 11px; position: sticky; top: 0; }
+
+/* ─── Import text area ─── */
+.import-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; line-height: 1.4; }
+
+/* ─── Desktop tweaks ─── */
+@media (min-width: 641px) {
+  body { padding-bottom: 20px; }
+  .bottom-nav { display: none; }
+  .app { max-width: 900px; }
+  .header { border-radius: 0 0 14px 14px; margin: 0 8px; }
+  .view { padding: 12px 12px 24px; }
+  .stats { grid-template-columns: repeat(7, 1fr); }
+  .stat b { font-size: 18px; }
+  .chart-wrap { height: 200px; }
+  .modal-bg { align-items: center; padding: 16px; }
+  .modal { border-radius: var(--radius); max-height: 90vh; }
+  .modal-handle { display: none; }
+  .desktop-nav {
+    display: flex; gap: 4px; background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 6px; margin: 10px 12px 0; box-shadow: var(--shadow);
+  }
+  .desktop-nav button {
+    flex: 1; border: 0; background: transparent; padding: 10px; border-radius: 10px;
+    cursor: pointer; font-weight: 600; color: var(--text-sec); font-size: 12px;
+  }
+  .desktop-nav button.active { background: var(--accent); color: #fff; }
+}
+@media (max-width: 640px) {
+  .desktop-nav { display: none; }
+  .hide-mobile { display: none !important; }
+  .show-mobile { display: block !important; }
+  .form-grid { grid-template-columns: 1fr; }
+  .unit-structure { grid-template-columns: 1fr; }
+  .stats { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 380px) {
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .stat b { font-size: 15px; }
+  .nav-item { font-size: 9px; }
+  .nav-item span.icon { font-size: 18px; }
+}
+
+/* ─── Utility ─── */
+.flex { display: flex; } .gap-6 { gap: 6px; } .mt-8 { margin-top: 8px; }
+.text-muted { color: var(--text-muted); } .fw-700 { font-weight: 700; }
 </style>
 </head>
 <body>
 <div class="app">
 
-<header class="top">
+<!-- ════════ HEADER ════════ -->
+<header class="header">
   <div class="brand">
     <div class="logo">⚡</div>
-    <div><h1>Porsoo Fault <small>v8</small></h1><p>Smart Equipment Fault Manager</p></div>
+    <div class="brand-text">
+      <h1>Porsoo Fault <small style="font-weight:400;opacity:.7">v8</small></h1>
+      <p>مدیریت هوشمند خرابی تجهیزات</p>
+    </div>
   </div>
-  <div class="actions">
-    <button class="btn theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙</button>
-    <button class="btn btn-primary" onclick="openAdd()">＋ New</button>
-    <button class="btn" onclick="document.getElementById('jsonFile').click()">📤</button><input id="jsonFile" type="file" accept=".json" hidden onchange="importJSON(event)">
-    <button class="btn" onclick="exportJSON()">💾</button>
-    <button class="btn" onclick="exportCSV()">📊</button>
+  <div class="header-actions">
+    <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="تم">🌙</button>
+    <button class="icon-btn primary" onclick="openAdd()" title="جدید">＋</button>
   </div>
 </header>
 
-<nav class="nav">
-  <button class="active" onclick="showView('dashboard',this)">📊</button>
-  <button onclick="showView('records',this)">📋</button>
-  <button onclick="showView('approval',this)">✅</button>
-  <button onclick="showView('sites',this)">📍</button>
-  <button onclick="showView('quality',this)">⚠</button>
-  <button onclick="showView('reports',this)">📑</button>
-  <button onclick="showView('importtext',this)">📥</button>
+<!-- Desktop nav (hidden on mobile) -->
+<nav class="desktop-nav">
+  <button class="active" data-view="dashboard" onclick="showView('dashboard',this)">📊 داشبورد</button>
+  <button data-view="records" onclick="showView('records',this)">📋 سوابق</button>
+  <button data-view="approval" onclick="showView('approval',this)">✅ تأیید</button>
+  <button data-view="sites" onclick="showView('sites',this)">📍 سایت‌ها</button>
+  <button data-view="quality" onclick="showView('quality',this)">⚠ کیفیت</button>
+  <button data-view="reports" onclick="showView('reports',this)">📑 گزارش</button>
+  <button data-view="importtext" onclick="showView('importtext',this)">📥 وارد کردن</button>
 </nav>
 
-<!-- DASHBOARD -->
+<!-- ════════ DASHBOARD ════════ -->
 <section id="dashboard" class="view active">
   <div class="stats" id="statsContainer">
-    <div class="stat"><small>Requests</small><b id="kRecords">0</b></div>
-    <div class="stat"><small>Faulty QTY</small><b id="kQty">0</b></div>
-    <div class="stat"><small>Sites</small><b id="kSites">0</b></div>
-    <div class="stat"><small>Unit Types</small><b id="kTypes">0</b></div>
-    <div class="stat"><small>Approved</small><b id="kApproved">0</b></div>
-    <div class="stat"><small>Pending</small><b id="kPending">0</b></div>
-    <div class="stat"><small>Rejected</small><b id="kRejected">0</b></div>
+    <div class="stat"><small>درخواست</small><b id="kRecords">0</b></div>
+    <div class="stat"><small>تعداد</small><b id="kQty">0</b></div>
+    <div class="stat"><small>سایت</small><b id="kSites">0</b></div>
+    <div class="stat"><small>نوع</small><b id="kTypes">0</b></div>
+    <div class="stat green"><small>تأیید</small><b id="kApproved">0</b></div>
+    <div class="stat yellow"><small>در انتظار</small><b id="kPending">0</b></div>
+    <div class="stat red"><small>رد</small><b id="kRejected">0</b></div>
   </div>
-  <div class="panel"><div class="panel-header"><h3>📈 Top Faulty Equipment</h3></div><div class="chart-container"><canvas id="equipmentChart"></canvas></div></div>
-  <div class="panel"><div class="panel-header"><h3>📊 Top Sites by Faulty QTY</h3></div><div class="chart-container"><canvas id="siteChart"></canvas></div></div>
-  <div class="panel"><div class="panel-header"><h3>🔄 Status Distribution</h3></div><div class="chart-container"><canvas id="statusChart"></canvas></div></div>
-  <div class="panel"><h3>🕐 Recent Activity</h3><div id="recent" class="list"></div></div>
-  <div class="panel"><h3>🔔 Alerts</h3><div id="alerts" class="list"></div></div>
+
+  <div class="panel">
+    <div class="panel-title">📈 تجهیزات پرتکرار</div>
+    <div class="chart-wrap"><canvas id="equipmentChart"></canvas></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">📊 سایت‌های پرخرابی</div>
+    <div class="chart-wrap"><canvas id="siteChart"></canvas></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">🔄 وضعیت‌ها</div>
+    <div class="chart-wrap"><canvas id="statusChart"></canvas></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">🕐 آخرین فعالیت‌ها</div>
+    <div id="recent" class="card-list"></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">🔔 هشدارها</div>
+    <div id="alerts"></div>
+  </div>
 </section>
 
-<!-- RECORDS -->
+<!-- ════════ RECORDS ════════ -->
 <section id="records" class="view">
   <div class="panel">
-    <div class="panel-header"><h3>📋 Fault Records</h3></div>
+    <div class="panel-title">🔍 فیلتر و جستجو</div>
     <div class="filters">
-      <input class="field full" id="q" placeholder="🔍 Search..." oninput="renderAll()">
-      <input class="field" id="fs" placeholder="Site" oninput="renderAll()">
-      <input class="field" id="fu" placeholder="Unit" oninput="renderAll()">
-      <select class="field" id="fst" onchange="renderAll()"><option value="">Status</option><option>Approved</option><option>Pending</option><option>Rejected</option></select>
-      <input class="field" id="fd1" type="date" onchange="renderAll()" placeholder="From">
-      <input class="field" id="fd2" type="date" onchange="renderAll()" placeholder="To">
-      <button class="btn btn-outline full" onclick="clearFilters()">✕ Clear</button>
+      <input class="field" id="q" placeholder="جستجو در همه فیلدها..." oninput="debounceRender()">
+      <div class="filter-row">
+        <input class="field" id="fs" placeholder="سایت" oninput="debounceRender()">
+        <input class="field" id="fu" placeholder="یونیت" oninput="debounceRender()">
+      </div>
+      <div class="filter-row">
+        <select class="field" id="fst" onchange="renderAll()">
+          <option value="">همه وضعیت‌ها</option>
+          <option>Approved</option>
+          <option>Pending</option>
+          <option>Rejected</option>
+        </select>
+        <button class="btn btn-outline btn-sm" onclick="clearFilters()">✕ پاک کردن</button>
+      </div>
+      <div class="filter-row">
+        <input class="field" id="fd1" type="date" onchange="renderAll()">
+        <input class="field" id="fd2" type="date" onchange="renderAll()">
+      </div>
     </div>
   </div>
-  <div class="panel"><div class="tablebox"><table><thead><tr><th>Date</th><th>Site</th><th>Unit</th><th>Fault</th><th>QTY</th><th>SN</th><th>Status</th><th>Actions</th></tr></thead><tbody id="tbody"></tbody></table></div></div>
+  <div class="panel">
+    <div class="panel-title">📋 سوابق خرابی <span class="count" id="recordsCount">0</span></div>
+    <div id="recordsList" class="card-list"></div>
+  </div>
 </section>
 
-<!-- APPROVAL -->
+<!-- ════════ APPROVAL ════════ -->
 <section id="approval" class="view">
-  <div class="panel"><div class="panel-header"><h3>✅ Approval Center</h3></div><div class="tablebox"><table><thead><tr><th>Date</th><th>Site</th><th>Unit</th><th>QTY</th><th>Fault</th><th>Status</th><th>Action</th></tr></thead><tbody id="approvals"></tbody></table></div></div>
+  <div class="panel">
+    <div class="panel-title">✅ مرکز تأیید <span class="count" id="pendingCount">0</span></div>
+    <div id="approvalsList" class="card-list"></div>
+  </div>
 </section>
 
-<!-- SITES -->
+<!-- ════════ SITES ════════ -->
 <section id="sites" class="view">
   <div class="panel">
-    <div class="panel-header"><h3>📍 Site Overview</h3><span style="font-size:11px;color:var(--text-muted)">Click <strong>📋 Copy Template</strong> to copy the record template for that site</span></div>
-    <div class="tablebox"><table><thead><tr><th>Site</th><th>Req</th><th>Units</th><th>Types</th><th>Approved</th><th>Pending</th><th>Last</th><th>Actions</th></tr></thead><tbody id="sitesBody"></tbody></table></div>
+    <div class="panel-title">📍 نمای کلی سایت‌ها</div>
+    <div id="sitesList" class="card-list"></div>
   </div>
 </section>
 
-<!-- QUALITY -->
+<!-- ════════ QUALITY ════════ -->
 <section id="quality" class="view">
-  <div class="panel"><h3>⚠ Duplicate Serial Numbers</h3><div id="dupSN" class="list"></div></div>
-  <div class="panel"><h3>📋 Data Consistency</h3><div id="qualityList" class="list"></div></div>
+  <div class="panel">
+    <div class="panel-title">⚠ سریال‌های تکراری</div>
+    <div id="dupSN"></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">📋 یکپارچگی داده</div>
+    <div id="qualityList"></div>
+  </div>
 </section>
 
-<!-- REPORTS -->
+<!-- ════════ REPORTS ════════ -->
 <section id="reports" class="view">
-  <div class="panel"><div class="panel-header"><h3>📑 Management Report</h3></div><div id="reportContent"></div><button class="btn btn-primary" onclick="printReport()" style="margin-top:8px">🖨 Print</button></div>
+  <div class="panel">
+    <div class="panel-title">📑 گزارش مدیریتی</div>
+    <div id="reportContent"></div>
+    <div class="btn-row mt-8">
+      <button class="btn btn-primary btn-block" onclick="printReport()">🖨 چاپ گزارش</button>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">💾 پشتیبان‌گیری</div>
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="exportJSON()">📥 JSON</button>
+      <button class="btn btn-outline" onclick="exportCSV()">📊 CSV</button>
+      <button class="btn btn-outline" onclick="document.getElementById('jsonFile').click()">📤 وارد کردن</button>
+      <input id="jsonFile" type="file" accept=".json" hidden onchange="importJSON(event)">
+    </div>
+  </div>
 </section>
 
-<!-- IMPORT TEXT -->
+<!-- ════════ IMPORT TEXT ════════ -->
 <section id="importtext" class="view">
   <div class="panel">
-    <div class="panel-header"><h3>📥 Import from Text</h3></div>
-    <p class="muted" style="font-size:12px;color:var(--text-muted);margin-bottom:8px">Paste a fault record in the exact format and click Import. The system will parse and save it.</p>
-    <textarea class="field textarea" id="importTextArea" rows="8" placeholder="SC: Porsoo&#10;Code Site: TH2879&#10;UNIT Name: NCR48U G/01- 3KW - Nian&#10;Fault Affect : Faulty&#10;QTY: 2&#10;SN: 9940640&#10;SN: 9940639&#10;Approved by Soroush Yaghmouri" style="font-family:monospace;font-size:13px;min-height:120px"></textarea>
-    <button class="btn btn-primary" onclick="importFromText()" style="margin-top:8px;width:100%;padding:10px">📥 Import Record</button>
-    <div id="importResult" style="margin-top:8px;font-size:13px"></div>
+    <div class="panel-title">📥 وارد کردن از متن</div>
+    <p class="import-hint">متن رکورد خرابی را دقیقاً با فرمت استاندارد پیست کنید و دکمه وارد کردن را بزنید.</p>
+    <textarea class="field textarea" id="importTextArea" rows="9" placeholder="SC: Porsoo&#10;Code Site: TH2879&#10;UNIT Name: NCR48U G/01- 3KW - Nian&#10;Fault Affect : Faulty&#10;QTY: 2&#10;SN: 9940640&#10;SN: 9940639&#10;Approved by Soroush Yaghmouri"></textarea>
+    <button class="btn btn-primary btn-block mt-8" onclick="importFromText()">📥 وارد کردن رکورد</button>
+    <div id="importResult" class="mt-8" style="font-size:13px"></div>
   </div>
 </section>
 
-<!-- ===== MODAL ===== -->
-<div id="modalbg" class="modalbg"><div class="modal">
-  <h2 id="mtitle">New Fault</h2>
-  <div class="sub">Fill in details. Output ready to copy.</div>
-  <form id="form" onsubmit="saveRecord(event)"><input type="hidden" id="eid">
-    <div class="formgrid">
-      <div class="fg"><label>Date</label><input class="field" id="date" type="date" required onchange="updatePreview()"></div>
-      <div class="fg"><label>SC</label><input class="field" id="sc" value="Porsoo" oninput="updatePreview()"></div>
-      <div class="fg full"><label>Code Site</label><input class="field" id="site" placeholder="TH0168" required oninput="updatePreview()"></div>
+<!-- ════════ BOTTOM NAV (Mobile) ════════ -->
+<nav class="bottom-nav">
+  <button class="nav-item active" data-view="dashboard" onclick="showView('dashboard',this)">
+    <span class="icon">📊</span><span>داشبورد</span>
+  </button>
+  <button class="nav-item" data-view="records" onclick="showView('records',this)">
+    <span class="icon">📋</span><span>سوابق</span>
+  </button>
+  <button class="nav-item" data-view="approval" onclick="showView('approval',this)">
+    <span class="icon">✅</span><span>تأیید</span>
+  </button>
+  <button class="nav-item" data-view="sites" onclick="showView('sites',this)">
+    <span class="icon">📍</span><span>سایت</span>
+  </button>
+  <button class="nav-item" data-view="more" onclick="showMoreMenu(this)">
+    <span class="icon">⋯</span><span>بیشتر</span>
+  </button>
+</nav>
 
-      <div class="fg full">
-        <label>Unit Family</label>
-        <select class="field" id="unitFamily" onchange="onFamilyChange()">
-          <option value="">-- Select Family --</option>
-          <option value="NCU_NCR">NCU / NCR</option>
-          <option value="PSU">PSU AC</option>
-          <option value="CLU">CLU / BBU</option>
-          <option value="CCU">CCU / Climate</option>
-          <option value="DC_AC">DC Air Conditioner</option>
-          <option value="RECTIFIER">Rectifier</option>
-          <option value="DCC">DCC</option>
-          <option value="PDU">PDU</option>
-          <option value="AIRCOND">Air Conditioner - ITMC</option>
-          <option value="CONTROLLER">Controller Unit</option>
-          <option value="SMARTPACK">Smartpack</option>
-          <option value="SCU">SCU</option>
-          <option value="CUSTOM">Custom</option>
-        </select>
+<!-- More menu (quality / reports / import) -->
+<div id="moreSheet" class="modal-bg" onclick="if(event.target===this)closeMore()">
+  <div class="modal" style="max-height:50dvh">
+    <div class="modal-handle"></div>
+    <h2>منوی بیشتر</h2>
+    <div class="sub">گزینه‌های اضافی</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button class="btn" onclick="showView('quality');closeMore()">⚠ کیفیت داده</button>
+      <button class="btn" onclick="showView('reports');closeMore()">📑 گزارش و پشتیبان</button>
+      <button class="btn" onclick="showView('importtext');closeMore()">📥 وارد کردن از متن</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ MODAL ════════ -->
+<div id="modalbg" class="modal-bg">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h2 id="mtitle">خرابی جدید</h2>
+    <div class="sub">جزئیات را وارد کنید. خروجی آماده کپی است.</div>
+    <form id="form" onsubmit="saveRecord(event)">
+      <input type="hidden" id="eid">
+      <div class="form-grid">
+        <div class="fg">
+          <label>تاریخ</label>
+          <input class="field" id="date" type="date" required>
+        </div>
+        <div class="fg">
+          <label>SC</label>
+          <input class="field" id="sc" value="Porsoo">
+        </div>
+        <div class="fg full">
+          <label>کد سایت</label>
+          <input class="field" id="site" placeholder="TH0168" required autocomplete="off">
+        </div>
+
+        <div class="fg full">
+          <label>خانواده یونیت</label>
+          <select class="field" id="unitFamily" onchange="onFamilyChange()">
+            <option value="">-- انتخاب خانواده --</option>
+            <option value="NCU_NCR">NCU / NCR</option>
+            <option value="PSU">PSU AC</option>
+            <option value="CLU">CLU / BBU</option>
+            <option value="CCU">CCU / Climate</option>
+            <option value="DC_AC">DC Air Conditioner</option>
+            <option value="RECTIFIER">Rectifier</option>
+            <option value="DCC">DCC</option>
+            <option value="PDU">PDU</option>
+            <option value="AIRCOND">Air Conditioner - ITMC</option>
+            <option value="CONTROLLER">Controller Unit</option>
+            <option value="SMARTPACK">Smartpack</option>
+            <option value="SCU">SCU</option>
+            <option value="CUSTOM">سفارشی (Custom)</option>
+          </select>
+        </div>
+
+        <div class="fg full" id="familyFields"></div>
+
+        <div class="fg">
+          <label>تأثیر خرابی</label>
+          <input class="field" id="fault" value="Faulty">
+        </div>
+        <div class="fg">
+          <label>تعداد (QTY)</label>
+          <input class="field" id="qty" type="number" min="1" value="1" required>
+        </div>
+        <div class="fg full">
+          <label>شماره سریال (هر خط یک SN — باید با QTY برابر باشد)</label>
+          <textarea class="field textarea" id="sns" rows="3" placeholder="هر شماره سریال در یک خط"></textarea>
+        </div>
+        <div class="fg">
+          <label>وضعیت</label>
+          <select class="field" id="status">
+            <option>Pending</option>
+            <option>Approved</option>
+            <option>Rejected</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>تأییدکننده</label>
+          <input class="field" id="approver" placeholder="Soroush Yaghmouri">
+        </div>
+        <div class="fg full">
+          <label>یادداشت</label>
+          <textarea class="field" id="notes" rows="2"></textarea>
+        </div>
       </div>
 
-      <div class="fg full" id="familyFields"></div>
+      <div class="unit-preview" id="unitPreview">خانواده را انتخاب و فیلدها را پر کنید</div>
+      <div class="copy-area" id="copyArea">خروجی اینجا نمایش داده می‌شود<button type="button" class="copy-btn" onclick="copyOutput()">📋 کپی</button></div>
 
-      <div class="fg"><label>Fault Affect</label><input class="field" id="fault" value="Faulty" oninput="updatePreview()"></div>
-      <div class="fg"><label>QTY</label><input class="field" id="qty" type="number" min="1" value="1" required oninput="updatePreview()"></div>
-      <div class="fg full"><label>Serial Numbers (one per line, must match QTY)</label><textarea class="field textarea" id="sns" rows="3" oninput="updatePreview()"></textarea></div>
-      <div class="fg"><label>Status</label><select class="field" id="status" onchange="updatePreview()"><option>Pending</option><option>Approved</option><option>Rejected</option></select></div>
-      <div class="fg"><label>Approved By</label><input class="field" id="approver" placeholder="Soroush Yaghmouri" oninput="updatePreview()"></div>
-      <div class="fg full"><label>Notes</label><textarea class="field" id="notes" rows="2" oninput="updatePreview()"></textarea></div>
-    </div>
-
-    <div class="unit-preview" id="unitPreview">Select family and fill fields</div>
-    <div class="copy-area" id="copyArea">Output will appear here<button class="copy-btn" onclick="copyOutput()">📋 Copy</button></div>
-
-    <div class="modalfoot">
-      <button type="button" class="btn btn-outline" onclick="closeModal()">Cancel</button>
-      <button type="submit" class="btn btn-primary">💾 Save</button>
-    </div>
-  </form>
-</div></div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-outline" onclick="closeModal()">انصراف</button>
+        <button type="submit" class="btn btn-primary">💾 ذخیره</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <div id="toast" class="toast"></div>
 </div>
 
 <script>
-// ============================================================
-//  UNIT FAMILY CONFIGURATIONS
-// ============================================================
+/* ═══════════════════════════════════════════════════════════
+   UNIT FAMILY CONFIG
+   ═══════════════════════════════════════════════════════════ */
 var FAMILY_CONFIG = {
   NCU_NCR: {
-    label:'NCU / NCR',
-    fields:[
-      {id:'ncuPrefix',type:'select',label:'Type',options:['NCU','NCR'],default:'NCR'},
-      {id:'ncuVoltage',type:'text',label:'Voltage',default:'48',placeholder:'48'},
-      {id:'ncuVersion',type:'text',label:'Version',default:'U',placeholder:'U'},
-      {id:'ncuSubtype',type:'text',label:'Subtype (e.g. C/11)',placeholder:'C/11'},
-      {id:'ncuPower',type:'select',label:'Power',options:['3KW','2KW','1.5KW','N/A'],default:'3KW'}
+    label: 'NCU / NCR',
+    fields: [
+      {id:'ncuPrefix', type:'select', label:'Type', options:['NCU','NCR'], default:'NCR'},
+      {id:'ncuVoltage', type:'text', label:'Voltage', default:'48', placeholder:'48'},
+      {id:'ncuVersion', type:'text', label:'Version', default:'U', placeholder:'U'},
+      {id:'ncuSubtype', type:'text', label:'Subtype (e.g. C/11)', placeholder:'C/11'},
+      {id:'ncuPower', type:'select', label:'Power', options:['3KW','2KW','1.5KW','N/A'], default:'3KW'}
     ],
-    build:function(v){ var p=v.ncuPrefix||'NCR'; var vol=v.ncuVoltage||'48'; var ver=v.ncuVersion||'U'; var sub=v.ncuSubtype?' '+v.ncuSubtype.trim():''; var pw=(v.ncuPower&&v.ncuPower!=='N/A')?' - '+v.ncuPower:''; return p+vol+ver+sub+pw; }
+    build: function(v) {
+      var p = v.ncuPrefix || 'NCR';
+      var vol = v.ncuVoltage || '48';
+      var ver = v.ncuVersion || 'U';
+      var sub = v.ncuSubtype ? ' ' + v.ncuSubtype.trim() : '';
+      var pw = (v.ncuPower && v.ncuPower !== 'N/A') ? ' - ' + v.ncuPower : '';
+      return p + vol + ver + sub + pw;
+    }
   },
-  PSU:{
-    label:'PSU AC',
-    fields:[
-      {id:'psuVersion',type:'select',label:'Version',options:['AC 01 (1KW)','AC 02 (2KW)','AC 03 (3KW)'],default:'AC 03 (3KW)'},
-      {id:'psuSuffix',type:'text',label:'Suffix',placeholder:'- Ericsson (optional)'}
+  PSU: {
+    label: 'PSU AC',
+    fields: [
+      {id:'psuVersion', type:'select', label:'Version', options:['AC 01 (1KW)','AC 02 (2KW)','AC 03 (3KW)'], default:'AC 03 (3KW)'},
+      {id:'psuSuffix', type:'text', label:'Suffix', placeholder:'- Ericsson (optional)'}
     ],
-    build:function(v){ var base=v.psuVersion?v.psuVersion.split('(')[0].trim():'PSU AC 03'; var suff=v.psuSuffix?' '+v.psuSuffix.trim():''; return 'PSU '+base+suff; }
+    build: function(v) {
+      var base = v.psuVersion ? v.psuVersion.split('(')[0].trim() : 'PSU AC 03';
+      var suff = v.psuSuffix ? ' ' + v.psuSuffix.trim() : '';
+      return 'PSU ' + base + suff;
+    }
   },
-  CLU:{
-    label:'CLU / BBU',
-    fields:[
-      {id:'cluType',type:'select',label:'Type',options:['CLU','BBU6102 CLU'],default:'CLU'},
-      {id:'cluSuffix',type:'text',label:'Suffix',placeholder:'- Ericsson (or empty)'}
+  CLU: {
+    label: 'CLU / BBU',
+    fields: [
+      {id:'cluType', type:'select', label:'Type', options:['CLU','BBU6102 CLU'], default:'CLU'},
+      {id:'cluSuffix', type:'text', label:'Suffix', placeholder:'- Ericsson (or empty)'}
     ],
-    build:function(v){ var base=v.cluType||'CLU'; var suff=v.cluSuffix?' '+v.cluSuffix.trim():''; if(base==='CLU' && !suff) suff=' - Ericsson'; return base+suff; }
+    build: function(v) {
+      var base = v.cluType || 'CLU';
+      var suff = v.cluSuffix ? ' ' + v.cluSuffix.trim() : '';
+      if (base === 'CLU' && !suff) suff = ' - Ericsson';
+      return base + suff;
+    }
   },
-  CCU:{
-    label:'CCU / Climate Control',
-    fields:[
-      {id:'ccuType',type:'select',label:'Type',options:['CCU - Climate Control Board','CCU - Thermo Electric Co','Climate Control Board - CCU','Climat Control Board'],default:'CCU - Climate Control Board'},
-      {id:'ccuSuffix',type:'text',label:'Extra',placeholder:'- Ericsson etc.'}
+  CCU: {
+    label: 'CCU / Climate Control',
+    fields: [
+      {id:'ccuType', type:'select', label:'Type', options:['CCU - Climate Control Board','CCU - Thermo Electric Co','Climate Control Board - CCU','Climat Control Board'], default:'CCU - Climate Control Board'},
+      {id:'ccuSuffix', type:'text', label:'Extra', placeholder:'- Ericsson etc.'}
     ],
-    build:function(v){ var base=v.ccuType||'CCU - Climate Control Board'; var suff=v.ccuSuffix?' '+v.ccuSuffix.trim():''; return base+suff; }
+    build: function(v) {
+      var base = v.ccuType || 'CCU - Climate Control Board';
+      var suff = v.ccuSuffix ? ' ' + v.ccuSuffix.trim() : '';
+      return base + suff;
+    }
   },
-  DC_AC:{
-    label:'DC Air Conditioner',
-    fields:[
-      {id:'dcacModel',type:'select',label:'Model',options:['DC Cabinet Air Conditioner - Envicool','DC Cabinet Air Conditioner - ITMC','NAC550D - DC Air Conditioner - Nian','NAC650D - DC Air Conditioner - Nian','NAC1250D - DC Air Conditioner - Nian','NAC2400D - DC Air Conditioner - Nian','NAC3000D - DC Air Conditioner - Nian','NAC3500D - DC Air Conditioner - Nian'],default:'DC Cabinet Air Conditioner - Envicool'},
-      {id:'dcacSuffix',type:'text',label:'Suffix',placeholder:'e.g. - Cooler, - Compressor'}
+  DC_AC: {
+    label: 'DC Air Conditioner',
+    fields: [
+      {id:'dcacModel', type:'select', label:'Model', options:['DC Cabinet Air Conditioner - Envicool','DC Cabinet Air Conditioner - ITMC','NAC550D - DC Air Conditioner - Nian','NAC650D - DC Air Conditioner - Nian','NAC1250D - DC Air Conditioner - Nian','NAC2400D - DC Air Conditioner - Nian','NAC3000D - DC Air Conditioner - Nian','NAC3500D - DC Air Conditioner - Nian'], default:'DC Cabinet Air Conditioner - Envicool'},
+      {id:'dcacSuffix', type:'text', label:'Suffix', placeholder:'e.g. - Cooler, - Compressor'}
     ],
-    build:function(v){ var base=v.dcacModel||'DC Cabinet Air Conditioner - Envicool'; var suff=v.dcacSuffix?' '+v.dcacSuffix.trim():''; return base+suff; }
+    build: function(v) {
+      var base = v.dcacModel || 'DC Cabinet Air Conditioner - Envicool';
+      var suff = v.dcacSuffix ? ' ' + v.dcacSuffix.trim() : '';
+      return base + suff;
+    }
   },
-  RECTIFIER:{
-    label:'Rectifier',
-    fields:[
-      {id:'recType',type:'select',label:'Type',options:['RECTIFIER 48VDC3000 - ITMC','Rectifier - Flatpack2 2000W 48V BF','PEC-4860 - Rectifier Porsoo'],default:'RECTIFIER 48VDC3000 - ITMC'},
-      {id:'recSuffix',type:'text',label:'Suffix',placeholder:''}
+  RECTIFIER: {
+    label: 'Rectifier',
+    fields: [
+      {id:'recType', type:'select', label:'Type', options:['RECTIFIER 48VDC3000 - ITMC','Rectifier - Flatpack2 2000W 48V BF','PEC-4860 - Rectifier Porsoo'], default:'RECTIFIER 48VDC3000 - ITMC'},
+      {id:'recSuffix', type:'text', label:'Suffix', placeholder:''}
     ],
-    build:function(v){ var base=v.recType||'RECTIFIER 48VDC3000 - ITMC'; var suff=v.recSuffix?' '+v.recSuffix.trim():''; return base+suff; }
+    build: function(v) {
+      var base = v.recType || 'RECTIFIER 48VDC3000 - ITMC';
+      var suff = v.recSuffix ? ' ' + v.recSuffix.trim() : '';
+      return base + suff;
+    }
   },
-  DCC:{
-    label:'DCC',
-    fields:[
-      {id:'dccType',type:'select',label:'Type',options:['DCC - Porsoo Electronic','DCC - Porsoo Electronic - Cabinet Conditioner'],default:'DCC - Porsoo Electronic'}
+  DCC: {
+    label: 'DCC',
+    fields: [
+      {id:'dccType', type:'select', label:'Type', options:['DCC - Porsoo Electronic','DCC - Porsoo Electronic - Cabinet Conditioner'], default:'DCC - Porsoo Electronic'}
     ],
-    build:function(v){ return v.dccType||'DCC - Porsoo Electronic'; }
+    build: function(v) { return v.dccType || 'DCC - Porsoo Electronic'; }
   },
-  PDU:{
-    label:'PDU',
-    fields:[
-      {id:'pduType',type:'text',label:'PDU Type',default:'PDU 01 01',placeholder:'PDU 01 01'}
+  PDU: {
+    label: 'PDU',
+    fields: [
+      {id:'pduType', type:'text', label:'PDU Type', default:'PDU 01 01', placeholder:'PDU 01 01'}
     ],
-    build:function(v){ return v.pduType||'PDU 01 01'; }
+    build: function(v) { return v.pduType || 'PDU 01 01'; }
   },
-  AIRCOND:{
-    label:'Air Conditioner - ITMC',
-    fields:[
-      {id:'airType',type:'text',label:'Model',default:'Air Conditioner - ITMC',placeholder:'Air Conditioner - ITMC'}
+  AIRCOND: {
+    label: 'Air Conditioner - ITMC',
+    fields: [
+      {id:'airType', type:'text', label:'Model', default:'Air Conditioner - ITMC', placeholder:'Air Conditioner - ITMC'}
     ],
-    build:function(v){ return v.airType||'Air Conditioner - ITMC'; }
+    build: function(v) { return v.airType || 'Air Conditioner - ITMC'; }
   },
-  CONTROLLER:{
-    label:'Controller Unit',
-    fields:[
-      {id:'ctrlType',type:'text',label:'Model',default:'Controller Unit - ITMC',placeholder:'Controller Unit - ITMC'}
+  CONTROLLER: {
+    label: 'Controller Unit',
+    fields: [
+      {id:'ctrlType', type:'text', label:'Model', default:'Controller Unit - ITMC', placeholder:'Controller Unit - ITMC'}
     ],
-    build:function(v){ return v.ctrlType||'Controller Unit - ITMC'; }
+    build: function(v) { return v.ctrlType || 'Controller Unit - ITMC'; }
   },
-  SMARTPACK:{
-    label:'Smartpack',
-    fields:[
-      {id:'smartType',type:'text',label:'Model',default:'Smartpack Extended - ELTEK',placeholder:'Smartpack Extended - ELTEK'}
+  SMARTPACK: {
+    label: 'Smartpack',
+    fields: [
+      {id:'smartType', type:'text', label:'Model', default:'Smartpack Extended - ELTEK', placeholder:'Smartpack Extended - ELTEK'}
     ],
-    build:function(v){ return v.smartType||'Smartpack Extended - ELTEK'; }
+    build: function(v) { return v.smartType || 'Smartpack Extended - ELTEK'; }
   },
-  SCU:{
-    label:'SCU',
-    fields:[
-      {id:'scuType',type:'text',label:'Model',default:'SCU 01 01 - Ericsson',placeholder:'SCU 01 01 - Ericsson'}
+  SCU: {
+    label: 'SCU',
+    fields: [
+      {id:'scuType', type:'text', label:'Model', default:'SCU 01 01 - Ericsson', placeholder:'SCU 01 01 - Ericsson'}
     ],
-    build:function(v){ return v.scuType||'SCU 01 01 - Ericsson'; }
+    build: function(v) { return v.scuType || 'SCU 01 01 - Ericsson'; }
   },
-  CUSTOM:{
-    label:'Custom',
-    fields:[
-      {id:'customName',type:'text',label:'Full Unit Name',placeholder:'Type exact unit name',required:true}
+  CUSTOM: {
+    label: 'سفارشی',
+    fields: [
+      {id:'customName', type:'text', label:'نام کامل یونیت', placeholder:'نام دقیق یونیت را بنویسید', required: true}
     ],
-    build:function(v){ return v.customName||''; }
+    build: function(v) { return v.customName || ''; }
   }
 };
 
-// ============================================================
-//  CANONICAL & ALIASES
-// ============================================================
+/* ═══════════════════════════════════════════════════════════
+   ALIASES
+   ═══════════════════════════════════════════════════════════ */
 var ALIAS_MAP = {
-  "BBU CLU":"BBU6102 CLU - Ericsson",
-  "BBU6102 CLU":"BBU6102 CLU - Ericsson",
-  "BBU6102 CLU - ERICSSON":"BBU6102 CLU - Ericsson",
-  "CLU":"CLU - Ericsson",
-  "CLU - ERICSSON":"CLU - Ericsson",
-  "CLU - BBUB102 CLU - Ericsson":"CLU - Ericsson",
-  "Climat Control Board":"CCU - Climate Control Board",
-  "Climat Control Board - Ericsson":"CCU - Climate Control Board",
-  "Climate Control Board - CCU":"CCU - Climate Control Board",
-  "CCU - Climate Control Board":"CCU - Climate Control Board",
-  "Thermo Electric Co - CCU":"CCU - Thermo Electric Co",
-  "DC cabinet air conditioner - Envicool":"DC Cabinet Air Conditioner - Envicool",
-  "DC Cabinet Air Conditioner - Envicool":"DC Cabinet Air Conditioner - Envicool",
-  "DCC-PORSOO ELECTRONIC":"DCC - Porsoo Electronic",
-  "DCC-PORSOO ELECTRONIC - Cabinet Conditioner":"DCC - Porsoo Electronic - Cabinet Conditioner",
-  "PSU AC 03":"PSU AC 03 - Ericsson",
-  "PEC- 4860 - Rectifier Porsoo":"PEC-4860 - Rectifier Porsoo",
-  "PECSU - 2020 - Porsoo":"PECSU-2020 - Porsoo",
-  "NCR48U - Nian":"NCR48U - 3KW - Nian",
-  "NCR48U - NIAN":"NCR48U - 3KW - Nian",
-  "NCR48U 3KW":"NCR48U - 3KW - Nian",
-  "NCR48U - 3KW":"NCR48U - 3KW - Nian"
+  "BBU CLU": "BBU6102 CLU - Ericsson",
+  "BBU6102 CLU": "BBU6102 CLU - Ericsson",
+  "BBU6102 CLU - ERICSSON": "BBU6102 CLU - Ericsson",
+  "CLU": "CLU - Ericsson",
+  "CLU - ERICSSON": "CLU - Ericsson",
+  "CLU - BBUB102 CLU - Ericsson": "CLU - Ericsson",
+  "Climat Control Board": "CCU - Climate Control Board",
+  "Climat Control Board - Ericsson": "CCU - Climate Control Board",
+  "Climate Control Board - CCU": "CCU - Climate Control Board",
+  "CCU - Climate Control Board": "CCU - Climate Control Board",
+  "Thermo Electric Co - CCU": "CCU - Thermo Electric Co",
+  "DC cabinet air conditioner - Envicool": "DC Cabinet Air Conditioner - Envicool",
+  "DC Cabinet Air Conditioner - Envicool": "DC Cabinet Air Conditioner - Envicool",
+  "DCC-PORSOO ELECTRONIC": "DCC - Porsoo Electronic",
+  "DCC-PORSOO ELECTRONIC - Cabinet Conditioner": "DCC - Porsoo Electronic - Cabinet Conditioner",
+  "PSU AC 03": "PSU AC 03 - Ericsson",
+  "PEC- 4860 - Rectifier Porsoo": "PEC-4860 - Rectifier Porsoo",
+  "PECSU - 2020 - Porsoo": "PECSU-2020 - Porsoo",
+  "NCR48U - Nian": "NCR48U - 3KW - Nian",
+  "NCR48U - NIAN": "NCR48U - 3KW - Nian",
+  "NCR48U 3KW": "NCR48U - 3KW - Nian",
+  "NCR48U - 3KW": "NCR48U - 3KW - Nian"
 };
-function canonicalUnitName(n){ if(!n)return''; var norm=String(n).replace(/\s+/g,' ').trim(); if(ALIAS_MAP[norm])return ALIAS_MAP[norm]; var low=norm.toLowerCase(); for(var k in ALIAS_MAP){ if(k.toLowerCase()===low)return ALIAS_MAP[k]; } return norm; }
 
-// ============================================================
-//  DYNAMIC FORM
-// ============================================================
-function onFamilyChange(){ var fam=document.getElementById('unitFamily').value; var cfg=FAMILY_CONFIG[fam]; var container=document.getElementById('familyFields'); if(!cfg){container.innerHTML=''; updatePreview(); return;} var html='<div class="fg full"><label>'+cfg.label+' fields</label><div class="unit-structure">'; cfg.fields.forEach(function(f){ var id=f.id; var label=f.label||''; var val=f.default||''; var ph=f.placeholder||''; var req=f.required?' required':''; var input=''; if(f.type==='select'){ input='<select class="field" id="'+id+'" onchange="updatePreview()">'; (f.options||[]).forEach(function(o){ var sel=(o===val)?' selected':''; input+='<option value="'+o+'"'+sel+'>'+o+'</option>'; }); input+='</select>'; }else{ input='<input class="field" id="'+id+'" type="text" value="'+val+'" placeholder="'+ph+'" oninput="updatePreview()"'+req+'>'; } html+='<div><label style="font-size:11px;color:var(--text-muted)">'+label+'</label>'+input+'</div>'; }); html+='</div></div>'; container.innerHTML=html; updatePreview(); }
-function getFamilyValues(){ var fam=document.getElementById('unitFamily').value; var cfg=FAMILY_CONFIG[fam]; if(!cfg)return{}; var vals={}; cfg.fields.forEach(function(f){ var el=document.getElementById(f.id); if(el) vals[f.id]=el.value; }); return vals; }
-function buildUnitName(){ var fam=document.getElementById('unitFamily').value; var cfg=FAMILY_CONFIG[fam]; if(!cfg)return''; var vals=getFamilyValues(); var raw=cfg.build(vals); return canonicalUnitName(raw); }
-function updatePreview(){ var name=buildUnitName(); document.getElementById('unitPreview').textContent=name||'Select family and fill fields'; updateOutputText(); }
+function canonicalUnitName(n) {
+  if (!n) return '';
+  var norm = String(n).replace(/\s+/g, ' ').trim();
+  if (ALIAS_MAP[norm]) return ALIAS_MAP[norm];
+  var low = norm.toLowerCase();
+  for (var k in ALIAS_MAP) {
+    if (k.toLowerCase() === low) return ALIAS_MAP[k];
+  }
+  return norm;
+}
 
-function getCurrentRecord(){
+/* ═══════════════════════════════════════════════════════════
+   DYNAMIC FORM
+   ═══════════════════════════════════════════════════════════ */
+function onFamilyChange() {
+  var fam = document.getElementById('unitFamily').value;
+  var cfg = FAMILY_CONFIG[fam];
+  var container = document.getElementById('familyFields');
+  if (!cfg) {
+    container.innerHTML = '';
+    updatePreview();
+    return;
+  }
+  var html = '<div class="fg full"><label>' + cfg.label + ' — فیلدها</label><div class="unit-structure">';
+  cfg.fields.forEach(function(f) {
+    var id = f.id, label = f.label || '', val = f.default || '', ph = f.placeholder || '', req = f.required ? ' required' : '';
+    var input = '';
+    if (f.type === 'select') {
+      input = '<select class="field" id="' + id + '" onchange="updatePreview()">';
+      (f.options || []).forEach(function(o) {
+        input += '<option value="' + o + '"' + (o === val ? ' selected' : '') + '>' + o + '</option>';
+      });
+      input += '</select>';
+    } else {
+      input = '<input class="field" id="' + id + '" type="text" value="' + val + '" placeholder="' + ph + '" oninput="updatePreview()"' + req + '>';
+    }
+    html += '<div><label style="font-size:11px;color:var(--text-muted)">' + label + '</label>' + input + '</div>';
+  });
+  html += '</div></div>';
+  container.innerHTML = html;
+  updatePreview();
+}
+
+function getFamilyValues() {
+  var fam = document.getElementById('unitFamily').value;
+  var cfg = FAMILY_CONFIG[fam];
+  if (!cfg) return {};
+  var vals = {};
+  cfg.fields.forEach(function(f) {
+    var el = document.getElementById(f.id);
+    if (el) vals[f.id] = el.value;
+  });
+  return vals;
+}
+
+function buildUnitName() {
+  var fam = document.getElementById('unitFamily').value;
+  var cfg = FAMILY_CONFIG[fam];
+  if (!cfg) return '';
+  return canonicalUnitName(cfg.build(getFamilyValues()));
+}
+
+function updatePreview() {
+  var name = buildUnitName();
+  document.getElementById('unitPreview').textContent = name || 'خانواده را انتخاب و فیلدها را پر کنید';
+  updateOutputText();
+}
+
+function getCurrentRecord() {
   var snsRaw = document.getElementById('sns').value;
-  var sns = snsRaw.split(/[\n,;]+/).map(function(s){return s.trim();}).filter(Boolean);
+  var sns = snsRaw.split(/[\n,;]+/).map(function(s) { return s.trim(); }).filter(Boolean);
   return {
-    sc: document.getElementById('sc').value.trim()||'Porsoo',
+    sc: document.getElementById('sc').value.trim() || 'Porsoo',
     site: document.getElementById('site').value.trim().toUpperCase(),
     unit: buildUnitName(),
-    fault: document.getElementById('fault').value.trim()||'Faulty',
-    qty: parseInt(document.getElementById('qty').value)||1,
+    fault: document.getElementById('fault').value.trim() || 'Faulty',
+    qty: parseInt(document.getElementById('qty').value) || 1,
     sns: sns,
     status: document.getElementById('status').value,
     approver: document.getElementById('approver').value.trim(),
@@ -450,18 +875,18 @@ function getCurrentRecord(){
   };
 }
 
-function formatRecordText(r){
-  if(!r || !r.unit) return 'Fill in all fields';
+function formatRecordText(r) {
+  if (!r || !r.unit) return 'همه فیلدها را پر کنید';
   var lines = [];
   lines.push('SC: ' + r.sc);
   lines.push('Code Site: ' + r.site);
   lines.push('UNIT Name: ' + r.unit);
   lines.push('Fault Affect : ' + r.fault);
   lines.push('QTY: ' + r.qty);
-  var sns = r.sns || [];
+  var sns = (r.sns || []).slice();
   while (sns.length < r.qty) sns.push('');
   if (sns.length > r.qty) sns = sns.slice(0, r.qty);
-  sns.forEach(function(sn){ lines.push('SN: ' + (sn||'')); });
+  sns.forEach(function(sn) { lines.push('SN: ' + (sn || '')); });
   if (r.status === 'Approved' || r.approver) {
     lines.push('Approved by ' + (r.approver || 'Soroush Yaghmouri'));
   } else if (r.status === 'Rejected') {
@@ -473,48 +898,79 @@ function formatRecordText(r){
   return lines.join('\n');
 }
 
-function updateOutputText(){
+function updateOutputText() {
   var rec = getCurrentRecord();
   var txt = formatRecordText(rec);
-  document.getElementById('copyArea').innerHTML = txt + '<button class="copy-btn" onclick="copyOutput()">📋 Copy</button>';
+  document.getElementById('copyArea').innerHTML = txt + '<button type="button" class="copy-btn" onclick="copyOutput()">📋 کپی</button>';
 }
 
-function copyOutput(){
-  var el = document.getElementById('copyArea');
-  var text = el.innerText.replace('📋 Copy','').trim();
-  navigator.clipboard.writeText(text).then(function(){toast('Copied!');}).catch(function(){toast('Copy failed');});
+function copyOutput() {
+  var text = document.getElementById('copyArea').innerText.replace('📋 کپی', '').trim();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() { toast('کپی شد!'); }).catch(function() { fallbackCopy(text); });
+  } else {
+    fallbackCopy(text);
+  }
 }
 
-// ============================================================
-//  IMPORT FROM TEXT
-// ============================================================
-function importFromText(){
+function fallbackCopy(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); toast('کپی شد!'); } catch (e) { toast('کپی ناموفق'); }
+  document.body.removeChild(ta);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   IMPORT FROM TEXT
+   ═══════════════════════════════════════════════════════════ */
+function importFromText() {
   var text = document.getElementById('importTextArea').value;
-  if(!text.trim()){ toast('Please paste a fault record.'); return; }
-  var lines = text.split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
-  var record = { sc:'Porsoo', site:'', unit:'', fault:'Faulty', qty:1, sns:[], status:'Pending', approver:'', notes:'' };
-  for(var i=0; i<lines.length; i++){
+  if (!text.trim()) { toast('لطفاً متن رکورد را پیست کنید.'); return; }
+  var lines = text.split('\n').map(function(l) { return l.trim(); }).filter(Boolean);
+  var record = { sc: 'Porsoo', site: '', unit: '', fault: 'Faulty', qty: 1, sns: [], status: 'Pending', approver: '', notes: '' };
+
+  for (var i = 0; i < lines.length; i++) {
     var line = lines[i];
     var match = line.match(/^(SC|Code Site|UNIT Name|Fault Affect|QTY|SN|Approved by|Status|Notes)\s*[:：]\s*(.*)/i);
-    if(match){
+    if (match) {
       var key = match[1].toLowerCase().trim();
       var val = match[2].trim();
-      if(key === 'sc'){ record.sc = val; }
-      else if(key === 'code site'){ record.site = val.toUpperCase(); }
-      else if(key === 'unit name'){ record.unit = canonicalUnitName(val); }
-      else if(key === 'fault affect'){ record.fault = val; }
-      else if(key === 'qty'){ record.qty = parseInt(val)||1; }
-      else if(key === 'sn'){ record.sns.push(val); }
-      else if(key === 'approved by'){ record.approver = val; record.status = 'Approved'; }
-      else if(key === 'status'){ record.status = val; }
-      else if(key === 'notes'){ record.notes = val; }
+      if (key === 'sc') record.sc = val;
+      else if (key === 'code site') record.site = val.toUpperCase();
+      else if (key === 'unit name') record.unit = canonicalUnitName(val);
+      else if (key === 'fault affect') record.fault = val;
+      else if (key === 'qty') record.qty = parseInt(val) || 1;
+      else if (key === 'sn') record.sns.push(val);
+      else if (key === 'approved by') { record.approver = val; record.status = 'Approved'; }
+      else if (key === 'status') record.status = val;
+      else if (key === 'notes') record.notes = val;
+    } else if (/^Approved by\s+(.+)/i.test(line)) {
+      record.approver = line.replace(/^Approved by\s+/i, '').trim();
+      record.status = 'Approved';
+    } else if (/^Pending$/i.test(line)) {
+      record.status = 'Pending';
+    } else if (/^Rejected$/i.test(line)) {
+      record.status = 'Rejected';
     }
   }
-  if(!record.site || !record.unit){ toast('Missing Site or Unit Name.'); return; }
-  if(record.sns.length !== record.qty){ toast('SN count ('+record.sns.length+') does not match QTY ('+record.qty+')'); return; }
+
+  if (!record.site || !record.unit) {
+    toast('سایت یا نام یونیت یافت نشد.');
+    document.getElementById('importResult').innerHTML = '<span style="color:var(--red)">❌ سایت یا یونیت ناقص است.</span>';
+    return;
+  }
+  if (record.sns.length !== record.qty) {
+    toast('تعداد SN با QTY مطابقت ندارد (' + record.sns.length + ' ≠ ' + record.qty + ')');
+    document.getElementById('importResult').innerHTML = '<span style="color:var(--red)">❌ تعداد SN با QTY برابر نیست.</span>';
+    return;
+  }
+
   var newRecord = {
     id: uid(),
-    date: new Date().toISOString().slice(0,10),
+    date: new Date().toISOString().slice(0, 10),
     sc: record.sc,
     codeSite: record.site,
     unitName: record.unit,
@@ -523,211 +979,750 @@ function importFromText(){
     serialNumbers: record.sns,
     status: record.status,
     approvedBy: record.approver,
-    approvedAt: record.status==='Approved'?new Date().toISOString():'',
+    approvedAt: record.status === 'Approved' ? new Date().toISOString() : '',
     notes: record.notes
   };
   records.push(newRecord);
   persist();
-  document.getElementById('importResult').innerHTML = '<span style="color:var(--accent-green)">✅ Record imported successfully!</span>';
+  document.getElementById('importResult').innerHTML = '<span style="color:var(--green)">✅ رکورد با موفقیت وارد شد!</span>';
   document.getElementById('importTextArea').value = '';
-  toast('Record imported!');
-  showView('records', document.querySelectorAll('.nav button')[1]);
+  toast('رکورد وارد شد!');
+  showView('records');
 }
 
-// ============================================================
-//  THEME
-// ============================================================
-function toggleTheme(){
+/* ═══════════════════════════════════════════════════════════
+   THEME
+   ═══════════════════════════════════════════════════════════ */
+function toggleTheme() {
   var body = document.body;
-  var theme = body.getAttribute('data-theme');
-  if(theme === 'light'){
+  var isLight = body.getAttribute('data-theme') === 'light';
+  if (isLight) {
     body.removeAttribute('data-theme');
     document.getElementById('themeBtn').textContent = '🌙';
-  }else{
+    localStorage.setItem('porsoo_theme', 'dark');
+  } else {
     body.setAttribute('data-theme', 'light');
+    document.getElementById('themeBtn').textContent = '☀️';
+    localStorage.setItem('porsoo_theme', 'light');
+  }
+  // re-render charts with new colors
+  setTimeout(renderCharts, 50);
+}
+
+function loadTheme() {
+  var t = localStorage.getItem('porsoo_theme');
+  if (t === 'light') {
+    document.body.setAttribute('data-theme', 'light');
     document.getElementById('themeBtn').textContent = '☀️';
   }
 }
 
-// ============================================================
-//  DATA LAYER
-// ============================================================
-var STORAGE_KEY='porsooFaultManager_v8'; var records=[]; var editId=null; var chartInstances={};
-function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
-function normalize(r){ 
-  var sns = Array.isArray(r.serialNumbers) ? r.serialNumbers : String(r.serialNumbers||'').split(/[\n,;]+/).map(function(x){return x.trim();}).filter(Boolean);
-  return { 
-    id:r.id||uid(), 
-    date:r.date||'', 
-    sc:r.sc||'Porsoo', 
-    codeSite:String(r.codeSite||'').trim().toUpperCase(), 
-    unitName:canonicalUnitName(r.unitName||''), 
-    faultAffect:r.faultAffect||'Faulty', 
-    qty:Number(r.qty)||1, 
-    serialNumbers:sns, 
-    status:r.status||(r.approved===true?'Approved':'Pending'), 
-    approvedBy:r.approvedBy||'', 
-    approvedAt:r.approvedAt||'', 
-    notes:r.notes||'' 
-  }; 
+/* ═══════════════════════════════════════════════════════════
+   DATA LAYER
+   ═══════════════════════════════════════════════════════════ */
+var STORAGE_KEY = 'porsooFaultManager_v8';
+var records = [];
+var editId = null;
+var chartInstances = {};
+var _debounceTimer = null;
+
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
-function load(){ 
-  try{ records=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); }catch(e){records=[];} 
-  records=records.filter(Boolean).map(normalize); 
-  var uniq={}; records.forEach(function(r){ if(!uniq[r.id])uniq[r.id]=r; }); 
-  records=Object.values(uniq); 
-  records.forEach(function(r){ r.unitName=canonicalUnitName(r.unitName); }); 
-  persist(); 
+
+function normalize(r) {
+  var sns = Array.isArray(r.serialNumbers)
+    ? r.serialNumbers
+    : String(r.serialNumbers || '').split(/[\n,;]+/).map(function(x) { return x.trim(); }).filter(Boolean);
+  return {
+    id: r.id || uid(),
+    date: r.date || '',
+    sc: r.sc || 'Porsoo',
+    codeSite: String(r.codeSite || '').trim().toUpperCase(),
+    unitName: canonicalUnitName(r.unitName || ''),
+    faultAffect: r.faultAffect || 'Faulty',
+    qty: Number(r.qty) || 1,
+    serialNumbers: sns,
+    status: r.status || (r.approved === true ? 'Approved' : 'Pending'),
+    approvedBy: r.approvedBy || '',
+    approvedAt: r.approvedAt || '',
+    notes: r.notes || ''
+  };
 }
-function persist(){ localStorage.setItem(STORAGE_KEY,JSON.stringify(records)); renderAll(); }
 
-// ============================================================
-//  RENDER HELPERS
-// ============================================================
-function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
-function formatDate(s){ if(!s)return'—'; var d=new Date(s+'T00:00:00'); return isNaN(d)?s:d.toLocaleDateString('en-GB'); }
-function badge(st){ var cls=st==='Approved'?'approved':st==='Rejected'?'rejected':'pending'; return '<span class="badge '+cls+'">'+esc(st)+'</span>'; }
+function load() {
+  try {
+    // migrate from v7 if needed
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      var old = localStorage.getItem('porsooFaultManager_v7');
+      if (old) {
+        raw = old;
+        localStorage.setItem(STORAGE_KEY, old);
+      }
+    }
+    records = JSON.parse(raw || '[]');
+  } catch (e) {
+    records = [];
+  }
+  records = records.filter(Boolean).map(normalize);
+  var uniq = {};
+  records.forEach(function(r) { if (!uniq[r.id]) uniq[r.id] = r; });
+  records = Object.values(uniq);
+  records.forEach(function(r) { r.unitName = canonicalUnitName(r.unitName); });
+  persist();
+}
 
-// ============================================================
-//  CHARTS
-// ============================================================
-function destroyChart(id){ if(chartInstances[id]){ chartInstances[id].destroy(); delete chartInstances[id]; } }
+function persist() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+  renderAll();
+}
 
-function renderCharts(){
-  var eqMap={}, siteMap={}, statusMap={Approved:0,Pending:0,Rejected:0};
-  records.forEach(function(r){ 
-    var k=r.unitName||'Unknown'; eqMap[k]=(eqMap[k]||0)+r.qty; 
-    var s=r.codeSite||'Unknown'; siteMap[s]=(siteMap[s]||0)+r.qty; 
-    if(r.status==='Approved') statusMap.Approved++; else if(r.status==='Pending') statusMap.Pending++; else if(r.status==='Rejected') statusMap.Rejected++;
+/* ═══════════════════════════════════════════════════════════
+   HELPERS
+   ═══════════════════════════════════════════════════════════ */
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(m) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
   });
-  
-  var eq = Object.entries(eqMap).sort(function(a,b){return b[1]-a[1];}).slice(0,10);
-  var site = Object.entries(siteMap).sort(function(a,b){return b[1]-a[1];}).slice(0,10);
-  
+}
+
+function formatDate(s) {
+  if (!s) return '—';
+  var d = new Date(s + 'T00:00:00');
+  return isNaN(d) ? s : d.toLocaleDateString('fa-IR');
+}
+
+function badge(st) {
+  var cls = st === 'Approved' ? 'approved' : st === 'Rejected' ? 'rejected' : 'pending';
+  var label = st === 'Approved' ? 'تأیید' : st === 'Rejected' ? 'رد' : 'در انتظار';
+  return '<span class="badge ' + cls + '">' + label + '</span>';
+}
+
+function statusLabel(st) {
+  return st === 'Approved' ? 'تأیید' : st === 'Rejected' ? 'رد' : 'در انتظار';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CHARTS
+   ═══════════════════════════════════════════════════════════ */
+function destroyChart(id) {
+  if (chartInstances[id]) {
+    chartInstances[id].destroy();
+    delete chartInstances[id];
+  }
+}
+
+function getChartColors() {
+  var isLight = document.body.getAttribute('data-theme') === 'light';
+  return {
+    grid: isLight ? '#d8dee8' : '#2a3a52',
+    text: isLight ? '#4a5a74' : '#9aabc4',
+    bg: isLight ? '#ffffff' : '#1a2332'
+  };
+}
+
+function renderCharts() {
+  var eqMap = {}, siteMap = {}, statusMap = { Approved: 0, Pending: 0, Rejected: 0 };
+  records.forEach(function(r) {
+    var k = r.unitName || 'Unknown';
+    eqMap[k] = (eqMap[k] || 0) + r.qty;
+    var s = r.codeSite || 'Unknown';
+    siteMap[s] = (siteMap[s] || 0) + r.qty;
+    if (r.status === 'Approved') statusMap.Approved++;
+    else if (r.status === 'Pending') statusMap.Pending++;
+    else if (r.status === 'Rejected') statusMap.Rejected++;
+  });
+
+  var eq = Object.entries(eqMap).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 8);
+  var site = Object.entries(siteMap).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 8);
+  var colors = ['#3b82f6', '#8b5cf6', '#22c55e', '#eab308', '#ef4444', '#ec4899', '#14b8a6', '#f97316'];
+  var cc = getChartColors();
+
+  // Equipment
   destroyChart('equipmentChart');
-  var ctx1 = document.getElementById('equipmentChart').getContext('2d');
-  var colors = ['#3b82f6','#8b5cf6','#22c55e','#eab308','#ef4444','#ec4899','#14b8a6','#f97316','#6366f1','#06b6d4'];
-  chartInstances.equipmentChart = new Chart(ctx1, {
-    type:'bar',
-    data:{ labels:eq.map(function(x){return x[0].length>15?x[0].slice(0,14)+'…':x[0];}), datasets:[{ label:'Faulty QTY', data:eq.map(function(x){return x[1];}), backgroundColor:colors.slice(0,eq.length), borderRadius:4 }] },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, grid:{color:'var(--border-color)'}, ticks:{color:'var(--text-secondary)'} }, x:{ grid:{display:false}, ticks:{color:'var(--text-secondary)',maxRotation:45,font:{size:9}} } } }
-  });
-  
+  var ctx1 = document.getElementById('equipmentChart');
+  if (ctx1) {
+    chartInstances.equipmentChart = new Chart(ctx1.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: eq.map(function(x) { return x[0].length > 14 ? x[0].slice(0, 13) + '…' : x[0]; }),
+        datasets: [{ label: 'QTY', data: eq.map(function(x) { return x[1]; }), backgroundColor: colors.slice(0, eq.length), borderRadius: 5 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: cc.grid }, ticks: { color: cc.text, font: { size: 10 } } },
+          x: { grid: { display: false }, ticks: { color: cc.text, maxRotation: 40, font: { size: 9 } } }
+        }
+      }
+    });
+  }
+
+  // Sites
   destroyChart('siteChart');
-  var ctx2 = document.getElementById('siteChart').getContext('2d');
-  chartInstances.siteChart = new Chart(ctx2, {
-    type:'bar',
-    data:{ labels:site.map(function(x){return x[0].length>12?x[0].slice(0,11)+'…':x[0];}), datasets:[{ label:'Faulty QTY', data:site.map(function(x){return x[1];}), backgroundColor:['#3b82f6','#8b5cf6','#22c55e','#eab308','#ef4444','#ec4899','#14b8a6','#f97316','#6366f1','#06b6d4'].slice(0,site.length), borderRadius:4 }] },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, grid:{color:'var(--border-color)'}, ticks:{color:'var(--text-secondary)'} }, x:{ grid:{display:false}, ticks:{color:'var(--text-secondary)',maxRotation:45,font:{size:9}} } } }
-  });
-  
+  var ctx2 = document.getElementById('siteChart');
+  if (ctx2) {
+    chartInstances.siteChart = new Chart(ctx2.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: site.map(function(x) { return x[0].length > 10 ? x[0].slice(0, 9) + '…' : x[0]; }),
+        datasets: [{ label: 'QTY', data: site.map(function(x) { return x[1]; }), backgroundColor: colors.slice(0, site.length), borderRadius: 5 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: cc.grid }, ticks: { color: cc.text, font: { size: 10 } } },
+          x: { grid: { display: false }, ticks: { color: cc.text, maxRotation: 40, font: { size: 9 } } }
+        }
+      }
+    });
+  }
+
+  // Status doughnut
   destroyChart('statusChart');
-  var ctx3 = document.getElementById('statusChart').getContext('2d');
-  chartInstances.statusChart = new Chart(ctx3, {
-    type:'doughnut',
-    data:{ labels:['Approved','Pending','Rejected'], datasets:[{ data:[statusMap.Approved,statusMap.Pending,statusMap.Rejected], backgroundColor:['#22c55e','#eab308','#ef4444'], borderColor:'var(--bg-card)', borderWidth:2 }] },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom', labels:{ color:'var(--text-secondary)', font:{size:11} } } }, cutout:'60%' }
-  });
+  var ctx3 = document.getElementById('statusChart');
+  if (ctx3) {
+    chartInstances.statusChart = new Chart(ctx3.getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: ['تأیید', 'در انتظار', 'رد'],
+        datasets: [{
+          data: [statusMap.Approved, statusMap.Pending, statusMap.Rejected],
+          backgroundColor: ['#22c55e', '#eab308', '#ef4444'],
+          borderColor: cc.bg,
+          borderWidth: 3
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: cc.text, font: { size: 11 }, padding: 12 } }
+        },
+        cutout: '62%'
+      }
+    });
+  }
 }
 
-// ============================================================
-//  RENDER ALL
-// ============================================================
-function stats(){ var q=0,sites=new Set(),types=new Set(),a=0,p=0,rej=0; records.forEach(function(r){ q+=r.qty; if(r.codeSite)sites.add(r.codeSite); if(r.unitName)types.add(r.unitName); if(r.status==='Approved')a++; else if(r.status==='Pending')p++; else if(r.status==='Rejected')rej++; }); return {n:records.length,q:q,s:sites.size,t:types.size,a:a,p:p,r:rej}; }
-function renderAll(){ 
-  var x=stats(); var ids=['kRecords','kQty','kSites','kTypes','kApproved','kPending','kRejected']; var vals=[x.n,x.q,x.s,x.t,x.a,x.p,x.r]; for(var i=0;i<ids.length;i++)document.getElementById(ids[i]).textContent=vals[i]; 
+/* ═══════════════════════════════════════════════════════════
+   RENDER ALL
+   ═══════════════════════════════════════════════════════════ */
+function stats() {
+  var q = 0, sites = new Set(), types = new Set(), a = 0, p = 0, rej = 0;
+  records.forEach(function(r) {
+    q += r.qty;
+    if (r.codeSite) sites.add(r.codeSite);
+    if (r.unitName) types.add(r.unitName);
+    if (r.status === 'Approved') a++;
+    else if (r.status === 'Pending') p++;
+    else if (r.status === 'Rejected') rej++;
+  });
+  return { n: records.length, q: q, s: sites.size, t: types.size, a: a, p: p, r: rej };
+}
+
+function renderAll() {
+  var x = stats();
+  var ids = ['kRecords', 'kQty', 'kSites', 'kTypes', 'kApproved', 'kPending', 'kRejected'];
+  var vals = [x.n, x.q, x.s, x.t, x.a, x.p, x.r];
+  for (var i = 0; i < ids.length; i++) {
+    var el = document.getElementById(ids[i]);
+    if (el) el.textContent = vals[i];
+  }
   renderCharts();
   renderDashboardLists();
-  renderRecords(); renderApprovals(); renderSites(); renderQuality(); renderReport(); 
-}
-function renderDashboardLists(){
-  var recent=records.slice().sort(function(a,b){return b.date.localeCompare(a.date);}).slice(0,7);
-  document.getElementById('recent').innerHTML=recent.map(function(r){return '<div class="item"><span><b>'+esc(r.codeSite)+'</b> — '+esc(r.unitName)+'<br><span class="muted">'+formatDate(r.date)+' • QTY '+r.qty+'</span></span>'+badge(r.status)+'</div>';}).join('')||'<div class="item">No activity</div>';
-  var dup=duplicateSN(); var alerts=[]; if(!records.length)alerts.push('Database empty'); if(dup.length)alerts.push(dup.length+' duplicate SN groups'); var pend=records.filter(function(r){return r.status==='Pending';}).length; if(pend)alerts.push(pend+' pending approvals');
-  document.getElementById('alerts').innerHTML=alerts.length?alerts.map(function(x){return '<div class="item">⚠ '+esc(x)+'</div>';}).join(''):'<div class="item ok">✓ All clear</div>';
+  renderRecords();
+  renderApprovals();
+  renderSites();
+  renderQuality();
+  renderReport();
 }
 
-// ============================================================
-//  RECORDS
-// ============================================================
-function filtered(){ var q=(document.getElementById('q')?.value||'').toLowerCase().trim(); var site=(document.getElementById('fs')?.value||'').toLowerCase().trim(); var unit=(document.getElementById('fu')?.value||'').toLowerCase().trim(); var st=document.getElementById('fst')?.value||''; var d1=document.getElementById('fd1')?.value||''; var d2=document.getElementById('fd2')?.value||''; return records.filter(function(r){ var haystack=[r.codeSite,r.unitName,r.faultAffect].concat(r.serialNumbers,[r.approvedBy,r.notes]).join(' ').toLowerCase(); if(q&&!haystack.includes(q))return false; if(site&&!r.codeSite.toLowerCase().includes(site))return false; if(unit&&!r.unitName.toLowerCase().includes(unit))return false; if(st&&r.status!==st)return false; if(d1&&r.date<d1)return false; if(d2&&r.date>d2)return false; return true; }); }
-function renderRecords(){ var list=filtered(); var tbody=document.getElementById('tbody'); if(!list.length){tbody.innerHTML='<tr><td colspan="8" class="empty">No records</td></tr>';return;} var html=''; list.forEach(function(r){ html+='<tr><td>'+esc(formatDate(r.date))+'</td><td><b>'+esc(r.codeSite)+'</b></td><td>'+esc(r.unitName)+'</td><td>'+esc(r.faultAffect)+'</td><td>'+r.qty+'</td><td>'+r.serialNumbers.map(function(s){return '<span class="sn-tag">'+esc(s)+'</span>';}).join('')||'—'+'</td><td>'+badge(r.status)+'</td><td><button class="btn btn-sm" onclick="editRecord(\''+r.id+'\')">✎</button> <button class="btn btn-sm btn-red" onclick="delRecord(\''+r.id+'\')">✕</button> <button class="btn btn-sm btn-outline" onclick="copyRecordTemplate(\''+r.id+'\')" title="Copy template">📋</button></td></tr>'; }); tbody.innerHTML=html; }
-function copyRecordTemplate(id){ var r=records.find(function(x){return x.id===id;}); if(!r){toast('Record not found');return;} var template=formatRecordText({ sc:r.sc||'Porsoo', site:r.codeSite||'', unit:r.unitName||'', fault:r.faultAffect||'Faulty', qty:r.qty||1, sns:r.serialNumbers||[], status:r.status||'Pending', approver:r.approvedBy||'', notes:r.notes||'' }); navigator.clipboard.writeText(template).then(function(){toast('📋 Template copied from '+r.codeSite);}).catch(function(){toast('Copy failed');}); }
+function debounceRender() {
+  clearTimeout(_debounceTimer);
+  _debounceTimer = setTimeout(function() {
+    renderRecords();
+  }, 180);
+}
 
-// ============================================================
-//  APPROVALS
-// ============================================================
-function renderApprovals(){ var list=records.filter(function(r){return r.status==='Pending';}); var tbody=document.getElementById('approvals'); if(!list.length){tbody.innerHTML='<tr><td colspan="7" class="empty">No pending</td></tr>';return;} var html=''; list.forEach(function(r){ html+='<tr><td>'+esc(formatDate(r.date))+'</td><td>'+esc(r.codeSite)+'</td><td>'+esc(r.unitName)+'</td><td>'+r.qty+'</td><td>'+esc(r.faultAffect)+'</td><td>'+badge(r.status)+'</td><td><button class="btn btn-sm btn-green" onclick="decision(\''+r.id+'\',\'Approved\')">✓</button> <button class="btn btn-sm btn-red" onclick="decision(\''+r.id+'\',\'Rejected\')">✕</button></td></tr>'; }); tbody.innerHTML=html; }
+function renderDashboardLists() {
+  var recent = records.slice().sort(function(a, b) { return b.date.localeCompare(a.date); }).slice(0, 6);
+  var recentEl = document.getElementById('recent');
+  if (!recent.length) {
+    recentEl.innerHTML = '<div class="empty-state"><div class="icon">📭</div>هنوز فعالیتی ثبت نشده</div>';
+  } else {
+    recentEl.innerHTML = recent.map(function(r) {
+      return '<div class="card" onclick="editRecord(\'' + r.id + '\')">' +
+        '<div class="card-top"><span class="card-site">' + esc(r.codeSite) + '</span>' + badge(r.status) + '</div>' +
+        '<div class="card-unit">' + esc(r.unitName) + '</div>' +
+        '<div class="card-meta">' + formatDate(r.date) + ' • QTY ' + r.qty + '</div>' +
+        '</div>';
+    }).join('');
+  }
 
-// ============================================================
-//  SITES
-// ============================================================
-function renderSites(){ var map={}; records.forEach(function(r){ if(!map[r.codeSite])map[r.codeSite]={n:0,q:0,t:new Set(),a:0,p:0,last:''}; var x=map[r.codeSite]; x.n++; x.q+=r.qty; if(r.unitName)x.t.add(r.unitName); if(r.status==='Approved')x.a++; if(r.status==='Pending')x.p++; if(!x.last||r.date>x.last)x.last=r.date; }); var entries=Object.entries(map).sort(function(a,b){return b[1].q-a[1].q;}); var tbody=document.getElementById('sitesBody'); if(!entries.length){tbody.innerHTML='<tr><td colspan="8" class="empty">No sites</td></tr>';return;} var html=''; entries.forEach(function(item){ var s=item[0],x=item[1]; html+='<tr><td><b>'+esc(s)+'</b></td><td>'+x.n+'</td><td>'+x.q+'</td><td>'+x.t.size+'</td><td>'+x.a+'</td><td>'+x.p+'</td><td>'+esc(formatDate(x.last))+'</td><td><button class="btn btn-sm btn-outline" onclick="siteFilter(\''+esc(s)+'\')">🔍</button> <button class="btn btn-sm btn-primary" onclick="copySiteTemplate(\''+esc(s)+'\')">📋 Template</button></td></tr>'; }); tbody.innerHTML=html; }
-function copySiteTemplate(site){ var siteRecords=records.filter(function(r){return r.codeSite===site;}); if(!siteRecords.length){toast('No records for site '+site);return;} var sorted=siteRecords.slice().sort(function(a,b){return b.date.localeCompare(a.date);}); var r=sorted[0]; var template=formatRecordText({ sc:r.sc||'Porsoo', site:r.codeSite||'', unit:r.unitName||'', fault:r.faultAffect||'Faulty', qty:r.qty||1, sns:r.serialNumbers||[], status:r.status||'Pending', approver:r.approvedBy||'', notes:r.notes||'' }); navigator.clipboard.writeText(template).then(function(){toast('📋 Template for '+site+' copied ('+sorted.length+' records)');}).catch(function(){toast('Copy failed');}); }
-function siteFilter(s){ showView('records',document.querySelectorAll('.nav button')[1]); document.getElementById('fs').value=s; renderRecords(); }
+  var dup = duplicateSN();
+  var alerts = [];
+  if (!records.length) alerts.push('دیتابیس خالی است');
+  if (dup.length) alerts.push(dup.length + ' گروه سریال تکراری');
+  var pend = records.filter(function(r) { return r.status === 'Pending'; }).length;
+  if (pend) alerts.push(pend + ' مورد در انتظار تأیید');
+  var alertsEl = document.getElementById('alerts');
+  if (!alerts.length) {
+    alertsEl.innerHTML = '<div class="list-item" style="color:var(--green)">✓ همه چیز مرتب است</div>';
+  } else {
+    alertsEl.innerHTML = alerts.map(function(x) {
+      return '<div class="list-item">⚠ ' + esc(x) + '</div>';
+    }).join('');
+  }
+}
 
-// ============================================================
-//  QUALITY
-// ============================================================
-function duplicateSN(){ var m={}; records.forEach(function(r){ r.serialNumbers.forEach(function(sn){ if(sn&&sn.toUpperCase()!=='NA'){ if(!m[sn])m[sn]=[]; m[sn].push(r.codeSite); } }); }); return Object.entries(m).filter(function(e){return e[1].length>1;}); }
-function renderQuality(){ var dup=duplicateSN(); document.getElementById('dupSN').innerHTML=dup.length?dup.map(function(e){return '<div class="item"><span><b>'+esc(e[0])+'</b><br><span class="muted">'+esc([...new Set(e[1])].join(', '))+'</span></span><span class="badge rejected">DUPLICATE</span></div>';}).join(''):'<div class="item ok">✓ No duplicates</div>'; var issues=[]; records.forEach(function(r){ if(!r.unitName)issues.push(r.codeSite+': empty Unit'); if(r.serialNumbers.length&&r.serialNumbers.length!==r.qty)issues.push(r.codeSite+': QTY mismatch'); if(!r.serialNumbers.length)issues.push(r.codeSite+': no SN'); if(r.serialNumbers.includes('NA'))issues.push(r.codeSite+': SN marked NA'); }); document.getElementById('qualityList').innerHTML=issues.length?issues.map(function(x){return '<div class="item">⚠ '+esc(x)+'</div>';}).join(''):'<div class="item ok">✓ All consistent</div>'; }
+/* ═══════════════════════════════════════════════════════════
+   RECORDS (Card-based for mobile)
+   ═══════════════════════════════════════════════════════════ */
+function filtered() {
+  var q = (document.getElementById('q')?.value || '').toLowerCase().trim();
+  var site = (document.getElementById('fs')?.value || '').toLowerCase().trim();
+  var unit = (document.getElementById('fu')?.value || '').toLowerCase().trim();
+  var st = document.getElementById('fst')?.value || '';
+  var d1 = document.getElementById('fd1')?.value || '';
+  var d2 = document.getElementById('fd2')?.value || '';
+  return records.filter(function(r) {
+    var haystack = [r.codeSite, r.unitName, r.faultAffect].concat(r.serialNumbers, [r.approvedBy, r.notes]).join(' ').toLowerCase();
+    if (q && !haystack.includes(q)) return false;
+    if (site && !r.codeSite.toLowerCase().includes(site)) return false;
+    if (unit && !r.unitName.toLowerCase().includes(unit)) return false;
+    if (st && r.status !== st) return false;
+    if (d1 && r.date < d1) return false;
+    if (d2 && r.date > d2) return false;
+    return true;
+  });
+}
 
-// ============================================================
-//  REPORTS
-// ============================================================
-function renderReport(){ var x=stats(); var html='<div class="stats" style="margin-bottom:10px;grid-template-columns:repeat(3,1fr)">'+['Requests','Faulty Units','Sites','Approved','Pending','Rejected'].map(function(label,i){ return '<div class="stat"><small>'+label+'</small><b>'+Object.values(x)[i]+'</b></div>'; }).join('')+'</div><h4 style="font-size:13px;margin-bottom:6px">Top 10 Sites</h4><div class="tablebox"><table><thead><tr><th>Site</th><th>Units</th><th>Requests</th></tr></thead><tbody>'; var map={}; records.forEach(function(r){ var k=r.codeSite||'Unknown'; map[k]=(map[k]||0)+r.qty; }); var sorted=Object.entries(map).sort(function(a,b){return b[1]-a[1];}).slice(0,10); sorted.forEach(function(item){ var s=item[0],q=item[1]; var cnt=records.filter(function(r){return r.codeSite===s;}).length; html+='<tr><td>'+esc(s)+'</td><td>'+q+'</td><td>'+cnt+'</td></tr>'; }); html+='</tbody></table></div>'; document.getElementById('reportContent').innerHTML=html; }
+function renderRecords() {
+  var list = filtered().sort(function(a, b) { return b.date.localeCompare(a.date); });
+  var el = document.getElementById('recordsList');
+  var cnt = document.getElementById('recordsCount');
+  if (cnt) cnt.textContent = list.length;
+  if (!list.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">📋</div>رکوردی یافت نشد</div>';
+    return;
+  }
+  el.innerHTML = list.map(function(r) {
+    return '<div class="card">' +
+      '<div class="card-top"><span class="card-site">' + esc(r.codeSite) + '</span>' + badge(r.status) + '</div>' +
+      '<div class="card-unit">' + esc(r.unitName) + '</div>' +
+      '<div class="card-meta">' +
+        formatDate(r.date) + ' • QTY ' + r.qty +
+        (r.faultAffect ? ' • ' + esc(r.faultAffect) : '') +
+      '</div>' +
+      (r.serialNumbers.length ? '<div class="sn-tags">' + r.serialNumbers.map(function(s) {
+        return '<span class="sn-tag">' + esc(s) + '</span>';
+      }).join('') + '</div>' : '') +
+      '<div class="card-actions">' +
+        '<button class="btn btn-sm" onclick="editRecord(\'' + r.id + '\')">✎ ویرایش</button>' +
+        '<button class="btn btn-sm btn-red" onclick="delRecord(\'' + r.id + '\')">✕ حذف</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
 
-// ============================================================
-//  CRUD
-// ============================================================
-function openAdd(){ 
-  editId=null; 
-  document.getElementById('form').reset(); 
-  document.getElementById('eid').value=''; 
-  document.getElementById('date').value=new Date().toISOString().slice(0,10); 
-  document.getElementById('sc').value='Porsoo'; 
-  document.getElementById('fault').value='Faulty'; 
-  document.getElementById('status').value='Pending'; 
-  document.getElementById('qty').value=1; 
-  document.getElementById('unitFamily').value=''; 
-  document.getElementById('familyFields').innerHTML=''; 
-  document.getElementById('unitPreview').textContent='Select family and fill fields'; 
-  document.getElementById('copyArea').innerHTML='Output will appear here<button class="copy-btn" onclick="copyOutput()">📋 Copy</button>'; 
-  document.getElementById('mtitle').textContent='New Fault'; 
+/* ═══════════════════════════════════════════════════════════
+   APPROVALS
+   ═══════════════════════════════════════════════════════════ */
+function renderApprovals() {
+  var list = records.filter(function(r) { return r.status === 'Pending'; })
+    .sort(function(a, b) { return b.date.localeCompare(a.date); });
+  var el = document.getElementById('approvalsList');
+  var cnt = document.getElementById('pendingCount');
+  if (cnt) cnt.textContent = list.length;
+  if (!list.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">✅</div>موردی در انتظار نیست</div>';
+    return;
+  }
+  el.innerHTML = list.map(function(r) {
+    return '<div class="card">' +
+      '<div class="card-top"><span class="card-site">' + esc(r.codeSite) + '</span>' + badge(r.status) + '</div>' +
+      '<div class="card-unit">' + esc(r.unitName) + '</div>' +
+      '<div class="card-meta">' + formatDate(r.date) + ' • QTY ' + r.qty + '</div>' +
+      '<div class="card-actions">' +
+        '<button class="btn btn-sm btn-green" onclick="decision(\'' + r.id + '\',\'Approved\')">✓ تأیید</button>' +
+        '<button class="btn btn-sm btn-red" onclick="decision(\'' + r.id + '\',\'Rejected\')">✕ رد</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SITES
+   ═══════════════════════════════════════════════════════════ */
+function renderSites() {
+  var map = {};
+  records.forEach(function(r) {
+    if (!map[r.codeSite]) map[r.codeSite] = { n: 0, q: 0, t: new Set(), a: 0, p: 0, last: '' };
+    var x = map[r.codeSite];
+    x.n++; x.q += r.qty;
+    if (r.unitName) x.t.add(r.unitName);
+    if (r.status === 'Approved') x.a++;
+    if (r.status === 'Pending') x.p++;
+    if (!x.last || r.date > x.last) x.last = r.date;
+  });
+  var entries = Object.entries(map).sort(function(a, b) { return b[1].q - a[1].q; });
+  var el = document.getElementById('sitesList');
+  if (!entries.length) {
+    el.innerHTML = '<div class="empty-state"><div class="icon">📍</div>سایتی ثبت نشده</div>';
+    return;
+  }
+  el.innerHTML = entries.map(function(item) {
+    var s = item[0], x = item[1];
+    return '<div class="card">' +
+      '<div class="card-top"><span class="card-site">' + esc(s) + '</span></div>' +
+      '<div class="card-meta">' +
+        x.n + ' درخواست • ' + x.q + ' واحد • ' + x.t.size + ' نوع' +
+      '</div>' +
+      '<div class="card-meta">' +
+        'تأیید: ' + x.a + ' • در انتظار: ' + x.p + ' • آخرین: ' + formatDate(x.last) +
+      '</div>' +
+      '<div class="card-actions">' +
+        '<button class="btn btn-sm" onclick="siteFilter(\'' + esc(s) + '\')">مشاهده سوابق</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function siteFilter(s) {
+  showView('records');
+  document.getElementById('fs').value = s;
+  renderRecords();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   QUALITY
+   ═══════════════════════════════════════════════════════════ */
+function duplicateSN() {
+  var m = {};
+  records.forEach(function(r) {
+    r.serialNumbers.forEach(function(sn) {
+      if (sn && sn.toUpperCase() !== 'NA') {
+        if (!m[sn]) m[sn] = [];
+        m[sn].push(r.codeSite);
+      }
+    });
+  });
+  return Object.entries(m).filter(function(e) { return e[1].length > 1; });
+}
+
+function renderQuality() {
+  var dup = duplicateSN();
+  var dupEl = document.getElementById('dupSN');
+  if (!dup.length) {
+    dupEl.innerHTML = '<div class="list-item" style="color:var(--green)">✓ سریال تکراری یافت نشد</div>';
+  } else {
+    dupEl.innerHTML = dup.map(function(e) {
+      return '<div class="list-item"><span><b>' + esc(e[0]) + '</b><br><span class="muted">' +
+        esc([...new Set(e[1])].join(', ')) + '</span></span><span class="badge rejected">تکراری</span></div>';
+    }).join('');
+  }
+
+  var issues = [];
+  records.forEach(function(r) {
+    if (!r.unitName) issues.push(r.codeSite + ': یونیت خالی');
+    if (r.serialNumbers.length && r.serialNumbers.length !== r.qty) issues.push(r.codeSite + ': عدم تطابق QTY و SN');
+    if (!r.serialNumbers.length) issues.push(r.codeSite + ': بدون سریال');
+    if (r.serialNumbers.includes('NA')) issues.push(r.codeSite + ': SN برابر NA');
+  });
+  var qEl = document.getElementById('qualityList');
+  if (!issues.length) {
+    qEl.innerHTML = '<div class="list-item" style="color:var(--green)">✓ داده‌ها یکپارچه هستند</div>';
+  } else {
+    qEl.innerHTML = issues.map(function(x) {
+      return '<div class="list-item">⚠ ' + esc(x) + '</div>';
+    }).join('');
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   REPORTS
+   ═══════════════════════════════════════════════════════════ */
+function renderReport() {
+  var x = stats();
+  var html = '<div class="stats" style="grid-template-columns:repeat(3,1fr);margin-bottom:12px">' +
+    ['درخواست‌ها', 'واحدهای خراب', 'سایت‌ها', 'تأیید شده', 'در انتظار', 'رد شده'].map(function(label, i) {
+      return '<div class="stat"><small>' + label + '</small><b>' + Object.values(x)[i] + '</b></div>';
+    }).join('') + '</div>';
+
+  html += '<h4 style="font-size:13px;margin:10px 0 6px">۱۰ سایت برتر</h4>';
+  var map = {};
+  records.forEach(function(r) {
+    var k = r.codeSite || 'Unknown';
+    map[k] = (map[k] || 0) + r.qty;
+  });
+  var sorted = Object.entries(map).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 10);
+  if (!sorted.length) {
+    html += '<div class="empty-state">داده‌ای نیست</div>';
+  } else {
+    html += '<div class="card-list">';
+    sorted.forEach(function(item, idx) {
+      var s = item[0], q = item[1];
+      var cnt = records.filter(function(r) { return r.codeSite === s; }).length;
+      html += '<div class="list-item"><span><b>' + (idx + 1) + '. ' + esc(s) + '</b><br><span class="muted">' +
+        cnt + ' درخواست</span></span><span class="fw-700">' + q + ' واحد</span></div>';
+    });
+    html += '</div>';
+  }
+  document.getElementById('reportContent').innerHTML = html;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CRUD
+   ═══════════════════════════════════════════════════════════ */
+function openAdd() {
+  editId = null;
+  document.getElementById('form').reset();
+  document.getElementById('eid').value = '';
+  document.getElementById('date').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('sc').value = 'Porsoo';
+  document.getElementById('fault').value = 'Faulty';
+  document.getElementById('status').value = 'Pending';
+  document.getElementById('qty').value = 1;
+  document.getElementById('unitFamily').value = '';
+  document.getElementById('familyFields').innerHTML = '';
+  document.getElementById('unitPreview').textContent = 'خانواده را انتخاب و فیلدها را پر کنید';
+  document.getElementById('copyArea').innerHTML = 'خروجی اینجا نمایش داده می‌شود<button type="button" class="copy-btn" onclick="copyOutput()">📋 کپی</button>';
+  document.getElementById('mtitle').textContent = 'خرابی جدید';
+  document.getElementById('modalbg').classList.add('on');
+  document.body.style.overflow = 'hidden';
+}
+
+function editRecord(id) {
+  var r = records.find(function(x) { return x.id === id; });
+  if (!r) return;
+  editId = id;
+  document.getElementById('eid').value = id;
+  document.getElementById('date').value = r.date || '';
+  document.getElementById('sc').value = r.sc || 'Porsoo';
+  document.getElementById('site').value = r.codeSite || '';
+  document.getElementById('fault').value = r.faultAffect || 'Faulty';
+  document.getElementById('qty').value = r.qty || 1;
+  document.getElementById('sns').value = (r.serialNumbers || []).join('\n');
+  document.getElementById('status').value = r.status || 'Pending';
+  document.getElementById('approver').value = r.approvedBy || '';
+  document.getElementById('notes').value = r.notes || '';
+  document.getElementById('unitFamily').value = 'CUSTOM';
+  document.getElementById('familyFields').innerHTML =
+    '<div class="fg full"><label>یونیت سفارشی</label><input class="field" id="customName" value="' +
+    esc(r.unitName) + '" placeholder="نام دقیق یونیت" oninput="updatePreview()"></div>';
   updatePreview();
-  document.getElementById('modalbg').classList.add('on'); 
+  document.getElementById('mtitle').textContent = 'ویرایش خرابی';
+  document.getElementById('modalbg').classList.add('on');
+  document.body.style.overflow = 'hidden';
 }
-function editRecord(id){ var r=records.find(function(x){return x.id===id;}); if(!r)return; editId=id; document.getElementById('eid').value=id; document.getElementById('date').value=r.date||''; document.getElementById('sc').value=r.sc||'Porsoo'; document.getElementById('site').value=r.codeSite||''; document.getElementById('fault').value=r.faultAffect||'Faulty'; document.getElementById('qty').value=r.qty||1; document.getElementById('sns').value=(r.serialNumbers||[]).join('\n'); document.getElementById('status').value=r.status||'Pending'; document.getElementById('approver').value=r.approvedBy||''; document.getElementById('notes').value=r.notes||''; document.getElementById('unitFamily').value='CUSTOM'; document.getElementById('familyFields').innerHTML='<div class="fg full"><label>Custom Unit</label><input class="field" id="customName" value="'+esc(r.unitName)+'" placeholder="Exact unit name" oninput="updatePreview()"></div>'; updatePreview(); document.getElementById('mtitle').textContent='Edit Fault'; document.getElementById('modalbg').classList.add('on'); }
-function closeModal(){ document.getElementById('modalbg').classList.remove('on'); }
-function saveRecord(e){ e.preventDefault(); var unitName=buildUnitName(); if(!unitName){toast('Select a family and fill fields.');return;} var qty=parseInt(document.getElementById('qty').value)||1; var snsRaw=document.getElementById('sns').value; var sns=snsRaw.split(/[\n,;]+/).map(function(s){return s.trim();}).filter(Boolean); if(sns.length !== qty){ toast('SN count ('+sns.length+') does not match QTY ('+qty+')'); return; } var id=document.getElementById('eid').value; var record={ id:id||uid(), date:document.getElementById('date').value, sc:document.getElementById('sc').value.trim()||'Porsoo', codeSite:document.getElementById('site').value.trim().toUpperCase(), unitName:unitName, faultAffect:document.getElementById('fault').value.trim()||'Faulty', qty:qty, serialNumbers:sns, status:document.getElementById('status').value, approvedBy:document.getElementById('approver').value.trim(), approvedAt:'', notes:document.getElementById('notes').value.trim() }; if(record.status==='Approved'&&!record.approvedBy)record.approvedBy='Soroush Yaghmouri'; if(record.status==='Approved')record.approvedAt=new Date().toISOString(); var idx=records.findIndex(function(r){return r.id===record.id;}); if(idx>=0)records[idx]=record; else records.push(record); persist(); closeModal(); toast(idx>=0?'Updated':'Saved'); }
-function decision(id,st){ var r=records.find(function(x){return x.id===id;}); if(!r)return; r.status=st; r.approvedBy=st==='Approved'?(r.approvedBy||'Soroush Yaghmouri'):''; r.approvedAt=new Date().toISOString(); persist(); toast(st==='Approved'?'✅ Approved':'❌ Rejected'); }
-function delRecord(id){ if(!confirm('Delete this record?'))return; records=records.filter(function(r){return r.id!==id;}); persist(); toast('Deleted'); }
-function clearFilters(){ ['q','fs','fu','fst','fd1','fd2'].forEach(function(id){ var el=document.getElementById(id); if(el)el.value=''; }); renderRecords(); }
 
-// ============================================================
-//  VIEW SWITCH
-// ============================================================
-function showView(id,btn){ document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');}); document.getElementById(id).classList.add('active'); document.querySelectorAll('.nav button').forEach(function(b){b.classList.remove('active');}); if(btn)btn.classList.add('active'); renderAll(); }
+function closeModal() {
+  document.getElementById('modalbg').classList.remove('on');
+  document.body.style.overflow = '';
+}
 
-// ============================================================
-//  EXPORT / IMPORT
-// ============================================================
-function exportJSON(){ if(!records.length)return toast('No data'); download(JSON.stringify(records,null,2),'porsoo_backup.json','application/json'); toast('💾 Backup saved'); }
-function importJSON(e){ var f=e.target.files[0]; if(!f)return; var rd=new FileReader(); rd.onload=function(){ try{ var data=JSON.parse(rd.result); if(!Array.isArray(data))throw Error('Invalid'); var added=0; data.forEach(function(item){ var r=normalize(item); var idx=records.findIndex(function(x){return x.id===r.id;}); if(idx>=0)records[idx]=r; else{records.push(r);added++;} }); persist(); toast('📥 '+added+' imported'); }catch(err){toast('Import failed');} }; rd.readAsText(f); e.target.value=''; }
-function exportCSV(){ if(!records.length)return toast('No data'); var h=['Date','SC','CodeSite','UnitName','FaultAffect','QTY','SerialNumbers','Status','ApprovedBy','Notes']; var rows=records.map(function(r){ return [r.date,r.sc,r.codeSite,r.unitName,r.faultAffect,r.qty,r.serialNumbers.join('; '),r.status,r.approvedBy,r.notes]; }); var csv='\ufeff'+[h].concat(rows).map(function(row){ return row.map(function(cell){ return '"'+String(cell==null?'':cell).replace(/"/g,'""')+'"'; }).join(','); }).join('\n'); download(csv,'porsoo_report.csv','text/csv;charset=utf-8'); toast('📊 CSV exported'); }
-function download(content,filename,mime){ var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([content],{type:mime})); a.download=filename; a.click(); setTimeout(function(){URL.revokeObjectURL(a.href);},500); }
-function printReport(){ var w=window.open('','_blank'); w.document.write('<html><head><title>Report</title><style>body{font-family:Arial;padding:25px}table{width:100%;border-collapse:collapse}td,th{border:1px solid #ccc;padding:7px;text-align:left}</style></head><body><h1>Porsoo Fault Report</h1>'+document.getElementById('reportContent').innerHTML+'</body></html>'); w.document.close(); w.print(); }
+function saveRecord(e) {
+  e.preventDefault();
+  var unitName = buildUnitName();
+  if (!unitName) { toast('خانواده یونیت را انتخاب و فیلدها را پر کنید.'); return; }
+  var qty = parseInt(document.getElementById('qty').value) || 1;
+  var snsRaw = document.getElementById('sns').value;
+  var sns = snsRaw.split(/[\n,;]+/).map(function(s) { return s.trim(); }).filter(Boolean);
+  if (sns.length !== qty) {
+    toast('تعداد SN (' + sns.length + ') با QTY (' + qty + ') برابر نیست');
+    return;
+  }
+  var id = document.getElementById('eid').value;
+  var record = {
+    id: id || uid(),
+    date: document.getElementById('date').value,
+    sc: document.getElementById('sc').value.trim() || 'Porsoo',
+    codeSite: document.getElementById('site').value.trim().toUpperCase(),
+    unitName: unitName,
+    faultAffect: document.getElementById('fault').value.trim() || 'Faulty',
+    qty: qty,
+    serialNumbers: sns,
+    status: document.getElementById('status').value,
+    approvedBy: document.getElementById('approver').value.trim(),
+    approvedAt: '',
+    notes: document.getElementById('notes').value.trim()
+  };
+  if (record.status === 'Approved' && !record.approvedBy) record.approvedBy = 'Soroush Yaghmouri';
+  if (record.status === 'Approved') record.approvedAt = new Date().toISOString();
 
-// ============================================================
-//  TOAST
-// ============================================================
-function toast(msg){ var el=document.getElementById('toast'); el.textContent=msg; el.style.display='block'; clearTimeout(window._tt); window._tt=setTimeout(function(){el.style.display='none';},2800); }
+  var idx = records.findIndex(function(r) { return r.id === record.id; });
+  if (idx >= 0) records[idx] = record;
+  else records.push(record);
+  persist();
+  closeModal();
+  toast(idx >= 0 ? 'به‌روزرسانی شد' : 'ذخیره شد');
+}
 
-// ============================================================
-//  INIT
-// ============================================================
-document.getElementById('modalbg').addEventListener('click',function(e){if(e.target.id==='modalbg')closeModal();});
-document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
+function decision(id, st) {
+  var r = records.find(function(x) { return x.id === id; });
+  if (!r) return;
+  r.status = st;
+  r.approvedBy = st === 'Approved' ? (r.approvedBy || 'Soroush Yaghmouri') : '';
+  r.approvedAt = new Date().toISOString();
+  persist();
+  toast(st === 'Approved' ? 'تأیید شد' : 'رد شد');
+}
+
+function delRecord(id) {
+  if (!confirm('آیا از حذف این رکورد مطمئن هستید؟')) return;
+  records = records.filter(function(r) { return r.id !== id; });
+  persist();
+  toast('حذف شد');
+}
+
+function clearFilters() {
+  ['q', 'fs', 'fu', 'fst', 'fd1', 'fd2'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  renderRecords();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   VIEW SWITCH
+   ═══════════════════════════════════════════════════════════ */
+function showView(id, btn) {
+  document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
+  var view = document.getElementById(id);
+  if (view) view.classList.add('active');
+
+  // bottom nav
+  document.querySelectorAll('.bottom-nav .nav-item').forEach(function(b) {
+    b.classList.toggle('active', b.getAttribute('data-view') === id);
+  });
+  // desktop nav
+  document.querySelectorAll('.desktop-nav button').forEach(function(b) {
+    b.classList.toggle('active', b.getAttribute('data-view') === id);
+  });
+
+  // if coming from "more", highlight more
+  if (['quality', 'reports', 'importtext'].indexOf(id) >= 0) {
+    document.querySelectorAll('.bottom-nav .nav-item').forEach(function(b) {
+      b.classList.toggle('active', b.getAttribute('data-view') === 'more');
+    });
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  renderAll();
+}
+
+function showMoreMenu(btn) {
+  document.getElementById('moreSheet').classList.add('on');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMore() {
+  document.getElementById('moreSheet').classList.remove('on');
+  document.body.style.overflow = '';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   EXPORT / IMPORT
+   ═══════════════════════════════════════════════════════════ */
+function exportJSON() {
+  if (!records.length) return toast('داده‌ای نیست');
+  download(JSON.stringify(records, null, 2), 'porsoo_backup_v8.json', 'application/json');
+  toast('بک‌آپ JSON گرفته شد');
+}
+
+function importJSON(e) {
+  var f = e.target.files[0];
+  if (!f) return;
+  var rd = new FileReader();
+  rd.onload = function() {
+    try {
+      var data = JSON.parse(rd.result);
+      if (!Array.isArray(data)) throw new Error('Invalid');
+      var added = 0;
+      data.forEach(function(item) {
+        var r = normalize(item);
+        var idx = records.findIndex(function(x) { return x.id === r.id; });
+        if (idx >= 0) records[idx] = r;
+        else { records.push(r); added++; }
+      });
+      persist();
+      toast(added + ' رکورد وارد شد');
+    } catch (err) {
+      toast('وارد کردن ناموفق بود');
+    }
+  };
+  rd.readAsText(f);
+  e.target.value = '';
+}
+
+function exportCSV() {
+  if (!records.length) return toast('داده‌ای نیست');
+  var h = ['Date', 'SC', 'CodeSite', 'UnitName', 'FaultAffect', 'QTY', 'SerialNumbers', 'Status', 'ApprovedBy', 'Notes'];
+  var rows = records.map(function(r) {
+    return [r.date, r.sc, r.codeSite, r.unitName, r.faultAffect, r.qty, r.serialNumbers.join('; '), r.status, r.approvedBy, r.notes];
+  });
+  var csv = '\ufeff' + [h].concat(rows).map(function(row) {
+    return row.map(function(cell) {
+      return '"' + String(cell == null ? '' : cell).replace(/"/g, '""') + '"';
+    }).join(',');
+  }).join('\n');
+  download(csv, 'porsoo_report_v8.csv', 'text/csv;charset=utf-8');
+  toast('CSV صادر شد');
+}
+
+function download(content, filename, mime) {
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], { type: mime }));
+  a.download = filename;
+  a.click();
+  setTimeout(function() { URL.revokeObjectURL(a.href); }, 500);
+}
+
+function printReport() {
+  var w = window.open('', '_blank');
+  w.document.write(
+    '<html><head><title>گزارش Porsoo</title><style>' +
+    'body{font-family:Tahoma,Arial;padding:20px;direction:rtl}table{width:100%;border-collapse:collapse}' +
+    'td,th{border:1px solid #ccc;padding:8px;text-align:right}h1{font-size:18px}' +
+    '</style></head><body><h1>گزارش مدیریتی خرابی تجهیزات Porsoo</h1>' +
+    document.getElementById('reportContent').innerHTML +
+    '</body></html>'
+  );
+  w.document.close();
+  w.print();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TOAST
+   ═══════════════════════════════════════════════════════════ */
+function toast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(window._tt);
+  window._tt = setTimeout(function() { el.classList.remove('show'); }, 2600);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════════════════════ */
+document.getElementById('modalbg').addEventListener('click', function(e) {
+  if (e.target.id === 'modalbg') closeModal();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeModal();
+    closeMore();
+  }
+});
+
+// prevent zoom on double-tap for inputs on iOS
+document.addEventListener('touchend', function() {}, { passive: true });
+
+loadTheme();
 load();
 </script>
 </body>
