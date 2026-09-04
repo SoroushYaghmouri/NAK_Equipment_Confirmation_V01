@@ -7,11 +7,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
-<title>Porsoo Fault Manager v8</title>
+<title>Equipment_Confirmation Fault Manager v8</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 /* ═══════════════════════════════════════════════════════════
-   PORSOO FAULT MANAGER v8 — Mobile-First Upgrade
+   Equipment_Confirmation FAULT MANAGER v8 — Mobile-First Upgrade
    ═══════════════════════════════════════════════════════════ */
 :root {
   --bg-primary: #0b0f19;
@@ -360,7 +360,7 @@ th { background: var(--bg-secondary); color: var(--text-sec); font-weight: 600; 
   <div class="brand">
     <div class="logo">⚡</div>
     <div class="brand-text">
-      <h1>Porsoo Fault <small style="font-weight:400;opacity:.7">v8</small></h1>
+      <h1>Equipment_Confirmation Fault <small style="font-weight:400;opacity:.7">v8</small></h1>
       <p>مدیریت هوشمند خرابی تجهیزات</p>
     </div>
   </div>
@@ -498,9 +498,12 @@ th { background: var(--bg-secondary); color: var(--text-sec); font-weight: 600; 
 <section id="importtext" class="view">
   <div class="panel">
     <div class="panel-title">📥 وارد کردن از متن</div>
-    <p class="import-hint">متن رکورد خرابی را دقیقاً با فرمت استاندارد پیست کنید و دکمه وارد کردن را بزنید.</p>
-    <textarea class="field textarea" id="importTextArea" rows="9" placeholder="SC: Porsoo&#10;Code Site: TH2879&#10;UNIT Name: NCR48U G/01- 3KW - Nian&#10;Fault Affect : Faulty&#10;QTY: 2&#10;SN: 9940640&#10;SN: 9940639&#10;Approved by Soroush Yaghmouri"></textarea>
-    <button class="btn btn-primary btn-block mt-8" onclick="importFromText()">📥 وارد کردن رکورد</button>
+    <p class="import-hint">
+      متن رکوردهای خرابی را دقیقاً با فرمت استاندارد پیست کنید. 
+      <strong>می‌توانید چندین رکورد را به‌طور هم‌زمان وارد کنید.</strong>
+    </p>
+    <textarea class="field textarea" id="importTextArea" rows="12" placeholder="مثلاً:&#10;SC: Equipment_Confirmation&#10;Code Site: TH2879&#10;UNIT Name: NCR48U G/01- 3KW - Nian&#10;Fault Affect : Faulty&#10;QTY: 2&#10;SN: 9940640&#10;SN: 9940639&#10;Approved by Soroush Yaghmouri"></textarea>
+    <button class="btn btn-primary btn-block mt-8" onclick="importFromText()">📥 وارد کردن همه رکوردها</button>
     <div id="importResult" class="mt-8" style="font-size:13px"></div>
   </div>
 </section>
@@ -553,7 +556,7 @@ th { background: var(--bg-secondary); color: var(--text-sec); font-weight: 600; 
         </div>
         <div class="fg">
           <label>SC</label>
-          <input class="field" id="sc" value="Porsoo" oninput="updateOutputText()">
+          <input class="field" id="sc" value="Equipment_Confirmation" oninput="updateOutputText()">
         </div>
         <div class="fg full">
           <label>کد سایت</label>
@@ -701,7 +704,7 @@ var FAMILY_CONFIG = {
   RECTIFIER: {
     label: 'Rectifier',
     fields: [
-      {id:'recType', type:'select', label:'Type', options:['RECTIFIER 48VDC3000 - ITMC','Rectifier - Flatpack2 2000W 48V BF','PEC-4860 - Rectifier Porsoo'], default:'RECTIFIER 48VDC3000 - ITMC'},
+      {id:'recType', type:'select', label:'Type', options:['RECTIFIER 48VDC3000 - ITMC','Rectifier - Flatpack2 2000W 48V BF','PEC-4860 - Rectifier Equipment_Confirmation'], default:'RECTIFIER 48VDC3000 - ITMC'},
       {id:'recSuffix', type:'text', label:'Suffix', placeholder:''}
     ],
     build: function(v) {
@@ -713,9 +716,9 @@ var FAMILY_CONFIG = {
   DCC: {
     label: 'DCC',
     fields: [
-      {id:'dccType', type:'select', label:'Type', options:['DCC - Porsoo Electronic','DCC - Porsoo Electronic - Cabinet Conditioner'], default:'DCC - Porsoo Electronic'}
+      {id:'dccType', type:'select', label:'Type', options:['DCC - Equipment_Confirmation Electronic','DCC - Equipment_Confirmation Electronic - Cabinet Conditioner'], default:'DCC - Equipment_Confirmation Electronic'}
     ],
-    build: function(v) { return v.dccType || 'DCC - Porsoo Electronic'; }
+    build: function(v) { return v.dccType || 'DCC - Equipment_Confirmation Electronic'; }
   },
   PDU: {
     label: 'PDU',
@@ -778,11 +781,11 @@ var ALIAS_MAP = {
   "Thermo Electric Co - CCU": "CCU - Thermo Electric Co",
   "DC cabinet air conditioner - Envicool": "DC Cabinet Air Conditioner - Envicool",
   "DC Cabinet Air Conditioner - Envicool": "DC Cabinet Air Conditioner - Envicool",
-  "DCC-PORSOO ELECTRONIC": "DCC - Porsoo Electronic",
-  "DCC-PORSOO ELECTRONIC - Cabinet Conditioner": "DCC - Porsoo Electronic - Cabinet Conditioner",
+  "DCC-Equipment_Confirmation ELECTRONIC": "DCC - Equipment_Confirmation Electronic",
+  "DCC-Equipment_Confirmation ELECTRONIC - Cabinet Conditioner": "DCC - Equipment_Confirmation Electronic - Cabinet Conditioner",
   "PSU AC 03": "PSU AC 03 - Ericsson",
-  "PEC- 4860 - Rectifier Porsoo": "PEC-4860 - Rectifier Porsoo",
-  "PECSU - 2020 - Porsoo": "PECSU-2020 - Porsoo",
+  "PEC- 4860 - Rectifier Equipment_Confirmation": "PEC-4860 - Rectifier Equipment_Confirmation",
+  "PECSU - 2020 - Equipment_Confirmation": "PECSU-2020 - Equipment_Confirmation",
   "NCR48U - Nian": "NCR48U - 3KW - Nian",
   "NCR48U - NIAN": "NCR48U - 3KW - Nian",
   "NCR48U 3KW": "NCR48U - 3KW - Nian",
@@ -861,7 +864,7 @@ function getCurrentRecord() {
   var snsRaw = document.getElementById('sns').value;
   var sns = snsRaw.split(/[\n,;]+/).map(function(s) { return s.trim(); }).filter(Boolean);
   return {
-    sc: document.getElementById('sc').value.trim() || 'Porsoo',
+    sc: document.getElementById('sc').value.trim() || 'Equipment_Confirmation',
     site: document.getElementById('site').value.trim().toUpperCase(),
     unit: buildUnitName(),
     fault: document.getElementById('fault').value.trim() || 'Faulty',
@@ -876,7 +879,7 @@ function getCurrentRecord() {
 function formatRecordText(r) {
   if (!r) return 'خروجی اینجا نمایش داده می‌شود';
   var lines = [];
-  lines.push('SC: ' + (r.sc || 'Porsoo'));
+  lines.push('SC: ' + (r.sc || 'Equipment_Confirmation'));
   lines.push('Code Site: ' + (r.site || ''));
   lines.push('UNIT Name: ' + (r.unit || ''));
   lines.push('Fault Affect : ' + (r.fault || 'Faulty'));
@@ -923,70 +926,173 @@ function fallbackCopy(text) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   IMPORT FROM TEXT
+   IMPORT FROM TEXT — Bulk import (multiple records)
    ═══════════════════════════════════════════════════════════ */
 function importFromText() {
   var text = document.getElementById('importTextArea').value;
   if (!text.trim()) { toast('لطفاً متن رکورد را پیست کنید.'); return; }
-  var lines = text.split('\n').map(function(l) { return l.trim(); }).filter(Boolean);
-  var record = { sc: 'Porsoo', site: '', unit: '', fault: 'Faulty', qty: 1, sns: [], status: 'Pending', approver: '', notes: '' };
 
+  var lines = text.split('\n').map(function(l) { return l.trim(); }).filter(function(l) { return l !== ''; });
+  
+  var recordsToAdd = [];
+  var current = null;
+  var state = 'idle'; // 'idle' or 'in_record'
+  
   for (var i = 0; i < lines.length; i++) {
     var line = lines[i];
-    var match = line.match(/^(SC|Code Site|UNIT Name|Fault Affect|QTY|SN|Approved by|Status|Notes)\s*[:：]\s*(.*)/i);
-    if (match) {
-      var key = match[1].toLowerCase().trim();
-      var val = match[2].trim();
-      if (key === 'sc') record.sc = val;
-      else if (key === 'code site') record.site = val.toUpperCase();
-      else if (key === 'unit name') record.unit = canonicalUnitName(val);
-      else if (key === 'fault affect') record.fault = val;
-      else if (key === 'qty') record.qty = parseInt(val) || 1;
-      else if (key === 'sn') record.sns.push(val);
-      else if (key === 'approved by') { record.approver = val; record.status = 'Approved'; }
-      else if (key === 'status') record.status = val;
-      else if (key === 'notes') record.notes = val;
-    } else if (/^Approved by\s+(.+)/i.test(line)) {
-      record.approver = line.replace(/^Approved by\s+/i, '').trim();
-      record.status = 'Approved';
-    } else if (/^Pending$/i.test(line)) {
-      record.status = 'Pending';
-    } else if (/^Rejected$/i.test(line)) {
-      record.status = 'Rejected';
+    
+    // Skip separators
+    if (/^={3,}$/.test(line) || /^TRA$/i.test(line)) {
+      continue;
+    }
+    
+    // Check for start of record: "SC: ..."
+    var scMatch = line.match(/^SC\s*[:：]\s*(.*)/i);
+    if (scMatch) {
+      // If we have a previous record in progress, finalize it
+      if (current && current.sc) {
+        recordsToAdd.push(current);
+      }
+      // Start new record
+      current = {
+        sc: scMatch[1].trim(),
+        site: '',
+        unit: '',
+        fault: 'Faulty',
+        qty: 1,
+        sns: [],
+        status: 'Pending',
+        approver: '',
+        notes: '',
+        date: new Date().toISOString().slice(0, 10) // default today
+      };
+      state = 'in_record';
+      continue;
+    }
+    
+    // If not in a record, skip
+    if (state !== 'in_record' || !current) continue;
+    
+    // Check if line is "Approved" or "Approved by ..." (finalizes record)
+    var appMatch = line.match(/^Approved\s*by\s+(.*)/i);
+    if (appMatch) {
+      current.status = 'Approved';
+      current.approver = appMatch[1].trim() || 'Soroush Yaghmouri';
+      recordsToAdd.push(current);
+      current = null;
+      state = 'idle';
+      continue;
+    }
+    if (/^Approved$/i.test(line)) {
+      current.status = 'Approved';
+      if (!current.approver) current.approver = 'Soroush Yaghmouri';
+      recordsToAdd.push(current);
+      current = null;
+      state = 'idle';
+      continue;
+    }
+    if (/^Rejected$/i.test(line)) {
+      current.status = 'Rejected';
+      recordsToAdd.push(current);
+      current = null;
+      state = 'idle';
+      continue;
+    }
+    if (/^Pending$/i.test(line)) {
+      current.status = 'Pending';
+      recordsToAdd.push(current);
+      current = null;
+      state = 'idle';
+      continue;
+    }
+    
+    // Parse fields within record
+    var siteMatch = line.match(/^Code Site\s*[:：]\s*(.*)/i);
+    if (siteMatch) {
+      current.site = siteMatch[1].trim().toUpperCase();
+      continue;
+    }
+    var unitMatch = line.match(/^UNIT Name\s*[:：]\s*(.*)/i);
+    if (unitMatch) {
+      current.unit = canonicalUnitName(unitMatch[1].trim());
+      continue;
+    }
+    var faultMatch = line.match(/^Fault Affect\s*[:：]\s*(.*)/i);
+    if (faultMatch) {
+      current.fault = faultMatch[1].trim();
+      continue;
+    }
+    var qtyMatch = line.match(/^QTY\s*[:：]\s*(\d+)/i);
+    if (qtyMatch) {
+      current.qty = parseInt(qtyMatch[1], 10) || 1;
+      continue;
+    }
+    var snMatch = line.match(/^SN\s*[:：]\s*(.*)/i);
+    if (snMatch) {
+      var sn = snMatch[1].trim();
+      if (sn) current.sns.push(sn);
+      continue;
+    }
+    
+    // Otherwise, treat as notes (append)
+    if (current) {
+      current.notes += (current.notes ? ' ' : '') + line;
     }
   }
-
-  if (!record.site || !record.unit) {
-    toast('سایت یا نام یونیت یافت نشد.');
-    document.getElementById('importResult').innerHTML = '<span style="color:var(--red)">❌ سایت یا یونیت ناقص است.</span>';
-    return;
+  
+  // After loop, if there is a current record, add it
+  if (current && current.sc) {
+    recordsToAdd.push(current);
   }
-  if (record.sns.length !== record.qty) {
-    toast('تعداد SN با QTY مطابقت ندارد (' + record.sns.length + ' ≠ ' + record.qty + ')');
-    document.getElementById('importResult').innerHTML = '<span style="color:var(--red)">❌ تعداد SN با QTY برابر نیست.</span>';
-    return;
-  }
-
-  var newRecord = {
-    id: uid(),
-    date: new Date().toISOString().slice(0, 10),
-    sc: record.sc,
-    codeSite: record.site,
-    unitName: record.unit,
-    faultAffect: record.fault,
-    qty: record.qty,
-    serialNumbers: record.sns,
-    status: record.status,
-    approvedBy: record.approver,
-    approvedAt: record.status === 'Approved' ? new Date().toISOString() : '',
-    notes: record.notes
-  };
-  records.push(newRecord);
+  
+  // Now process recordsToAdd: validate and add to main records
+  var added = 0;
+  var errors = [];
+  recordsToAdd.forEach(function(rec) {
+    // Validate: site, qty, sns length
+    if (!rec.site) {
+      errors.push('رکورد با SC "' + rec.sc + '" فاقد کد سایت است');
+    }
+    if (!rec.unit) {
+      errors.push('رکورد با SC "' + rec.sc + '" فاقد نام یونیت است');
+    }
+    if (rec.sns.length !== rec.qty) {
+      errors.push('تعداد سریال‌های رکورد با SC "' + rec.sc + '" با QTY مطابقت ندارد (' + rec.sns.length + ' ≠ ' + rec.qty + ')');
+    }
+    // Create new record object
+    var newRecord = {
+      id: uid(),
+      date: rec.date || new Date().toISOString().slice(0, 10),
+      sc: rec.sc || 'Equipment_Confirmation',
+      codeSite: rec.site || '',
+      unitName: rec.unit || '',
+      faultAffect: rec.fault || 'Faulty',
+      qty: rec.qty || 1,
+      serialNumbers: rec.sns,
+      status: rec.status || 'Pending',
+      approvedBy: rec.approver || '',
+      approvedAt: rec.status === 'Approved' ? new Date().toISOString() : '',
+      notes: rec.notes || ''
+    };
+    records.push(newRecord);
+    added++;
+  });
+  
   persist();
-  document.getElementById('importResult').innerHTML = '<span style="color:var(--green)">✅ رکورد با موفقیت وارد شد!</span>';
-  document.getElementById('importTextArea').value = '';
-  toast('رکورد وارد شد!');
-  showView('records');
+  
+  var resultDiv = document.getElementById('importResult');
+  if (added > 0) {
+    resultDiv.innerHTML = '<span style="color:var(--green)">✅ ' + added + ' رکورد با موفقیت وارد شد!</span>';
+    if (errors.length) {
+      resultDiv.innerHTML += '<br><span style="color:var(--yellow)">⚠ ' + errors.join('; ') + '</span>';
+    }
+    document.getElementById('importTextArea').value = '';
+    toast(added + ' رکورد وارد شد!');
+    showView('records');
+  } else {
+    resultDiv.innerHTML = '<span style="color:var(--red)">❌ هیچ رکوردی وارد نشد. متن را بررسی کنید.</span>';
+    toast('ورود ناموفق');
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -998,18 +1104,17 @@ function toggleTheme() {
   if (isLight) {
     body.removeAttribute('data-theme');
     document.getElementById('themeBtn').textContent = '🌙';
-    localStorage.setItem('porsoo_theme', 'dark');
+    localStorage.setItem('Equipment_Confirmation_theme', 'dark');
   } else {
     body.setAttribute('data-theme', 'light');
     document.getElementById('themeBtn').textContent = '☀️';
-    localStorage.setItem('porsoo_theme', 'light');
+    localStorage.setItem('Equipment_Confirmation_theme', 'light');
   }
-  // re-render charts with new colors
   setTimeout(renderCharts, 50);
 }
 
 function loadTheme() {
-  var t = localStorage.getItem('porsoo_theme');
+  var t = localStorage.getItem('Equipment_Confirmation_theme');
   if (t === 'light') {
     document.body.setAttribute('data-theme', 'light');
     document.getElementById('themeBtn').textContent = '☀️';
@@ -1019,7 +1124,7 @@ function loadTheme() {
 /* ═══════════════════════════════════════════════════════════
    DATA LAYER
    ═══════════════════════════════════════════════════════════ */
-var STORAGE_KEY = 'porsooFaultManager_v8';
+var STORAGE_KEY = 'Equipment_ConfirmationFaultManager_v8';
 var records = [];
 var editId = null;
 var chartInstances = {};
@@ -1036,7 +1141,7 @@ function normalize(r) {
   return {
     id: r.id || uid(),
     date: r.date || '',
-    sc: r.sc || 'Porsoo',
+    sc: r.sc || 'Equipment_Confirmation',
     codeSite: String(r.codeSite || '').trim().toUpperCase(),
     unitName: canonicalUnitName(r.unitName || ''),
     faultAffect: r.faultAffect || 'Faulty',
@@ -1051,10 +1156,9 @@ function normalize(r) {
 
 function load() {
   try {
-    // migrate from v7 if needed
     var raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
-      var old = localStorage.getItem('porsooFaultManager_v7');
+      var old = localStorage.getItem('Equipment_ConfirmationFaultManager_v7');
       if (old) {
         raw = old;
         localStorage.setItem(STORAGE_KEY, old);
@@ -1138,7 +1242,6 @@ function renderCharts() {
   var colors = ['#3b82f6', '#8b5cf6', '#22c55e', '#eab308', '#ef4444', '#ec4899', '#14b8a6', '#f97316'];
   var cc = getChartColors();
 
-  // Equipment
   destroyChart('equipmentChart');
   var ctx1 = document.getElementById('equipmentChart');
   if (ctx1) {
@@ -1159,7 +1262,6 @@ function renderCharts() {
     });
   }
 
-  // Sites
   destroyChart('siteChart');
   var ctx2 = document.getElementById('siteChart');
   if (ctx2) {
@@ -1180,7 +1282,6 @@ function renderCharts() {
     });
   }
 
-  // Status doughnut
   destroyChart('statusChart');
   var ctx3 = document.getElementById('statusChart');
   if (ctx3) {
@@ -1278,7 +1379,7 @@ function renderDashboardLists() {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   RECORDS (Card-based for mobile)
+   RECORDS
    ═══════════════════════════════════════════════════════════ */
 function filtered() {
   var q = (document.getElementById('q')?.value || '').toLowerCase().trim();
@@ -1481,7 +1582,7 @@ function openAdd() {
   document.getElementById('form').reset();
   document.getElementById('eid').value = '';
   document.getElementById('date').value = new Date().toISOString().slice(0, 10);
-  document.getElementById('sc').value = 'Porsoo';
+  document.getElementById('sc').value = 'Equipment_Confirmation';
   document.getElementById('fault').value = 'Faulty';
   document.getElementById('status').value = 'Pending';
   document.getElementById('qty').value = 1;
@@ -1500,7 +1601,7 @@ function editRecord(id) {
   editId = id;
   document.getElementById('eid').value = id;
   document.getElementById('date').value = r.date || '';
-  document.getElementById('sc').value = r.sc || 'Porsoo';
+  document.getElementById('sc').value = r.sc || 'Equipment_Confirmation';
   document.getElementById('site').value = r.codeSite || '';
   document.getElementById('fault').value = r.faultAffect || 'Faulty';
   document.getElementById('qty').value = r.qty || 1;
@@ -1538,7 +1639,7 @@ function saveRecord(e) {
   var record = {
     id: id || uid(),
     date: document.getElementById('date').value,
-    sc: document.getElementById('sc').value.trim() || 'Porsoo',
+    sc: document.getElementById('sc').value.trim() || 'Equipment_Confirmation',
     codeSite: document.getElementById('site').value.trim().toUpperCase(),
     unitName: unitName,
     faultAffect: document.getElementById('fault').value.trim() || 'Faulty',
@@ -1593,16 +1694,13 @@ function showView(id, btn) {
   var view = document.getElementById(id);
   if (view) view.classList.add('active');
 
-  // bottom nav
   document.querySelectorAll('.bottom-nav .nav-item').forEach(function(b) {
     b.classList.toggle('active', b.getAttribute('data-view') === id);
   });
-  // desktop nav
   document.querySelectorAll('.desktop-nav button').forEach(function(b) {
     b.classList.toggle('active', b.getAttribute('data-view') === id);
   });
 
-  // if coming from "more", highlight more
   if (['quality', 'reports', 'importtext'].indexOf(id) >= 0) {
     document.querySelectorAll('.bottom-nav .nav-item').forEach(function(b) {
       b.classList.toggle('active', b.getAttribute('data-view') === 'more');
@@ -1628,7 +1726,7 @@ function closeMore() {
    ═══════════════════════════════════════════════════════════ */
 function exportJSON() {
   if (!records.length) return toast('داده‌ای نیست');
-  download(JSON.stringify(records, null, 2), 'porsoo_backup_v8.json', 'application/json');
+  download(JSON.stringify(records, null, 2), 'Equipment_Confirmation_backup_v8.json', 'application/json');
   toast('بک‌آپ JSON گرفته شد');
 }
 
@@ -1668,7 +1766,7 @@ function exportCSV() {
       return '"' + String(cell == null ? '' : cell).replace(/"/g, '""') + '"';
     }).join(',');
   }).join('\n');
-  download(csv, 'porsoo_report_v8.csv', 'text/csv;charset=utf-8');
+  download(csv, 'Equipment_Confirmation_report_v8.csv', 'text/csv;charset=utf-8');
   toast('CSV صادر شد');
 }
 
@@ -1683,10 +1781,10 @@ function download(content, filename, mime) {
 function printReport() {
   var w = window.open('', '_blank');
   w.document.write(
-    '<html><head><title>گزارش Porsoo</title><style>' +
+    '<html><head><title>گزارش Equipment_Confirmation</title><style>' +
     'body{font-family:Tahoma,Arial;padding:20px;direction:rtl}table{width:100%;border-collapse:collapse}' +
     'td,th{border:1px solid #ccc;padding:8px;text-align:right}h1{font-size:18px}' +
-    '</style></head><body><h1>گزارش مدیریتی خرابی تجهیزات Porsoo</h1>' +
+    '</style></head><body><h1>گزارش مدیریتی خرابی تجهیزات Equipment_Confirmation</h1>' +
     document.getElementById('reportContent').innerHTML +
     '</body></html>'
   );
@@ -1718,7 +1816,6 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
-// prevent zoom on double-tap for inputs on iOS
 document.addEventListener('touchend', function() {}, { passive: true });
 
 loadTheme();
