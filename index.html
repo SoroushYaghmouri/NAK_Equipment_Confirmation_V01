@@ -188,7 +188,7 @@ select.field { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://ww
   transition: border-color var(--transition);
 }
 .card:active { border-color: var(--accent); }
-.card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap; }
 .card-site { font-weight: 700; font-size: 14px; }
 .card-unit { font-size: 12px; color: var(--text-sec); line-height: 1.3; word-break: break-word; }
 .card-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 11px; color: var(--text-muted); }
@@ -426,17 +426,20 @@ th { background: var(--bg-secondary); color: var(--text-sec); font-weight: 600; 
         <input class="field" id="fu" placeholder="یونیت" oninput="debounceRender()">
       </div>
       <div class="filter-row">
+        <input class="field" id="fsc" placeholder="پیمانکار (SC)" oninput="debounceRender()">
         <select class="field" id="fst" onchange="renderAll()">
           <option value="">همه وضعیت‌ها</option>
           <option>Approved</option>
           <option>Pending</option>
           <option>Rejected</option>
         </select>
-        <button class="btn btn-outline btn-sm" onclick="clearFilters()">✕ پاک کردن</button>
       </div>
       <div class="filter-row">
         <input class="field" id="fd1" type="date" onchange="renderAll()">
         <input class="field" id="fd2" type="date" onchange="renderAll()">
+      </div>
+      <div class="filter-row">
+        <button class="btn btn-outline btn-sm" onclick="clearFilters()">✕ پاک کردن</button>
       </div>
     </div>
   </div>
@@ -502,7 +505,7 @@ th { background: var(--bg-secondary); color: var(--text-sec); font-weight: 600; 
       متن رکوردهای خرابی را دقیقاً با فرمت استاندارد پیست کنید. 
       <strong>می‌توانید چندین رکورد را به‌طور هم‌زمان وارد کنید.</strong>
     </p>
-    <textarea class="field textarea" id="importTextArea" rows="12" placeholder="مثلاً:&#10;SC: Equipment_Confirmation&#10;Code Site: TH2879&#10;UNIT Name: NCR48U G/01- 3KW - Nian&#10;Fault Affect : Faulty&#10;QTY: 2&#10;SN: 9940640&#10;SN: 9940639&#10;Approved by Soroush Yaghmouri"></textarea>
+    <textarea class="field textarea" id="importTextArea" rows="12" placeholder="مثلاً:&#10;SC: Porsoo&#10;Code Site: TH2879&#10;UNIT Name: NCR48U G/01- 3KW - Nian&#10;Fault Affect : Faulty&#10;QTY: 2&#10;SN: 9940640&#10;SN: 9940639&#10;Approved by Soroush Yaghmouri"></textarea>
     <button class="btn btn-primary btn-block mt-8" onclick="importFromText()">📥 وارد کردن همه رکوردها</button>
     <div id="importResult" class="mt-8" style="font-size:13px"></div>
   </div>
@@ -555,8 +558,14 @@ th { background: var(--bg-secondary); color: var(--text-sec); font-weight: 600; 
           <input class="field" id="date" type="date" required onchange="updateOutputText()">
         </div>
         <div class="fg">
-          <label>SC</label>
-          <input class="field" id="sc" value="Equipment_Confirmation" oninput="updateOutputText()">
+          <label>پیمانکار (SC)</label>
+          <input class="field" id="sc" list="scList" placeholder="انتخاب یا تایپ کنید" value="Porsoo" oninput="updateOutputText()">
+          <datalist id="scList">
+            <option value="Porsoo">
+            <option value="Porsoo-Sub">
+            <option value="Team-Telecom">
+            <option value="Farhikhteghan">
+          </datalist>
         </div>
         <div class="fg full">
           <label>کد سایت</label>
@@ -864,7 +873,7 @@ function getCurrentRecord() {
   var snsRaw = document.getElementById('sns').value;
   var sns = snsRaw.split(/[\n,;]+/).map(function(s) { return s.trim(); }).filter(Boolean);
   return {
-    sc: document.getElementById('sc').value.trim() || 'Equipment_Confirmation',
+    sc: document.getElementById('sc').value.trim() || 'Porsoo',
     site: document.getElementById('site').value.trim().toUpperCase(),
     unit: buildUnitName(),
     fault: document.getElementById('fault').value.trim() || 'Faulty',
@@ -879,7 +888,7 @@ function getCurrentRecord() {
 function formatRecordText(r) {
   if (!r) return 'خروجی اینجا نمایش داده می‌شود';
   var lines = [];
-  lines.push('SC: ' + (r.sc || 'Equipment_Confirmation'));
+  lines.push('SC: ' + (r.sc || 'Porsoo'));
   lines.push('Code Site: ' + (r.site || ''));
   lines.push('UNIT Name: ' + (r.unit || ''));
   lines.push('Fault Affect : ' + (r.fault || 'Faulty'));
@@ -955,7 +964,7 @@ function importFromText() {
       }
       // Start new record
       current = {
-        sc: scMatch[1].trim(),
+        sc: scMatch[1].trim() || 'Porsoo',
         site: '',
         unit: '',
         fault: 'Faulty',
@@ -1063,7 +1072,7 @@ function importFromText() {
     var newRecord = {
       id: uid(),
       date: rec.date || new Date().toISOString().slice(0, 10),
-      sc: rec.sc || 'Equipment_Confirmation',
+      sc: rec.sc || 'Porsoo',
       codeSite: rec.site || '',
       unitName: rec.unit || '',
       faultAffect: rec.fault || 'Faulty',
@@ -1141,7 +1150,7 @@ function normalize(r) {
   return {
     id: r.id || uid(),
     date: r.date || '',
-    sc: r.sc || 'Equipment_Confirmation',
+    sc: r.sc || 'Porsoo',
     codeSite: String(r.codeSite || '').trim().toUpperCase(),
     unitName: canonicalUnitName(r.unitName || ''),
     faultAffect: r.faultAffect || 'Faulty',
@@ -1355,7 +1364,7 @@ function renderDashboardLists() {
   } else {
     recentEl.innerHTML = recent.map(function(r) {
       return '<div class="card" onclick="editRecord(\'' + r.id + '\')">' +
-        '<div class="card-top"><span class="card-site">' + esc(r.codeSite) + '</span>' + badge(r.status) + '</div>' +
+        '<div class="card-top"><span class="card-site">' + esc(r.codeSite) + ' <span style="font-weight:400;color:var(--text-muted)">(' + esc(r.sc) + ')</span></span>' + badge(r.status) + '</div>' +
         '<div class="card-unit">' + esc(r.unitName) + '</div>' +
         '<div class="card-meta">' + formatDate(r.date) + ' • QTY ' + r.qty + '</div>' +
         '</div>';
@@ -1385,14 +1394,16 @@ function filtered() {
   var q = (document.getElementById('q')?.value || '').toLowerCase().trim();
   var site = (document.getElementById('fs')?.value || '').toLowerCase().trim();
   var unit = (document.getElementById('fu')?.value || '').toLowerCase().trim();
+  var sc = (document.getElementById('fsc')?.value || '').toLowerCase().trim();
   var st = document.getElementById('fst')?.value || '';
   var d1 = document.getElementById('fd1')?.value || '';
   var d2 = document.getElementById('fd2')?.value || '';
   return records.filter(function(r) {
-    var haystack = [r.codeSite, r.unitName, r.faultAffect].concat(r.serialNumbers, [r.approvedBy, r.notes]).join(' ').toLowerCase();
+    var haystack = [r.codeSite, r.unitName, r.faultAffect, r.sc].concat(r.serialNumbers, [r.approvedBy, r.notes]).join(' ').toLowerCase();
     if (q && !haystack.includes(q)) return false;
     if (site && !r.codeSite.toLowerCase().includes(site)) return false;
     if (unit && !r.unitName.toLowerCase().includes(unit)) return false;
+    if (sc && !r.sc.toLowerCase().includes(sc)) return false;
     if (st && r.status !== st) return false;
     if (d1 && r.date < d1) return false;
     if (d2 && r.date > d2) return false;
@@ -1411,7 +1422,7 @@ function renderRecords() {
   }
   el.innerHTML = list.map(function(r) {
     return '<div class="card">' +
-      '<div class="card-top"><span class="card-site">' + esc(r.codeSite) + '</span>' + badge(r.status) + '</div>' +
+      '<div class="card-top"><span class="card-site">' + esc(r.codeSite) + ' <span style="font-weight:400;color:var(--text-muted)">(' + esc(r.sc) + ')</span></span>' + badge(r.status) + '</div>' +
       '<div class="card-unit">' + esc(r.unitName) + '</div>' +
       '<div class="card-meta">' +
         formatDate(r.date) + ' • QTY ' + r.qty +
@@ -1443,7 +1454,7 @@ function renderApprovals() {
   }
   el.innerHTML = list.map(function(r) {
     return '<div class="card">' +
-      '<div class="card-top"><span class="card-site">' + esc(r.codeSite) + '</span>' + badge(r.status) + '</div>' +
+      '<div class="card-top"><span class="card-site">' + esc(r.codeSite) + ' <span style="font-weight:400;color:var(--text-muted)">(' + esc(r.sc) + ')</span></span>' + badge(r.status) + '</div>' +
       '<div class="card-unit">' + esc(r.unitName) + '</div>' +
       '<div class="card-meta">' + formatDate(r.date) + ' • QTY ' + r.qty + '</div>' +
       '<div class="card-actions">' +
@@ -1582,7 +1593,7 @@ function openAdd() {
   document.getElementById('form').reset();
   document.getElementById('eid').value = '';
   document.getElementById('date').value = new Date().toISOString().slice(0, 10);
-  document.getElementById('sc').value = 'Equipment_Confirmation';
+  document.getElementById('sc').value = 'Porsoo';
   document.getElementById('fault').value = 'Faulty';
   document.getElementById('status').value = 'Pending';
   document.getElementById('qty').value = 1;
@@ -1601,7 +1612,7 @@ function editRecord(id) {
   editId = id;
   document.getElementById('eid').value = id;
   document.getElementById('date').value = r.date || '';
-  document.getElementById('sc').value = r.sc || 'Equipment_Confirmation';
+  document.getElementById('sc').value = r.sc || 'Porsoo';
   document.getElementById('site').value = r.codeSite || '';
   document.getElementById('fault').value = r.faultAffect || 'Faulty';
   document.getElementById('qty').value = r.qty || 1;
@@ -1639,7 +1650,7 @@ function saveRecord(e) {
   var record = {
     id: id || uid(),
     date: document.getElementById('date').value,
-    sc: document.getElementById('sc').value.trim() || 'Equipment_Confirmation',
+    sc: document.getElementById('sc').value.trim() || 'Porsoo',
     codeSite: document.getElementById('site').value.trim().toUpperCase(),
     unitName: unitName,
     faultAffect: document.getElementById('fault').value.trim() || 'Faulty',
@@ -1679,7 +1690,7 @@ function delRecord(id) {
 }
 
 function clearFilters() {
-  ['q', 'fs', 'fu', 'fst', 'fd1', 'fd2'].forEach(function(id) {
+  ['q', 'fs', 'fu', 'fsc', 'fst', 'fd1', 'fd2'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.value = '';
   });
