@@ -559,13 +559,14 @@ th { background: var(--bg-secondary); color: var(--text-sec); font-weight: 600; 
         </div>
         <div class="fg">
           <label>پیمانکار (SC)</label>
-          <input class="field" id="sc" list="scList" placeholder="انتخاب یا تایپ کنید" value="Porsoo" oninput="updateOutputText()">
-          <datalist id="scList">
-            <option value="Porsoo">
-            <option value="Porsoo-Sub">
-            <option value="Team-Telecom">
-            <option value="Farhikhteghan">
-          </datalist>
+          <select class="field" id="scSelect" onchange="toggleScCustom(); updateOutputText()">
+            <option value="Porsoo">Porsoo</option>
+            <option value="Porsoo-Sub">Porsoo-Sub</option>
+            <option value="Team-Telecom">Team-Telecom</option>
+            <option value="Farhikhteghan">Farhikhteghan</option>
+            <option value="custom">سفارشی...</option>
+          </select>
+          <input class="field" id="scCustom" style="display:none; margin-top:4px;" placeholder="نام پیمانکار را وارد کنید" oninput="updateOutputText()">
         </div>
         <div class="fg full">
           <label>کد سایت</label>
@@ -813,6 +814,45 @@ function canonicalUnitName(n) {
 }
 
 /* ═══════════════════════════════════════════════════════════
+   SC SELECT / CUSTOM TOGGLE
+   ═══════════════════════════════════════════════════════════ */
+function toggleScCustom() {
+  var sel = document.getElementById('scSelect');
+  var customInput = document.getElementById('scCustom');
+  if (sel.value === 'custom') {
+    customInput.style.display = 'block';
+    customInput.focus();
+  } else {
+    customInput.style.display = 'none';
+    customInput.value = '';
+  }
+  updateOutputText();
+}
+
+function getScValue() {
+  var sel = document.getElementById('scSelect');
+  if (sel.value === 'custom') {
+    return document.getElementById('scCustom').value.trim() || '';
+  }
+  return sel.value;
+}
+
+function setScValue(val) {
+  var sel = document.getElementById('scSelect');
+  var customInput = document.getElementById('scCustom');
+  var options = Array.from(sel.options).map(o => o.value);
+  if (options.indexOf(val) !== -1) {
+    sel.value = val;
+    customInput.style.display = 'none';
+    customInput.value = '';
+  } else {
+    sel.value = 'custom';
+    customInput.style.display = 'block';
+    customInput.value = val || '';
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
    DYNAMIC FORM
    ═══════════════════════════════════════════════════════════ */
 function onFamilyChange() {
@@ -873,7 +913,7 @@ function getCurrentRecord() {
   var snsRaw = document.getElementById('sns').value;
   var sns = snsRaw.split(/[\n,;]+/).map(function(s) { return s.trim(); }).filter(Boolean);
   return {
-    sc: document.getElementById('sc').value.trim() || 'Porsoo',
+    sc: getScValue() || 'Porsoo',
     site: document.getElementById('site').value.trim().toUpperCase(),
     unit: buildUnitName(),
     fault: document.getElementById('fault').value.trim() || 'Faulty',
@@ -1593,7 +1633,7 @@ function openAdd() {
   document.getElementById('form').reset();
   document.getElementById('eid').value = '';
   document.getElementById('date').value = new Date().toISOString().slice(0, 10);
-  document.getElementById('sc').value = 'Porsoo';
+  setScValue('Porsoo');
   document.getElementById('fault').value = 'Faulty';
   document.getElementById('status').value = 'Pending';
   document.getElementById('qty').value = 1;
@@ -1612,7 +1652,7 @@ function editRecord(id) {
   editId = id;
   document.getElementById('eid').value = id;
   document.getElementById('date').value = r.date || '';
-  document.getElementById('sc').value = r.sc || 'Porsoo';
+  setScValue(r.sc || 'Porsoo');
   document.getElementById('site').value = r.codeSite || '';
   document.getElementById('fault').value = r.faultAffect || 'Faulty';
   document.getElementById('qty').value = r.qty || 1;
@@ -1650,7 +1690,7 @@ function saveRecord(e) {
   var record = {
     id: id || uid(),
     date: document.getElementById('date').value,
-    sc: document.getElementById('sc').value.trim() || 'Porsoo',
+    sc: getScValue() || 'Porsoo',
     codeSite: document.getElementById('site').value.trim().toUpperCase(),
     unitName: unitName,
     faultAffect: document.getElementById('fault').value.trim() || 'Faulty',
