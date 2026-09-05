@@ -481,12 +481,22 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
       </div>
       <div id="familyList" class="card-list"></div>
     </div>
+
     <div class="panel">
-      <div class="panel-title">Unit Catalog <span class="count" id="unitCatalogCount">0</span></div>
-      <p class="text-muted" style="font-size:11.5px;margin-bottom:6px">All unit names that have been used or added manually.</p>
-      <div class="btn-row mb-8">
-        <button class="btn btn-primary btn-sm" onclick="UI.openAddUnit()">➕ Add Unit</button>
+      <div class="panel-title">Manage Units per Family</div>
+      <p class="text-muted" style="font-size:11.5px;margin-bottom:6px">Select a family, then add, edit or remove units belonging to it.</p>
+      <div class="filter-row" style="margin-bottom:8px">
+        <select class="field" id="unitMgmtFamily" onchange="UI.renderUnitsView()">
+          <option value="">-- Select family --</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="UI.openAddUnitForFamily()">➕ Add Unit</button>
       </div>
+      <div id="unitMgmtList" class="card-list"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Full Unit Catalog <span class="count" id="unitCatalogCount">0</span></div>
+      <p class="text-muted" style="font-size:11.5px;margin-bottom:6px">All units with their associated family. You can edit family or delete unit.</p>
       <input class="field mb-8" id="unitCatalogSearch" placeholder="Search unit catalog…" oninput="UI.renderUnitsView()">
       <div id="unitCatalogList" class="card-list"></div>
     </div>
@@ -639,6 +649,32 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
     </div>
   </div>
 
+  <!-- ══════ UNIT EDIT MODAL (for managing units) ══════ -->
+  <div id="unitEditModal" class="modal-bg">
+    <div class="modal" style="max-width:460px">
+      <div class="modal-handle"></div>
+      <h2 id="unitEditTitle">Edit Unit</h2>
+      <div class="sub" id="unitEditSub">Change the unit name or its family.</div>
+      <form id="unitEditForm" onsubmit="UI.saveUnitEdit(event)">
+        <input type="hidden" id="unitEditId">
+        <div class="fg full">
+          <label>Unit name</label>
+          <input class="field" id="unitEditName" placeholder="Unit name" required>
+        </div>
+        <div class="fg full">
+          <label>Family</label>
+          <select class="field" id="unitEditFamily">
+            <option value="">-- Select family --</option>
+          </select>
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn btn-outline" onclick="UI.closeUnitEditModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- ══════ CONFIRM MODAL ══════ -->
   <div id="confirmbg" class="modal-bg center">
     <div class="confirm-box">
@@ -657,28 +693,28 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
 <script>
 'use strict';
 /* ═══════════════════════════════════════════════════════════════════
-   DATA MODULE — extended with family & catalog management
+   DATA MODULE — extended with unit management
    ═══════════════════════════════════════════════════════════════════ */
 var Data = (function(){
   var STORAGE_KEY = 'FaultConsole_records_v10';
   var TRASH_KEY = 'FaultConsole_trash_v10';
-  var CATALOG_KEY = 'FaultConsole_catalog_v10';
   var FAMILY_KEY = 'FaultConsole_families_v10';
+  var UNIT_KEY = 'FaultConsole_units_v10';
   var BACKUP_INDEX_KEY = 'FaultConsole_backupIndex_v10';
   var BACKUP_BLOB_PREFIX = 'FaultConsole_backupBlob_v10_';
   var THEME_KEY = 'FaultConsole_theme_v10';
 
   var records = [];
   var trash = [];
-  var catalog = [];
   var families = [];
+  var units = []; // {id, name, familyId}
 
   function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
 
+  /* ── canonical unit name (alias mapping) ── */
   function canonicalUnitName(n){
     if(!n) return '';
     var norm = String(n).replace(/\s+/g,' ').trim();
-    // built-in alias map
     var ALIAS_MAP = {
       "BBU CLU":"BBU6102 CLU - Ericsson","BBU6102 CLU":"BBU6102 CLU - Ericsson","BBU6102 CLU - ERICSSON":"BBU6102 CLU - Ericsson",
       "CLU":"CLU - Ericsson","CLU - ERICSSON":"CLU - Ericsson","CLU - BBUB102 CLU - Ericsson":"CLU - Ericsson",
@@ -696,28 +732,6 @@ var Data = (function(){
     var low = norm.toLowerCase();
     for(var k in ALIAS_MAP){ if(k.toLowerCase()===low) return ALIAS_MAP[k]; }
     return norm;
-  }
-
-  function learnUnitName(name){
-    if(!name) return;
-    name = canonicalUnitName(name);
-    if(!name) return;
-    if(catalog.indexOf(name)===-1){ catalog.push(name); catalog.sort(); saveCatalog(); }
-  }
-
-  function saveCatalog(){ try{ localStorage.setItem(CATALOG_KEY, JSON.stringify(catalog)); }catch(e){} }
-
-  function loadCatalog(){
-    try{
-      var raw = localStorage.getItem(CATALOG_KEY);
-      catalog = raw ? JSON.parse(raw) : [
-        "NCR48U - 3KW - Nian","PSU AC 03 - Ericsson","CLU - Ericsson","CCU - Climate Control Board",
-        "DC Cabinet Air Conditioner - Envicool","RECTIFIER 48VDC3000 - ITMC","DCC - Equipment_Confirmation Electronic",
-        "PDU 01 01","Air Conditioner - ITMC","Controller Unit - ITMC","Smartpack Extended - ELTEK","SCU 01 01 - Ericsson"
-      ];
-      catalog.sort();
-      if(!raw) saveCatalog();
-    }catch(e){ catalog=[]; }
   }
 
   /* ── families ── */
@@ -779,10 +793,9 @@ var Data = (function(){
       id:id,
       label:name,
       fields: [],
-      build: function(v){ return v.customName || ''; } // default: just use customName field
+      build: function(v){ return v.customName || ''; }
     };
     if(pattern && pattern.trim()){
-      // if pattern contains placeholders, we add fields based on placeholders
       var matches = pattern.match(/\{([^}]+)\}/g);
       if(matches){
         var seen = {};
@@ -796,7 +809,6 @@ var Data = (function(){
         var buildFn = new Function('v', 'return "'+pattern.replace(/\{([^}]+)\}/g, '" + (v["$1"]||"") + "') + '";');
         f.build = buildFn;
       } else {
-        // no placeholders, treat as literal
         f.fields.push({id:'customName', type:'text', label:'Full unit name', placeholder:'Enter exact unit name', required:true});
         f.build = function(v){ return pattern; };
       }
@@ -812,7 +824,6 @@ var Data = (function(){
     var f = getFamily(id);
     if(!f) return;
     f.label = name;
-    // rebuild fields & build function based on pattern
     if(pattern && pattern.trim()){
       var matches = pattern.match(/\{([^}]+)\}/g);
       var newFields = [];
@@ -839,9 +850,75 @@ var Data = (function(){
     saveFamilies();
   }
   function deleteFamily(id){
-    // prevent deleting built-in families? we allow all
     families = families.filter(function(f){ return f.id!==id; });
     saveFamilies();
+  }
+
+  /* ── units ── */
+  function loadUnits(){
+    try{
+      var raw = localStorage.getItem(UNIT_KEY);
+      if(raw){ units = JSON.parse(raw); }
+      else { units = []; }
+    }catch(e){ units = []; }
+    // migrate from old catalog if needed
+    if(!units.length){
+      // try to load legacy catalog
+      var oldCat = [];
+      try{ oldCat = JSON.parse(localStorage.getItem('FaultConsole_catalog_v10')||'[]'); }catch(e){}
+      if(oldCat.length){
+        oldCat.forEach(function(name){
+          // try to guess family from name or assign to CUSTOM
+          var famId = 'CUSTOM';
+          // if name matches a known alias, we could map, but we'll just use CUSTOM
+          // also check if name already exists in units
+          if(!units.some(function(u){return u.name===name;})) {
+            units.push({id:uid(), name:name, familyId:famId});
+          }
+        });
+      }
+      // also extract unique unit names from records
+      records.forEach(function(r){
+        if(r.unitName && !units.some(function(u){return u.name===r.unitName;})){
+          var famId = 'CUSTOM';
+          // check if any family build function can produce this name
+          // but for simplicity, assign CUSTOM
+          units.push({id:uid(), name:r.unitName, familyId:famId});
+        }
+      });
+      saveUnits();
+    }
+  }
+  function saveUnits(){ try{ localStorage.setItem(UNIT_KEY, JSON.stringify(units)); }catch(e){} }
+  function getUnits(){ return units; }
+  function getUnitsByFamily(familyId){ return units.filter(function(u){return u.familyId===familyId;}); }
+  function getUnitById(id){ return units.find(function(u){return u.id===id;}); }
+  function getUnitByName(name){ return units.find(function(u){return u.name===name;}); }
+  function addUnit(name, familyId){
+    if(!name || !familyId) return null;
+    // check duplicate
+    if(units.some(function(u){return u.name===name && u.familyId===familyId;})) return null;
+    var u = {id:uid(), name:name, familyId:familyId};
+    units.push(u);
+    saveUnits();
+    return u;
+  }
+  function editUnit(id, newName, newFamilyId){
+    var u = getUnitById(id);
+    if(!u) return;
+    // if name changed, check duplicate in same family
+    if(newName !== u.name || newFamilyId !== u.familyId){
+      var dup = units.some(function(x){ return x.id!==id && x.name===newName && x.familyId===newFamilyId; });
+      if(dup) return false;
+    }
+    u.name = newName;
+    u.familyId = newFamilyId;
+    saveUnits();
+    return true;
+  }
+  function deleteUnit(id){
+    units = units.filter(function(u){return u.id!==id;});
+    saveUnits();
   }
 
   /* ── record normalization ── */
@@ -890,9 +967,22 @@ var Data = (function(){
     records = Object.values(uniq);
     try{ trash = JSON.parse(localStorage.getItem(TRASH_KEY)||'[]'); }catch(e){ trash=[]; }
     trash = trash.filter(Boolean).map(normalize);
-    loadCatalog();
     loadFamilies();
-    records.forEach(function(r){ learnUnitName(r.unitName); });
+    loadUnits();
+    // ensure all unit names from records exist in units (with CUSTOM family if missing)
+    records.forEach(function(r){
+      if(r.unitName && !getUnitByName(r.unitName)){
+        // try to find a family that can produce this name (check build function)
+        var matched = false;
+        for(var i=0;i<families.length;i++){
+          try {
+            // test with some dummy values? hard. Just assign CUSTOM.
+          }catch(e){}
+        }
+        units.push({id:uid(), name:r.unitName, familyId:'CUSTOM'});
+      }
+    });
+    saveUnits();
     persist(true);
   }
 
@@ -912,7 +1002,16 @@ var Data = (function(){
     var idx = records.findIndex(function(r){return r.id===rec.id;});
     if(idx>=0){ rec.history = records[idx].history || []; addHistory(rec, actionLabel||'Updated'); records[idx]=rec; }
     else { addHistory(rec, actionLabel||'Created'); records.push(rec); }
-    learnUnitName(rec.unitName);
+    // ensure unit exists in units
+    if(rec.unitName){
+      var famId = 'CUSTOM';
+      // try to find family from current record form? not available here
+      // we'll use CUSTOM as fallback
+      if(!getUnitByName(rec.unitName)){
+        units.push({id:uid(), name:rec.unitName, familyId:famId});
+        saveUnits();
+      }
+    }
     persist();
     return idx>=0;
   }
@@ -966,7 +1065,7 @@ var Data = (function(){
   function snapshot(name){
     var idx = backupIndex();
     var id = uid();
-    var blob = JSON.stringify({records:records, trash:trash});
+    var blob = JSON.stringify({records:records, trash:trash, units:units, families:families});
     try{
       localStorage.setItem(BACKUP_BLOB_PREFIX+id, blob);
       idx.unshift({id:id, name:name, date:new Date().toISOString(), count:records.length});
@@ -985,7 +1084,12 @@ var Data = (function(){
       var blob = JSON.parse(blobRaw);
       records = (blob.records||[]).map(normalize);
       trash = (blob.trash||[]).map(normalize);
-      records.forEach(function(r){ learnUnitName(r.unitName); });
+      if(blob.units) units = blob.units;
+      if(blob.families) families = blob.families;
+      saveFamilies();
+      saveUnits();
+      records.forEach(function(r){ if(r.unitName && !getUnitByName(r.unitName)){ units.push({id:uid(), name:r.unitName, familyId:'CUSTOM'}); } });
+      saveUnits();
       persist();
       UI.toast('Restored from backup');
     }catch(e){ UI.toast('Restore failed: corrupted backup'); }
@@ -1009,7 +1113,8 @@ var Data = (function(){
 
   function exportJSON(){
     if(!records.length) return UI.toast('No data to export');
-    download(JSON.stringify(records,null,2), 'fault_backup_v10.json', 'application/json');
+    var data = {records:records, units:units, families:families};
+    download(JSON.stringify(data,null,2), 'fault_backup_v10.json', 'application/json');
     snapshot('JSON export');
     UI.toast('JSON backup downloaded');
     UI.renderBackup();
@@ -1055,18 +1160,35 @@ var Data = (function(){
     rd.onload = function(){
       try{
         var data = JSON.parse(rd.result);
-        if(!Array.isArray(data)) throw new Error('Invalid');
-        var added=0;
-        data.forEach(function(item){
-          var r = normalize(item);
-          var idx = records.findIndex(function(x){return x.id===r.id;});
-          if(idx>=0) records[idx]=r; else { records.push(r); added++; }
-          learnUnitName(r.unitName);
-        });
-        persist();
-        UI.toast(added+' record(s) restored');
-        snapshot('JSON restore');
-        UI.renderBackup();
+        if(Array.isArray(data)){
+          // old format: array of records
+          var added=0;
+          data.forEach(function(item){
+            var r = normalize(item);
+            var idx = records.findIndex(function(x){return x.id===r.id;});
+            if(idx>=0) records[idx]=r; else { records.push(r); added++; }
+            if(r.unitName && !getUnitByName(r.unitName)){ units.push({id:uid(), name:r.unitName, familyId:'CUSTOM'}); }
+          });
+          saveUnits();
+          persist();
+          UI.toast(added+' record(s) restored');
+          snapshot('JSON restore');
+          UI.renderBackup();
+        } else if(data.records && Array.isArray(data.records)){
+          // new format with units and families
+          if(data.families) { families = data.families; saveFamilies(); }
+          if(data.units) { units = data.units; saveUnits(); }
+          var added2=0;
+          data.records.forEach(function(item){
+            var r = normalize(item);
+            var idx = records.findIndex(function(x){return x.id===r.id;});
+            if(idx>=0) records[idx]=r; else { records.push(r); added2++; }
+          });
+          persist();
+          UI.toast(added2+' record(s) restored with families & units');
+          snapshot('JSON restore');
+          UI.renderBackup();
+        } else throw new Error('Invalid JSON structure');
       }catch(err){ UI.toast('Restore failed: invalid JSON'); }
     };
     rd.readAsText(f);
@@ -1108,8 +1230,9 @@ var Data = (function(){
           var norm = normalize(r);
           var idx = records.findIndex(function(x){return x.id===norm.id;});
           if(idx>=0) records[idx]=norm; else { records.push(norm); added++; }
-          learnUnitName(norm.unitName);
+          if(norm.unitName && !getUnitByName(norm.unitName)){ units.push({id:uid(), name:norm.unitName, familyId:'CUSTOM'}); }
         }
+        saveUnits();
         persist();
         UI.toast(added+' record(s) restored from CSV');
         snapshot('CSV restore');
@@ -1148,7 +1271,7 @@ var Data = (function(){
       var siteMatch = line.match(/^Code Site\s*[:：]\s*(.*)/i);
       if(siteMatch){ current.site = siteMatch[1].trim().toUpperCase(); continue; }
       var unitMatch = line.match(/^UNIT Name\s*[:：]\s*(.*)/i);
-      if(unitMatch){ var u=unitMatch[1].trim(); current.unit=canonicalUnitName(u); learnUnitName(current.unit); continue; }
+      if(unitMatch){ var u=unitMatch[1].trim(); current.unit=canonicalUnitName(u); if(!getUnitByName(current.unit)){ units.push({id:uid(), name:current.unit, familyId:'CUSTOM'}); } saveUnits(); continue; }
       var faultMatch = line.match(/^Fault Affect\s*[:：]\s*(.*)/i);
       if(faultMatch){ current.fault = faultMatch[1].trim(); continue; }
       var qtyMatch = line.match(/^QTY\s*[:：]\s*(\d+)/i);
@@ -1173,9 +1296,10 @@ var Data = (function(){
       });
       addHistory(newRecord,'Imported');
       records.push(newRecord);
-      learnUnitName(newRecord.unitName);
+      if(newRecord.unitName && !getUnitByName(newRecord.unitName)){ units.push({id:uid(), name:newRecord.unitName, familyId:'CUSTOM'}); }
       added++;
     });
+    saveUnits();
     persist();
 
     var resultDiv = document.getElementById('importResult');
@@ -1192,15 +1316,17 @@ var Data = (function(){
   }
 
   return {
-    get records(){ return records; }, get trash(){ return trash; }, get catalog(){ return catalog; },
-    get families(){ return families; },
-    uid: uid, canonicalUnitName: canonicalUnitName, learnUnitName: learnUnitName,
+    get records(){ return records; }, get trash(){ return trash; },
+    get families(){ return families; }, get units(){ return units; },
+    uid: uid, canonicalUnitName: canonicalUnitName,
     load: load, persist: persist, upsert: upsert, softDelete: softDelete,
     restoreFromTrash: restoreFromTrash, purgeTrash: purgeTrash, decision: decision,
     backupIndex: backupIndex, snapshot: snapshot, restoreSnapshot: restoreSnapshot, deleteSnapshot: deleteSnapshot,
     exportJSON: exportJSON, exportCSV: exportCSV, exportFullCSV: exportFullCSV,
     importJSON: importJSON, importCSV: importCSV, importFromText: importFromText,
-    addFamily: addFamily, editFamily: editFamily, deleteFamily: deleteFamily, getFamily: getFamily, saveFamilies: saveFamilies,
+    getFamily: getFamily, addFamily: addFamily, editFamily: editFamily, deleteFamily: deleteFamily, saveFamilies: saveFamilies,
+    getUnits: getUnits, getUnitsByFamily: getUnitsByFamily, getUnitById: getUnitById, getUnitByName: getUnitByName,
+    addUnit: addUnit, editUnit: editUnit, deleteUnit: deleteUnit, saveUnits: saveUnits,
     THEME_KEY: THEME_KEY
   };
 })();
@@ -1278,11 +1404,8 @@ var UI = (function(){
     families.forEach(function(f){
       sel.innerHTML += '<option value="'+f.id+'">'+esc(f.label)+'</option>';
     });
-    // if current is still valid, select it
     if(current && Data.getFamily(current)) sel.value = current;
-    // if no current, set to first non-empty
     if(!sel.value && families.length) sel.value = families[0].id;
-    // trigger family change to render fields
     onFamilyChange();
   }
 
@@ -1307,25 +1430,21 @@ var UI = (function(){
     });
     html += '</div></div>';
     container.innerHTML = html;
-    // if family is "CUSTOM" or has a 'customName' field, we show suggestions
-    var hasCustomName = (f.fields||[]).some(function(fld){ return fld.id==='customName'; });
-    if(hasCustomName){
-      setTimeout(function(){
-        var cn = document.getElementById('customName');
-        if(cn){ cn.addEventListener('input', function(){ renderUnitSuggestions(this.value); }); renderUnitSuggestions(cn.value); }
-      },50);
+    // show unit suggestions based on the selected family
+    var suggestions = Data.getUnitsByFamily(famId);
+    var sugContainer = document.getElementById('unitSuggestions');
+    if(suggestions.length){
+      sugContainer.innerHTML = suggestions.map(function(u){
+        return '<span class="unit-suggestion" onclick="UI.applyUnitSuggestion(\''+u.name.replace(/'/g,"\\'")+'\')">'+esc(u.name)+'</span>';
+      }).join('');
     } else {
-      document.getElementById('unitSuggestions').innerHTML='';
+      sugContainer.innerHTML = '';
     }
     updatePreview();
   }
 
   function checkCustomSuggestion(){
-    var famId = document.getElementById('unitFamily').value;
-    var f = Data.getFamily(famId);
-    if(f && (f.fields||[]).some(function(fld){ return fld.id==='customName'; })){
-      var cn=document.getElementById('customName'); if(cn) renderUnitSuggestions(cn.value);
-    }
+    // no-op, we handle suggestions via onFamilyChange
   }
 
   function getFamilyValues(){
@@ -1348,32 +1467,22 @@ var UI = (function(){
     } catch(e){ return ''; }
   }
 
-  function suggestUnits(input){
-    if(!input) return [];
-    var lower = input.toLowerCase();
-    return Data.catalog.filter(function(u){ return u.toLowerCase().indexOf(lower)!==-1; }).slice(0,8);
-  }
-  function renderUnitSuggestions(input){
-    var container = document.getElementById('unitSuggestions');
-    var suggestions = suggestUnits(input);
-    if(!suggestions.length){ container.innerHTML=''; return; }
-    container.innerHTML = suggestions.map(function(s){
-      return '<span class="unit-suggestion" onclick="UI.applyUnitSuggestion(\''+s.replace(/'/g,"\\'")+'\')">'+esc(s)+'</span>';
-    }).join('');
-  }
   function applyUnitSuggestion(name){
-    // set family to CUSTOM (or first with customName)
-    var customFamily = Data.families.find(function(f){ return (f.fields||[]).some(function(ff){return ff.id==='customName';}); });
-    if(customFamily){
-      document.getElementById('unitFamily').value = customFamily.id;
-      onFamilyChange();
-      var cn = document.getElementById('customName');
-      if(cn){ cn.value = name; updatePreview(); }
-      document.getElementById('unitSuggestions').innerHTML='';
-      toast('Unit applied: '+name);
+    // find the unit in units to get its family? but we already have family selected.
+    // just fill the customName field if it exists
+    var famId = document.getElementById('unitFamily').value;
+    var f = Data.getFamily(famId);
+    if(!f) return;
+    // find a field named customName
+    var customField = f.fields.find(function(ff){ return ff.id==='customName'; });
+    if(customField){
+      var el = document.getElementById('customName');
+      if(el){ el.value = name; updatePreview(); }
     } else {
-      toast('No family with custom name field found');
+      // if no customName field, we can't set a free text unit name.
+      toast('This family does not have a custom name field');
     }
+    document.getElementById('unitSuggestions').innerHTML='';
   }
 
   function updatePreview(){
@@ -1691,14 +1800,18 @@ var UI = (function(){
       ? issues.map(function(x){ return '<div class="list-item">⚠ '+esc(x)+'</div>'; }).join('')
       : '<div class="list-item" style="color:var(--ok)">✓ Data is consistent</div>';
 
+    // show units catalog (all units)
     var qCat = (document.getElementById('catalogSearch')?.value||'').toLowerCase().trim();
     var catalogEl = document.getElementById('catalogList'), cntEl=document.getElementById('catalogCount');
-    var catList = Data.catalog.filter(function(u){return !qCat||u.toLowerCase().indexOf(qCat)!==-1;});
-    if(cntEl) cntEl.textContent = Data.catalog.length;
+    var allUnits = Data.getUnits();
+    var catList = allUnits.filter(function(u){ return !qCat||u.name.toLowerCase().indexOf(qCat)!==-1; });
+    if(cntEl) cntEl.textContent = allUnits.length;
     if(!catList.length){ catalogEl.innerHTML='<div class="empty-state"><div class="icon">▥</div>No units in catalog</div>'; return; }
     catalogEl.innerHTML = catList.slice(0,40).map(function(u){
-      var count = Data.records.filter(function(r){return r.unitName===u;}).length;
-      return '<div class="list-item"><span>'+esc(u)+'</span><span class="muted">'+count+' records</span></div>';
+      var count = Data.records.filter(function(r){return r.unitName===u.name;}).length;
+      var fam = Data.getFamily(u.familyId);
+      var famLabel = fam ? fam.label : 'Unknown';
+      return '<div class="list-item"><span>'+esc(u.name)+' <span class="muted">('+esc(famLabel)+')</span></span><span class="muted">'+count+' records</span></div>';
     }).join('');
     if(catList.length>40) catalogEl.innerHTML += '<div class="text-muted text-center" style="padding:6px;font-size:11px">… and '+(catList.length-40)+' more</div>';
   }
@@ -1807,16 +1920,28 @@ var UI = (function(){
     document.getElementById('status').value=r.status||'Pending';
     document.getElementById('approver').value=r.approvedBy||'';
     document.getElementById('notes').value=r.notes||'';
-    // find a family that can produce this unit name (or use CUSTOM)
-    var customFamily = Data.families.find(function(f){ return (f.fields||[]).some(function(ff){return ff.id==='customName';}); });
-    if(customFamily){
-      document.getElementById('unitFamily').value = customFamily.id;
+    // find a family that has customName field or try to guess
+    var unitName = r.unitName;
+    var famId = 'CUSTOM';
+    // try to find unit in units
+    var unitObj = Data.getUnitByName(unitName);
+    if(unitObj) famId = unitObj.familyId;
+    else {
+      // try to find family by matching build result? skip, use CUSTOM
+    }
+    var fam = Data.getFamily(famId);
+    if(fam){
+      document.getElementById('unitFamily').value = famId;
       onFamilyChange();
-      var cn = document.getElementById('customName');
-      if(cn) cn.value = r.unitName;
+      // fill customName if exists
+      var customField = fam.fields.find(function(ff){ return ff.id==='customName'; });
+      if(customField){
+        var cn = document.getElementById('customName');
+        if(cn) cn.value = unitName;
+      }
       updatePreview();
     } else {
-      // fallback: set first family
+      // fallback: first family
       if(Data.families.length) {
         document.getElementById('unitFamily').value = Data.families[0].id;
         onFamilyChange();
@@ -1834,7 +1959,6 @@ var UI = (function(){
     document.getElementById('snErr').style.display='none';
     document.getElementById('modalbg').classList.add('on');
     document.body.style.overflow='hidden';
-    setTimeout(function(){ var cn2=document.getElementById('customName'); if(cn2) renderUnitSuggestions(cn2.value); },100);
   }
 
   function closeModal(){
@@ -1890,7 +2014,7 @@ var UI = (function(){
 
   /* ── Units Management View ── */
   function renderUnitsView(){
-    // Families
+    // Families list
     var families = Data.families;
     var fl = document.getElementById('familyList');
     if(!fl) return;
@@ -1905,20 +2029,54 @@ var UI = (function(){
         '</div></div>';
     }).join('');
 
-    // Unit catalog
+    // Unit management per family
+    var mgmtFam = document.getElementById('unitMgmtFamily');
+    var currentFam = mgmtFam.value;
+    mgmtFam.innerHTML = '<option value="">-- Select family --</option>';
+    families.forEach(function(f){
+      mgmtFam.innerHTML += '<option value="'+f.id+'"'+(f.id===currentFam?' selected':'')+'>'+esc(f.label)+'</option>';
+    });
+    // If no current, select first
+    if(!currentFam && families.length) mgmtFam.value = families[0].id;
+
+    var famId = mgmtFam.value;
+    var mgmtList = document.getElementById('unitMgmtList');
+    if(!famId || !Data.getFamily(famId)){
+      mgmtList.innerHTML='<div class="empty-state">Select a family to see its units</div>';
+    } else {
+      var units = Data.getUnitsByFamily(famId);
+      if(!units.length){
+        mgmtList.innerHTML='<div class="empty-state">No units in this family. Add one with the button above.</div>';
+      } else {
+        mgmtList.innerHTML = units.map(function(u){
+          return '<div class="card">'+
+            '<div class="card-top"><span class="card-unit" style="font-weight:600;color:var(--ink)">'+esc(u.name)+'</span></div>'+
+            '<div class="card-actions">'+
+            '<button class="btn btn-sm" onclick="UI.openEditUnit(\''+u.id+'\')">Edit</button>'+
+            '<button class="btn btn-sm btn-outline" onclick="UI.confirmDeleteUnit(\''+u.id+'\')">Delete</button>'+
+            '</div></div>';
+        }).join('');
+      }
+    }
+
+    // Full catalog (all units)
     var qUnit = (document.getElementById('unitCatalogSearch')?.value||'').toLowerCase().trim();
-    var catList = Data.catalog.filter(function(u){return !qUnit||u.toLowerCase().indexOf(qUnit)!==-1;});
+    var allUnits = Data.getUnits();
+    var catList = allUnits.filter(function(u){ return !qUnit||u.name.toLowerCase().indexOf(qUnit)!==-1; });
     var ucl = document.getElementById('unitCatalogList'), ucc=document.getElementById('unitCatalogCount');
-    if(ucc) ucc.textContent = Data.catalog.length;
+    if(ucc) ucc.textContent = allUnits.length;
     if(!catList.length){ ucl.innerHTML='<div class="empty-state"><div class="icon">▥</div>No units in catalog</div>'; return; }
     ucl.innerHTML = catList.slice(0,50).map(function(u){
-      var count = Data.records.filter(function(r){return r.unitName===u;}).length;
+      var count = Data.records.filter(function(r){return r.unitName===u.name;}).length;
+      var fam = Data.getFamily(u.familyId);
+      var famLabel = fam ? fam.label : 'Unknown';
       return '<div class="card">'+
-        '<div class="card-top"><span class="card-unit" style="font-weight:600;color:var(--ink)">'+esc(u)+'</span>'+
-        '<span class="badge info" style="font-size:9px">'+count+' records</span></div>'+
+        '<div class="card-top"><span class="card-unit" style="font-weight:600;color:var(--ink)">'+esc(u.name)+'</span>'+
+        '<span class="badge info" style="font-size:9px">'+esc(famLabel)+'</span></div>'+
+        '<div class="card-meta">'+count+' records</div>'+
         '<div class="card-actions">'+
-        '<button class="btn btn-sm" onclick="UI.editUnitCatalog(\''+u.replace(/'/g,"\\'")+'\')">Edit</button>'+
-        '<button class="btn btn-sm btn-outline" onclick="UI.confirmDeleteUnit(\''+u.replace(/'/g,"\\'")+'\')">Delete</button>'+
+        '<button class="btn btn-sm" onclick="UI.openEditUnit(\''+u.id+'\')">Edit</button>'+
+        '<button class="btn btn-sm btn-outline" onclick="UI.confirmDeleteUnit(\''+u.id+'\')">Delete</button>'+
         '</div></div>';
     }).join('');
     if(catList.length>50) ucl.innerHTML += '<div class="text-muted text-center" style="padding:6px;font-size:11px">… and '+(catList.length-50)+' more</div>';
@@ -1942,7 +2100,6 @@ var UI = (function(){
     document.getElementById('familyModalTitle').textContent='Edit Unit Family';
     document.getElementById('familyModalSub').textContent='Update family name and pattern.';
     document.getElementById('familyName').value=f.label;
-    // try to reconstruct pattern from fields
     var pattern = '';
     if(f.fields && f.fields.length){
       var placeholders = f.fields.map(function(fld){ return '{'+fld.id+'}'; }).join('');
@@ -1987,56 +2144,71 @@ var UI = (function(){
     });
   }
 
-  /* ── Unit catalog management ── */
-  function openAddUnit(){
+  /* ── Unit management (add/edit/delete) ── */
+  function openAddUnitForFamily(){
+    var famId = document.getElementById('unitMgmtFamily').value;
+    if(!famId){ toast('Select a family first'); return; }
     var name = prompt('Enter new unit name:');
     if(name && name.trim()){
       var trimmed = name.trim();
-      if(Data.catalog.indexOf(trimmed)===-1){
-        Data.catalog.push(trimmed);
-        Data.catalog.sort();
-        Data.saveCatalog();
-        renderUnitsView();
-        toast('Unit added to catalog');
-      } else {
-        toast('Unit already exists');
-      }
+      var existing = Data.getUnitsByFamily(famId).some(function(u){return u.name===trimmed;});
+      if(existing){ toast('Unit already exists in this family'); return; }
+      var u = Data.addUnit(trimmed, famId);
+      if(u) { toast('Unit added'); renderUnitsView(); } else toast('Failed to add unit');
     }
   }
 
-  function editUnitCatalog(oldName){
-    var newName = prompt('Edit unit name:', oldName);
-    if(newName && newName.trim() && newName.trim()!==oldName){
-      var trimmed = newName.trim();
-      var idx = Data.catalog.indexOf(oldName);
-      if(idx!==-1){
-        if(Data.catalog.indexOf(trimmed)===-1){
-          Data.catalog[idx] = trimmed;
-          Data.catalog.sort();
-          Data.saveCatalog();
-          // update records that use this unit name
-          Data.records.forEach(function(r){
-            if(r.unitName===oldName) r.unitName=trimmed;
-          });
-          Data.persist();
-          renderUnitsView();
-          toast('Unit updated');
-        } else {
-          toast('Name already exists');
-        }
-      }
+  function openEditUnit(id){
+    var u = Data.getUnitById(id);
+    if(!u) return;
+    document.getElementById('unitEditId').value = id;
+    document.getElementById('unitEditName').value = u.name;
+    // populate family dropdown
+    var sel = document.getElementById('unitEditFamily');
+    var families = Data.families;
+    sel.innerHTML = '';
+    families.forEach(function(f){
+      sel.innerHTML += '<option value="'+f.id+'"'+(f.id===u.familyId?' selected':'')+'>'+esc(f.label)+'</option>';
+    });
+    document.getElementById('unitEditTitle').textContent = 'Edit Unit';
+    document.getElementById('unitEditSub').textContent = 'Change the unit name or its family.';
+    document.getElementById('unitEditModal').classList.add('on');
+    document.body.style.overflow='hidden';
+  }
+
+  function closeUnitEditModal(){
+    document.getElementById('unitEditModal').classList.remove('on');
+    document.body.style.overflow='';
+  }
+
+  function saveUnitEdit(e){
+    e.preventDefault();
+    var id = document.getElementById('unitEditId').value;
+    var name = document.getElementById('unitEditName').value.trim();
+    var famId = document.getElementById('unitEditFamily').value;
+    if(!name){ toast('Unit name is required'); return; }
+    if(!famId){ toast('Please select a family'); return; }
+    var success = Data.editUnit(id, name, famId);
+    if(success === false) { toast('A unit with this name already exists in the chosen family'); return; }
+    if(success !== undefined) {
+      // also update records that use this unit name? we could, but we keep the name change only for unit catalog.
+      // For records, the unitName is stored as is. So changing unit name in catalog doesn't affect existing records.
+      // We could optionally update records, but it's safer to let them remain.
+      toast('Unit updated');
+      closeUnitEditModal();
+      renderUnitsView();
+    } else {
+      toast('Failed to update unit');
     }
   }
 
-  function confirmDeleteUnit(name){
-    confirm('Delete unit "'+name+'"?','This will remove it from the catalog. Existing records with this unit name will not be affected.','Delete',function(){
-      var idx = Data.catalog.indexOf(name);
-      if(idx!==-1){
-        Data.catalog.splice(idx,1);
-        Data.saveCatalog();
-        renderUnitsView();
-        toast('Unit removed from catalog');
-      }
+  function confirmDeleteUnit(id){
+    var u = Data.getUnitById(id);
+    if(!u) return;
+    confirm('Delete unit "'+u.name+'"?','This will remove it from the catalog. Existing records with this unit name will not be affected.','Delete',function(){
+      Data.deleteUnit(id);
+      renderUnitsView();
+      toast('Unit removed');
     });
   }
 
@@ -2070,7 +2242,7 @@ var UI = (function(){
     document.addEventListener('keydown', function(e){
       var tag = (e.target.tagName||'').toLowerCase();
       var typing = tag==='input'||tag==='textarea'||tag==='select';
-      if(e.key==='Escape'){ closeModal(); closeMore(); confirmCancel(); closeFamilyModal(); return; }
+      if(e.key==='Escape'){ closeModal(); closeMore(); confirmCancel(); closeFamilyModal(); closeUnitEditModal(); return; }
       if(typing) return;
       if(e.key==='/'){ e.preventDefault(); showView('records'); setTimeout(function(){document.getElementById('q').focus();},60); }
       else if(e.key==='n'||e.key==='N'){ openAdd(); }
@@ -2080,7 +2252,7 @@ var UI = (function(){
   return {
     esc:esc, toast:toast, toggleTheme:toggleTheme, loadTheme:loadTheme,
     toggleScCustom:toggleScCustom, onFamilyChange:onFamilyChange, checkCustomSuggestion:checkCustomSuggestion,
-    applyUnitSuggestion:applyUnitSuggestion, renderUnitSuggestions:renderUnitSuggestions, updatePreview:updatePreview,
+    applyUnitSuggestion:applyUnitSuggestion, updatePreview:updatePreview,
     updateOutputText:updateOutputText, copyOutput:copyOutput,
     renderAll:renderAll, debounceRender:debounceRender, renderRecords:renderRecords, renderSites:renderSites,
     renderQuality:renderQuality, renderBackup:renderBackup, renderTrash:renderTrash, renderUnitsView:renderUnitsView,
@@ -2092,7 +2264,8 @@ var UI = (function(){
     // Family & Unit management
     openAddFamily:openAddFamily, openEditFamily:openEditFamily, closeFamilyModal:closeFamilyModal,
     saveFamily:saveFamily, confirmDeleteFamily:confirmDeleteFamily,
-    openAddUnit:openAddUnit, editUnitCatalog:editUnitCatalog, confirmDeleteUnit:confirmDeleteUnit,
+    openAddUnitForFamily:openAddUnitForFamily, openEditUnit:openEditUnit, closeUnitEditModal:closeUnitEditModal,
+    saveUnitEdit:saveUnitEdit, confirmDeleteUnit:confirmDeleteUnit,
     populateFamilySelect:populateFamilySelect
   };
 })();
@@ -2103,6 +2276,7 @@ var UI = (function(){
 document.getElementById('modalbg').addEventListener('click', function(e){ if(e.target.id==='modalbg') UI.closeModal(); });
 document.getElementById('confirmbg').addEventListener('click', function(e){ if(e.target.id==='confirmbg') UI.confirmCancel(); });
 document.getElementById('familyModal').addEventListener('click', function(e){ if(e.target.id==='familyModal') UI.closeFamilyModal(); });
+document.getElementById('unitEditModal').addEventListener('click', function(e){ if(e.target.id==='unitEditModal') UI.closeUnitEditModal(); });
 document.addEventListener('touchend', function(){}, {passive:true});
 
 UI.loadTheme();
@@ -2112,4 +2286,4 @@ UI.populateFamilySelect();
 UI.renderAll();
 </script>
 </body>
-   </html>
+</html>
