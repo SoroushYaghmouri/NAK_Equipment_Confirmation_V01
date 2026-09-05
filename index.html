@@ -12,9 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
-/* ═══════════════════════════════════════════════════════════════════
-   FAULT CONSOLE — design tokens (unchanged)
-   ═══════════════════════════════════════════════════════════════════ */
+/* ─── styles (unchanged) ─── */
 :root{
   --bg-0:#0a0d12; --bg-1:#10141c; --bg-2:#161c27; --bg-3:#1c2431;
   --line:#26303f; --line-soft:#1c2531;
@@ -855,47 +853,50 @@ var Data = (function(){
   }
 
   /* ── units ── */
+  // Sample units for each family (to seed the catalog)
+  var SAMPLE_UNITS = {
+    'NCU_NCR': ['NCR48U - 3KW - Nian', 'NCU48U - 2KW - Nian', 'NCR24U - 1.5KW - Nian', 'NCR48U G/01 - 3KW - Nian'],
+    'PSU': ['PSU AC 03 - Ericsson', 'PSU AC 01 - Ericsson', 'PSU AC 02 - Ericsson', 'PSU AC 03 - Nian'],
+    'CLU': ['CLU - Ericsson', 'BBU6102 CLU - Ericsson', 'CLU - BBUB102 - Ericsson'],
+    'CCU': ['CCU - Climate Control Board', 'CCU - Thermo Electric Co', 'Climate Control Board - CCU', 'Climat Control Board - Ericsson'],
+    'DC_AC': [
+      'DC Cabinet Air Conditioner - Envicool',
+      'DC Cabinet Air Conditioner - ITMC',
+      'NAC550D - DC Air Conditioner - Nian',
+      'NAC650D - DC Air Conditioner - Nian',
+      'NAC1250D - DC Air Conditioner - Nian',
+      'NAC2400D - DC Air Conditioner - Nian',
+      'NAC3000D - DC Air Conditioner - Nian',
+      'NAC3500D - DC Air Conditioner - Nian'
+    ],
+    'RECTIFIER': ['RECTIFIER 48VDC3000 - ITMC', 'Rectifier - Flatpack2 2000W 48V BF', 'PEC-4860 - Rectifier Equipment_Confirmation'],
+    'DCC': ['DCC - Equipment_Confirmation Electronic', 'DCC - Equipment_Confirmation Electronic - Cabinet Conditioner'],
+    'PDU': ['PDU 01 01', 'PDU 02 01'],
+    'AIRCOND': ['Air Conditioner - ITMC', 'Air Conditioner - Envicool'],
+    'CONTROLLER': ['Controller Unit - ITMC', 'Controller Unit - Envicool'],
+    'SMARTPACK': ['Smartpack Extended - ELTEK', 'Smartpack Compact - ELTEK'],
+    'SCU': ['SCU 01 01 - Ericsson', 'SCU 02 01 - Ericsson']
+  };
+
   function loadUnits(){
     try{
       var raw = localStorage.getItem(UNIT_KEY);
       if(raw){ units = JSON.parse(raw); }
       else { units = []; }
     }catch(e){ units = []; }
-    // If units are empty, seed with sample units for each family
-    if(!units.length){
-      var sampleUnits = {
-        'NCU_NCR': ['NCR48U - 3KW - Nian', 'NCU48U - 2KW - Nian', 'NCR24U - 1.5KW - Nian'],
-        'PSU': ['PSU AC 03 - Ericsson', 'PSU AC 01 - Ericsson', 'PSU AC 02 - Ericsson'],
-        'CLU': ['CLU - Ericsson', 'BBU6102 CLU - Ericsson'],
-        'CCU': ['CCU - Climate Control Board', 'CCU - Thermo Electric Co', 'Climate Control Board - CCU'],
-        'DC_AC': ['DC Cabinet Air Conditioner - Envicool', 'DC Cabinet Air Conditioner - ITMC', 'NAC550D - DC Air Conditioner - Nian', 'NAC650D - DC Air Conditioner - Nian', 'NAC1250D - DC Air Conditioner - Nian', 'NAC2400D - DC Air Conditioner - Nian', 'NAC3000D - DC Air Conditioner - Nian', 'NAC3500D - DC Air Conditioner - Nian'],
-        'RECTIFIER': ['RECTIFIER 48VDC3000 - ITMC', 'Rectifier - Flatpack2 2000W 48V BF', 'PEC-4860 - Rectifier Equipment_Confirmation'],
-        'DCC': ['DCC - Equipment_Confirmation Electronic', 'DCC - Equipment_Confirmation Electronic - Cabinet Conditioner'],
-        'PDU': ['PDU 01 01'],
-        'AIRCOND': ['Air Conditioner - ITMC'],
-        'CONTROLLER': ['Controller Unit - ITMC'],
-        'SMARTPACK': ['Smartpack Extended - ELTEK'],
-        'SCU': ['SCU 01 01 - Ericsson']
-      };
-      for(var fid in sampleUnits){
-        if(sampleUnits.hasOwnProperty(fid)){
-          var list = sampleUnits[fid];
-          list.forEach(function(name){
+
+    // Ensure each family has at least its sample units
+    for(var fid in SAMPLE_UNITS){
+      if(SAMPLE_UNITS.hasOwnProperty(fid)){
+        var existing = units.filter(function(u){return u.familyId===fid;});
+        if(existing.length === 0){
+          var sampleList = SAMPLE_UNITS[fid];
+          sampleList.forEach(function(name){
             units.push({id:uid(), name:name, familyId:fid});
           });
         }
       }
-      saveUnits();
     }
-
-    // Also ensure all units from records exist
-    records.forEach(function(r){
-      if(r.unitName && !getUnitByName(r.unitName)){
-        // try to find a matching family by checking if any family's build can produce this name? hard.
-        // we'll assign to CUSTOM
-        units.push({id:uid(), name:r.unitName, familyId:'CUSTOM'});
-      }
-    });
     saveUnits();
   }
   function saveUnits(){ try{ localStorage.setItem(UNIT_KEY, JSON.stringify(units)); }catch(e){} }
@@ -976,6 +977,14 @@ var Data = (function(){
     trash = trash.filter(Boolean).map(normalize);
     loadFamilies();
     loadUnits();
+    // Ensure all record unit names exist in units (if not, add to CUSTOM)
+    records.forEach(function(r){
+      if(r.unitName && !getUnitByName(r.unitName)){
+        // try to find a matching family by checking if any family's build can produce this name? hard.
+        // we'll assign to CUSTOM
+        addUnit(r.unitName, 'CUSTOM');
+      }
+    });
     persist(true);
   }
 
@@ -995,22 +1004,6 @@ var Data = (function(){
     var idx = records.findIndex(function(r){return r.id===rec.id;});
     if(idx>=0){ rec.history = records[idx].history || []; addHistory(rec, actionLabel||'Updated'); records[idx]=rec; }
     else { addHistory(rec, actionLabel||'Created'); records.push(rec); }
-    // ensure unit exists in units
-    if(rec.unitName){
-      // try to find which family it belongs to: check if any existing unit matches
-      var existing = getUnitByName(rec.unitName);
-      if(!existing){
-        // try to find a family by checking if this name appears in sample units for a family
-        var foundFamily = 'CUSTOM';
-        for(var i=0;i<families.length;i++){
-          var fam = families[i];
-          // check if this family has a field that can produce this name? hard.
-          // we'll use the current selected family from the form if available (passed via context)
-          // but we don't have that here. We'll use CUSTOM.
-        }
-        addUnit(rec.unitName, foundFamily);
-      }
-    }
     persist();
     return idx>=0;
   }
@@ -1163,9 +1156,8 @@ var Data = (function(){
             var r = normalize(item);
             var idx = records.findIndex(function(x){return x.id===r.id;});
             if(idx>=0) records[idx]=r; else { records.push(r); added++; }
-            if(r.unitName && !getUnitByName(r.unitName)){ units.push({id:uid(), name:r.unitName, familyId:'CUSTOM'}); }
+            if(r.unitName && !getUnitByName(r.unitName)){ addUnit(r.unitName, 'CUSTOM'); }
           });
-          saveUnits();
           persist();
           UI.toast(added+' record(s) restored');
           snapshot('JSON restore');
@@ -1225,9 +1217,8 @@ var Data = (function(){
           var norm = normalize(r);
           var idx = records.findIndex(function(x){return x.id===norm.id;});
           if(idx>=0) records[idx]=norm; else { records.push(norm); added++; }
-          if(norm.unitName && !getUnitByName(norm.unitName)){ units.push({id:uid(), name:norm.unitName, familyId:'CUSTOM'}); }
+          if(norm.unitName && !getUnitByName(norm.unitName)){ addUnit(norm.unitName, 'CUSTOM'); }
         }
-        saveUnits();
         persist();
         UI.toast(added+' record(s) restored from CSV');
         snapshot('CSV restore');
@@ -1266,7 +1257,7 @@ var Data = (function(){
       var siteMatch = line.match(/^Code Site\s*[:：]\s*(.*)/i);
       if(siteMatch){ current.site = siteMatch[1].trim().toUpperCase(); continue; }
       var unitMatch = line.match(/^UNIT Name\s*[:：]\s*(.*)/i);
-      if(unitMatch){ var u=unitMatch[1].trim(); current.unit=canonicalUnitName(u); if(!getUnitByName(current.unit)){ units.push({id:uid(), name:current.unit, familyId:'CUSTOM'}); } saveUnits(); continue; }
+      if(unitMatch){ var u=unitMatch[1].trim(); current.unit=canonicalUnitName(u); if(!getUnitByName(current.unit)){ addUnit(current.unit, 'CUSTOM'); } continue; }
       var faultMatch = line.match(/^Fault Affect\s*[:：]\s*(.*)/i);
       if(faultMatch){ current.fault = faultMatch[1].trim(); continue; }
       var qtyMatch = line.match(/^QTY\s*[:：]\s*(\d+)/i);
@@ -1291,10 +1282,9 @@ var Data = (function(){
       });
       addHistory(newRecord,'Imported');
       records.push(newRecord);
-      if(newRecord.unitName && !getUnitByName(newRecord.unitName)){ units.push({id:uid(), name:newRecord.unitName, familyId:'CUSTOM'}); }
+      if(newRecord.unitName && !getUnitByName(newRecord.unitName)){ addUnit(newRecord.unitName, 'CUSTOM'); }
       added++;
     });
-    saveUnits();
     persist();
 
     var resultDiv = document.getElementById('importResult');
@@ -1439,20 +1429,15 @@ var UI = (function(){
   }
 
   function applyUnitSuggestion(name, famId){
-    // Find the unit in the catalog and set the fields accordingly
     var unitObj = Data.getUnitByName(name);
     if(!unitObj) return;
     var fam = Data.getFamily(famId);
     if(!fam) return;
-    // Fill in the fields based on the family's fields
-    // For simplicity, if the family has a customName field, set it
     var customField = fam.fields.find(function(ff){ return ff.id==='customName'; });
     if(customField){
       var el = document.getElementById('customName');
       if(el){ el.value = name; updatePreview(); }
     } else {
-      // For families with structured fields, we'd need to parse the name
-      // For now, we just set the preview
       toast('Unit applied. Please adjust fields if needed.');
     }
     document.getElementById('unitSuggestions').innerHTML='';
@@ -1793,7 +1778,6 @@ var UI = (function(){
       ? issues.map(function(x){ return '<div class="list-item">⚠ '+esc(x)+'</div>'; }).join('')
       : '<div class="list-item" style="color:var(--ok)">✓ Data is consistent</div>';
 
-    // show units catalog (all units)
     var qCat = (document.getElementById('catalogSearch')?.value||'').toLowerCase().trim();
     var catalogEl = document.getElementById('catalogList'), cntEl=document.getElementById('catalogCount');
     var allUnits = Data.getUnits();
@@ -1913,14 +1897,12 @@ var UI = (function(){
     document.getElementById('status').value=r.status||'Pending';
     document.getElementById('approver').value=r.approvedBy||'';
     document.getElementById('notes').value=r.notes||'';
-    // find unit in catalog
     var unitObj = Data.getUnitByName(r.unitName);
     var famId = unitObj ? unitObj.familyId : 'CUSTOM';
     var fam = Data.getFamily(famId);
     if(fam){
       document.getElementById('unitFamily').value = famId;
       onFamilyChange();
-      // fill customName if exists
       var customField = fam.fields.find(function(ff){ return ff.id==='customName'; });
       if(customField){
         var cn = document.getElementById('customName');
@@ -1928,7 +1910,6 @@ var UI = (function(){
       }
       updatePreview();
     } else {
-      // fallback
       if(Data.families.length) {
         document.getElementById('unitFamily').value = Data.families[0].id;
         onFamilyChange();
@@ -2006,7 +1987,6 @@ var UI = (function(){
 
   /* ── Units Management View ── */
   function renderUnitsView(){
-    // Families list
     var families = Data.families;
     var fl = document.getElementById('familyList');
     if(!fl) return;
@@ -2021,7 +2001,6 @@ var UI = (function(){
         '</div></div>';
     }).join('');
 
-    // Unit management per family
     var mgmtFam = document.getElementById('unitMgmtFamily');
     var currentFam = mgmtFam.value;
     mgmtFam.innerHTML = '<option value="">-- Select family --</option>';
@@ -2050,7 +2029,6 @@ var UI = (function(){
       }
     }
 
-    // Full catalog (all units)
     var qUnit = (document.getElementById('unitCatalogSearch')?.value||'').toLowerCase().trim();
     var allUnits = Data.getUnits();
     var catList = allUnits.filter(function(u){ return !qUnit||u.name.toLowerCase().indexOf(qUnit)!==-1; });
@@ -2135,7 +2113,7 @@ var UI = (function(){
     });
   }
 
-  /* ── Unit management (add/edit/delete) ── */
+  /* ── Unit management ── */
   function openAddUnitForFamily(){
     var famId = document.getElementById('unitMgmtFamily').value;
     if(!famId){ toast('Select a family first'); return; }
@@ -2154,7 +2132,6 @@ var UI = (function(){
     if(!u) return;
     document.getElementById('unitEditId').value = id;
     document.getElementById('unitEditName').value = u.name;
-    // populate family dropdown
     var sel = document.getElementById('unitEditFamily');
     var families = Data.families;
     sel.innerHTML = '';
@@ -2249,7 +2226,6 @@ var UI = (function(){
     openAdd:openAdd, editRecord:editRecord, closeModal:closeModal, saveRecord:saveRecord, delRecord:delRecord,
     clearFilters:clearFilters, showView:showView, showMoreMenu:showMoreMenu, closeMore:closeMore, printReport:printReport,
     confirm:confirm, confirmOk:confirmOk, confirmCancel:confirmCancel, initKeys:initKeys,
-    // Family & Unit management
     openAddFamily:openAddFamily, openEditFamily:openEditFamily, closeFamilyModal:closeFamilyModal,
     saveFamily:saveFamily, confirmDeleteFamily:confirmDeleteFamily,
     openAddUnitForFamily:openAddUnitForFamily, openEditUnit:openEditUnit, closeUnitEditModal:closeUnitEditModal,
@@ -2274,4 +2250,4 @@ UI.populateFamilySelect();
 UI.renderAll();
 </script>
 </body>
-</html>
+   </html>
