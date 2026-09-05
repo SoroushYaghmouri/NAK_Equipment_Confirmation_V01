@@ -733,6 +733,65 @@ var Data = (function(){
   }
 
   /* ── families ── */
+  // Built-in builders (cannot be serialized; reattached on load)
+  var BUILTIN_BUILDERS = {
+    NCU_NCR: function(v){ var p=v.ncuPrefix||'NCR',vol=v.ncuVoltage||'48',ver=v.ncuVersion||'U';
+      var sub=v.ncuSubtype?' '+v.ncuSubtype.trim():'';var pw=(v.ncuPower&&v.ncuPower!=='N/A')?' - '+v.ncuPower:'';
+      return p+vol+ver+sub+pw; },
+    PSU: function(v){ var base=v.psuVersion?v.psuVersion.split('(')[0].trim():'PSU AC 03';return 'PSU '+base+(v.psuSuffix?' '+v.psuSuffix.trim():'');},
+    CLU: function(v){ var base=v.cluType||'CLU',suff=v.cluSuffix?' '+v.cluSuffix.trim():'';if(base==='CLU'&&!suff)suff=' - Ericsson';return base+suff;},
+    CCU: function(v){return (v.ccuType||'CCU - Climate Control Board')+(v.ccuSuffix?' '+v.ccuSuffix.trim():'');},
+    DC_AC: function(v){return (v.dcacModel||'DC Cabinet Air Conditioner - Envicool')+(v.dcacSuffix?' '+v.dcacSuffix.trim():'');},
+    RECTIFIER: function(v){return (v.recType||'RECTIFIER 48VDC3000 - ITMC')+(v.recSuffix?' '+v.recSuffix.trim():'');},
+    DCC: function(v){return v.dccType||'DCC - Equipment_Confirmation Electronic';},
+    PDU: function(v){return v.pduType||'PDU 01 01';},
+    AIRCOND: function(v){return v.airType||'Air Conditioner - ITMC';},
+    CONTROLLER: function(v){return v.ctrlType||'Controller Unit - ITMC';},
+    SMARTPACK: function(v){return v.smartType||'Smartpack Extended - ELTEK';},
+    SCU: function(v){return v.scuType||'SCU 01 01 - Ericsson';},
+    CUSTOM: function(v){return v.customName||'';}
+  };
+
+  function makePatternBuilder(pattern){
+    if(!pattern || !String(pattern).trim()){
+      return function(v){ return (v && v.customName) || ''; };
+    }
+    var p = String(pattern).trim();
+    var matches = p.match(/\{([^}]+)\}/g);
+    if(matches){
+      // Safe string builder from pattern with {field} placeholders
+      return function(v){
+        v = v || {};
+        return p.replace(/\{([^}]+)\}/g, function(_, key){ return (v[key] != null ? String(v[key]) : ''); });
+      };
+    }
+    // Literal pattern (no placeholders)
+    return function(){ return p; };
+  }
+
+  function attachBuild(f){
+    if(!f) return f;
+    if(BUILTIN_BUILDERS[f.id]){
+      f.build = BUILTIN_BUILDERS[f.id];
+    } else if(f.pattern){
+      f.build = makePatternBuilder(f.pattern);
+    } else if(f.fields && f.fields.length === 1 && f.fields[0].id === 'customName'){
+      f.build = function(v){ return (v && v.customName) || ''; };
+    } else {
+      // Fallback: join field values
+      f.build = function(v){
+        v = v || {};
+        if(v.customName) return v.customName;
+        var parts = [];
+        (f.fields || []).forEach(function(fld){
+          if(v[fld.id]) parts.push(v[fld.id]);
+        });
+        return parts.join(' ');
+      };
+    }
+    return f;
+  }
+
   function defaultFamilies(){
     return [
       {id:'NCU_NCR', label:'NCU / NCR', fields:[
@@ -741,60 +800,87 @@ var Data = (function(){
         {id:'ncuVersion',type:'text',label:'Version',default:'U',placeholder:'U'},
         {id:'ncuSubtype',type:'text',label:'Subtype (e.g. C/11)',placeholder:'C/11'},
         {id:'ncuPower',type:'select',label:'Power',options:['3KW','2KW','1.5KW','N/A'],default:'3KW'}
-      ], build:function(v){ var p=v.ncuPrefix||'NCR',vol=v.ncuVoltage||'48',ver=v.ncuVersion||'U';
-        var sub=v.ncuSubtype?' '+v.ncuSubtype.trim():'';var pw=(v.ncuPower&&v.ncuPower!=='N/A')?' - '+v.ncuPower:'';
-        return p+vol+ver+sub+pw; }},
+      ]},
       {id:'PSU', label:'PSU AC', fields:[
         {id:'psuVersion',type:'select',label:'Version',options:['AC 01 (1KW)','AC 02 (2KW)','AC 03 (3KW)'],default:'AC 03 (3KW)'},
         {id:'psuSuffix',type:'text',label:'Suffix',placeholder:'- Ericsson (optional)'}
-      ], build:function(v){ var base=v.psuVersion?v.psuVersion.split('(')[0].trim():'PSU AC 03';return 'PSU '+base+(v.psuSuffix?' '+v.psuSuffix.trim():'');}},
+      ]},
       {id:'CLU', label:'CLU / BBU', fields:[
         {id:'cluType',type:'select',label:'Type',options:['CLU','BBU6102 CLU'],default:'CLU'},
         {id:'cluSuffix',type:'text',label:'Suffix',placeholder:'- Ericsson (or empty)'}
-      ], build:function(v){ var base=v.cluType||'CLU',suff=v.cluSuffix?' '+v.cluSuffix.trim():'';if(base==='CLU'&&!suff)suff=' - Ericsson';return base+suff;}},
+      ]},
       {id:'CCU', label:'CCU / Climate control', fields:[
         {id:'ccuType',type:'select',label:'Type',options:['CCU - Climate Control Board','CCU - Thermo Electric Co','Climate Control Board - CCU','Climat Control Board'],default:'CCU - Climate Control Board'},
         {id:'ccuSuffix',type:'text',label:'Extra',placeholder:'- Ericsson etc.'}
-      ], build:function(v){return (v.ccuType||'CCU - Climate Control Board')+(v.ccuSuffix?' '+v.ccuSuffix.trim():'');}},
+      ]},
       {id:'DC_AC', label:'DC Air Conditioner', fields:[
         {id:'dcacModel',type:'select',label:'Model',options:['DC Cabinet Air Conditioner - Envicool','DC Cabinet Air Conditioner - ITMC','NAC550D - DC Air Conditioner - Nian','NAC650D - DC Air Conditioner - Nian','NAC1250D - DC Air Conditioner - Nian','NAC2400D - DC Air Conditioner - Nian','NAC3000D - DC Air Conditioner - Nian','NAC3500D - DC Air Conditioner - Nian'],default:'DC Cabinet Air Conditioner - Envicool'},
         {id:'dcacSuffix',type:'text',label:'Suffix',placeholder:'e.g. - Cooler, - Compressor'}
-      ], build:function(v){return (v.dcacModel||'DC Cabinet Air Conditioner - Envicool')+(v.dcacSuffix?' '+v.dcacSuffix.trim():'');}},
+      ]},
       {id:'RECTIFIER', label:'Rectifier', fields:[
         {id:'recType',type:'select',label:'Type',options:['RECTIFIER 48VDC3000 - ITMC','Rectifier - Flatpack2 2000W 48V BF','PEC-4860 - Rectifier Equipment_Confirmation'],default:'RECTIFIER 48VDC3000 - ITMC'},
         {id:'recSuffix',type:'text',label:'Suffix',placeholder:''}
-      ], build:function(v){return (v.recType||'RECTIFIER 48VDC3000 - ITMC')+(v.recSuffix?' '+v.recSuffix.trim():'');}},
+      ]},
       {id:'DCC', label:'DCC', fields:[
         {id:'dccType',type:'select',label:'Type',options:['DCC - Equipment_Confirmation Electronic','DCC - Equipment_Confirmation Electronic - Cabinet Conditioner'],default:'DCC - Equipment_Confirmation Electronic'}
-      ], build:function(v){return v.dccType||'DCC - Equipment_Confirmation Electronic';}},
-      {id:'PDU', label:'PDU', fields:[{id:'pduType',type:'text',label:'PDU type',default:'PDU 01 01',placeholder:'PDU 01 01'}], build:function(v){return v.pduType||'PDU 01 01';}},
-      {id:'AIRCOND', label:'Air conditioner - ITMC', fields:[{id:'airType',type:'text',label:'Model',default:'Air Conditioner - ITMC',placeholder:'Air Conditioner - ITMC'}], build:function(v){return v.airType||'Air Conditioner - ITMC';}},
-      {id:'CONTROLLER', label:'Controller unit', fields:[{id:'ctrlType',type:'text',label:'Model',default:'Controller Unit - ITMC',placeholder:'Controller Unit - ITMC'}], build:function(v){return v.ctrlType||'Controller Unit - ITMC';}},
-      {id:'SMARTPACK', label:'Smartpack', fields:[{id:'smartType',type:'text',label:'Model',default:'Smartpack Extended - ELTEK',placeholder:'Smartpack Extended - ELTEK'}], build:function(v){return v.smartType||'Smartpack Extended - ELTEK';}},
-      {id:'SCU', label:'SCU', fields:[{id:'scuType',type:'text',label:'Model',default:'SCU 01 01 - Ericsson',placeholder:'SCU 01 01 - Ericsson'}], build:function(v){return v.scuType||'SCU 01 01 - Ericsson';}},
-      {id:'CUSTOM', label:'Custom (free text)', fields:[{id:'customName',type:'text',label:'Full unit name',placeholder:'Enter exact unit name',required:true}], build:function(v){return v.customName||'';}}
-    ];
+      ]},
+      {id:'PDU', label:'PDU', fields:[{id:'pduType',type:'text',label:'PDU type',default:'PDU 01 01',placeholder:'PDU 01 01'}]},
+      {id:'AIRCOND', label:'Air conditioner - ITMC', fields:[{id:'airType',type:'text',label:'Model',default:'Air Conditioner - ITMC',placeholder:'Air Conditioner - ITMC'}]},
+      {id:'CONTROLLER', label:'Controller unit', fields:[{id:'ctrlType',type:'text',label:'Model',default:'Controller Unit - ITMC',placeholder:'Controller Unit - ITMC'}]},
+      {id:'SMARTPACK', label:'Smartpack', fields:[{id:'smartType',type:'text',label:'Model',default:'Smartpack Extended - ELTEK',placeholder:'Smartpack Extended - ELTEK'}]},
+      {id:'SCU', label:'SCU', fields:[{id:'scuType',type:'text',label:'Model',default:'SCU 01 01 - Ericsson',placeholder:'SCU 01 01 - Ericsson'}]},
+      {id:'CUSTOM', label:'Custom (free text)', fields:[{id:'customName',type:'text',label:'Full unit name',placeholder:'Enter exact unit name',required:true}]}
+    ].map(attachBuild);
   }
 
   function loadFamilies(){
     try{
       var raw = localStorage.getItem(FAMILY_KEY);
-      if(raw){ families = JSON.parse(raw); }
-      else { families = defaultFamilies(); saveFamilies(); }
-    }catch(e){ families = defaultFamilies(); saveFamilies(); }
+      if(raw){
+        families = JSON.parse(raw);
+        // Re-attach build functions (JSON strips them)
+        families = families.map(function(f){ return attachBuild(f); });
+        // Ensure all default families exist (in case older storage is missing some)
+        var defaults = defaultFamilies();
+        defaults.forEach(function(df){
+          if(!families.some(function(f){ return f.id === df.id; })){
+            families.push(df);
+          }
+        });
+      } else {
+        families = defaultFamilies();
+        saveFamilies();
+      }
+    }catch(e){
+      families = defaultFamilies();
+      saveFamilies();
+    }
   }
-  function saveFamilies(){ try{ localStorage.setItem(FAMILY_KEY, JSON.stringify(families)); }catch(e){} }
+  function saveFamilies(){
+    try{
+      // Store without functions; pattern + fields are enough to rebuild
+      var serializable = families.map(function(f){
+        return {
+          id: f.id,
+          label: f.label,
+          fields: f.fields || [],
+          pattern: f.pattern || ''
+        };
+      });
+      localStorage.setItem(FAMILY_KEY, JSON.stringify(serializable));
+    }catch(e){}
+  }
   function getFamily(id){ return families.find(function(f){return f.id===id;}); }
   function addFamily(name, pattern){
     var id = uid();
     var f = {
-      id:id,
-      label:name,
+      id: id,
+      label: name,
       fields: [],
-      build: function(v){ return v.customName || ''; }
+      pattern: (pattern && pattern.trim()) ? pattern.trim() : ''
     };
-    if(pattern && pattern.trim()){
-      var matches = pattern.match(/\{([^}]+)\}/g);
+    if(f.pattern){
+      var matches = f.pattern.match(/\{([^}]+)\}/g);
       if(matches){
         var seen = {};
         matches.forEach(function(m){
@@ -804,16 +890,13 @@ var Data = (function(){
             seen[key]=true;
           }
         });
-        var buildFn = new Function('v', 'return "'+pattern.replace(/\{([^}]+)\}/g, '" + (v["$1"]||"") + "') + '";');
-        f.build = buildFn;
       } else {
         f.fields.push({id:'customName', type:'text', label:'Full unit name', placeholder:'Enter exact unit name', required:true});
-        f.build = function(v){ return pattern; };
       }
     } else {
       f.fields.push({id:'customName', type:'text', label:'Full unit name', placeholder:'Enter exact unit name', required:true});
-      f.build = function(v){ return v.customName || ''; };
     }
+    attachBuild(f);
     families.push(f);
     saveFamilies();
     return f;
@@ -822,8 +905,15 @@ var Data = (function(){
     var f = getFamily(id);
     if(!f) return;
     f.label = name;
-    if(pattern && pattern.trim()){
-      var matches = pattern.match(/\{([^}]+)\}/g);
+    // Built-in families keep their original fields & builder; only label can change
+    if(BUILTIN_BUILDERS[id]){
+      attachBuild(f);
+      saveFamilies();
+      return;
+    }
+    f.pattern = (pattern && pattern.trim()) ? pattern.trim() : '';
+    if(f.pattern){
+      var matches = f.pattern.match(/\{([^}]+)\}/g);
       var newFields = [];
       var seen = {};
       if(matches){
@@ -834,20 +924,22 @@ var Data = (function(){
             seen[key]=true;
           }
         });
-        var buildFn = new Function('v', 'return "'+pattern.replace(/\{([^}]+)\}/g, '" + (v["$1"]||"") + "') + '";');
-        f.build = buildFn;
       } else {
         newFields.push({id:'customName', type:'text', label:'Full unit name', placeholder:'Enter exact unit name', required:true});
-        f.build = function(v){ return pattern; };
       }
       f.fields = newFields;
     } else {
       f.fields = [{id:'customName', type:'text', label:'Full unit name', placeholder:'Enter exact unit name', required:true}];
-      f.build = function(v){ return v.customName || ''; };
     }
+    attachBuild(f);
     saveFamilies();
   }
   function deleteFamily(id){
+    // Prevent deleting built-in families
+    if(BUILTIN_BUILDERS[id]){
+      if(typeof UI !== 'undefined' && UI.toast) UI.toast('Cannot delete built-in family');
+      return;
+    }
     families = families.filter(function(f){ return f.id!==id; });
     saveFamilies();
   }
@@ -1077,7 +1169,9 @@ var Data = (function(){
       records = (blob.records||[]).map(normalize);
       trash = (blob.trash||[]).map(normalize);
       if(blob.units) units = blob.units;
-      if(blob.families) families = blob.families;
+      if(blob.families){
+        families = (blob.families || []).map(function(f){ return attachBuild(f); });
+      }
       saveFamilies();
       saveUnits();
       persist();
@@ -1163,7 +1257,10 @@ var Data = (function(){
           snapshot('JSON restore');
           UI.renderBackup();
         } else if(data.records && Array.isArray(data.records)){
-          if(data.families) { families = data.families; saveFamilies(); }
+          if(data.families) {
+            families = (data.families || []).map(function(f){ return attachBuild(f); });
+            saveFamilies();
+          }
           if(data.units) { units = data.units; saveUnits(); }
           var added2=0;
           data.records.forEach(function(item){
@@ -1429,16 +1526,23 @@ var UI = (function(){
   }
 
   function applyUnitSuggestion(name, famId){
-    var unitObj = Data.getUnitByName(name);
-    if(!unitObj) return;
     var fam = Data.getFamily(famId);
     if(!fam) return;
-    var customField = fam.fields.find(function(ff){ return ff.id==='customName'; });
+    // Prefer filling a free-text customName field if present
+    var customField = (fam.fields || []).find(function(ff){ return ff.id==='customName'; });
     if(customField){
       var el = document.getElementById('customName');
       if(el){ el.value = name; updatePreview(); }
     } else {
-      toast('Unit applied. Please adjust fields if needed.');
+      // For structured families, put the suggested name into the first text field or show it in preview
+      var textField = (fam.fields || []).find(function(ff){ return ff.type === 'text' || !ff.type; });
+      if(textField){
+        var tel = document.getElementById(textField.id);
+        if(tel){ tel.value = name; }
+      }
+      document.getElementById('unitPreview').textContent = name;
+      updateOutputText();
+      toast('Suggestion applied — adjust fields if needed');
     }
     document.getElementById('unitSuggestions').innerHTML='';
   }
@@ -1464,9 +1568,13 @@ var UI = (function(){
     if(!f) return '';
     var vals = getFamilyValues();
     try {
-      var name = f.build(vals);
-      return Data.canonicalUnitName(name);
-    } catch(e){ return ''; }
+      if(typeof f.build !== 'function'){
+        // Last-resort re-attach if somehow missing
+        if(typeof Data.attachBuild === 'function') Data.attachBuild(f);
+      }
+      var name = (typeof f.build === 'function') ? f.build(vals) : (vals.customName || '');
+      return Data.canonicalUnitName(name || '');
+    } catch(e){ return vals.customName || ''; }
   }
 
   function getCurrentRecord(){
@@ -1992,12 +2100,13 @@ var UI = (function(){
     if(!fl) return;
     if(!families.length) fl.innerHTML='<div class="empty-state">No families defined</div>';
     else fl.innerHTML = families.map(function(f){
+      var isBuiltin = !!(f.id && ['NCU_NCR','PSU','CLU','CCU','DC_AC','RECTIFIER','DCC','PDU','AIRCOND','CONTROLLER','SMARTPACK','SCU','CUSTOM'].indexOf(f.id)!==-1);
       return '<div class="card">'+
         '<div class="card-top"><span class="card-site">'+esc(f.label)+'</span>'+
-        '<span class="badge info" style="font-size:9px">'+ (f.fields||[]).length + ' fields</span></div>'+
+        '<span class="badge info" style="font-size:9px">'+ (f.fields||[]).length + ' fields'+(isBuiltin?' · built-in':'')+'</span></div>'+
         '<div class="card-actions">'+
         '<button class="btn btn-sm" onclick="UI.openEditFamily(\''+f.id+'\')">Edit</button>'+
-        '<button class="btn btn-sm btn-outline" onclick="UI.confirmDeleteFamily(\''+f.id+'\')">Delete</button>'+
+        (isBuiltin ? '' : '<button class="btn btn-sm btn-outline" onclick="UI.confirmDeleteFamily(\''+f.id+'\')">Delete</button>')+
         '</div></div>';
     }).join('');
 
@@ -2069,12 +2178,12 @@ var UI = (function(){
     document.getElementById('familyModalTitle').textContent='Edit Unit Family';
     document.getElementById('familyModalSub').textContent='Update family name and pattern.';
     document.getElementById('familyName').value=f.label;
-    var pattern = '';
-    if(f.fields && f.fields.length){
-      var placeholders = f.fields.map(function(fld){ return '{'+fld.id+'}'; }).join('');
-      pattern = placeholders || '';
+    // Prefer stored pattern; otherwise reconstruct from field ids for display
+    var pattern = f.pattern || '';
+    if(!pattern && f.fields && f.fields.length){
+      pattern = f.fields.map(function(fld){ return '{'+fld.id+'}'; }).join('');
     }
-    document.getElementById('familyPattern').value=pattern;
+    document.getElementById('familyPattern').value = pattern;
     document.getElementById('familyModal').classList.add('on');
     document.body.style.overflow='hidden';
   }
@@ -2250,4 +2359,4 @@ UI.populateFamilySelect();
 UI.renderAll();
 </script>
 </body>
-   </html>
+</html>
