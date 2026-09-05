@@ -758,7 +758,7 @@ var Data = (function(){
         {id:'ccuType',type:'select',label:'Type',options:['CCU - Climate Control Board','CCU - Thermo Electric Co','Climate Control Board - CCU','Climat Control Board'],default:'CCU - Climate Control Board'},
         {id:'ccuSuffix',type:'text',label:'Extra',placeholder:'- Ericsson etc.'}
       ], build:function(v){return (v.ccuType||'CCU - Climate Control Board')+(v.ccuSuffix?' '+v.ccuSuffix.trim():'');}},
-      {id:'DC_AC', label:'DC air conditioner', fields:[
+      {id:'DC_AC', label:'DC Air Conditioner', fields:[
         {id:'dcacModel',type:'select',label:'Model',options:['DC Cabinet Air Conditioner - Envicool','DC Cabinet Air Conditioner - ITMC','NAC550D - DC Air Conditioner - Nian','NAC650D - DC Air Conditioner - Nian','NAC1250D - DC Air Conditioner - Nian','NAC2400D - DC Air Conditioner - Nian','NAC3000D - DC Air Conditioner - Nian','NAC3500D - DC Air Conditioner - Nian'],default:'DC Cabinet Air Conditioner - Envicool'},
         {id:'dcacSuffix',type:'text',label:'Suffix',placeholder:'e.g. - Cooler, - Compressor'}
       ], build:function(v){return (v.dcacModel||'DC Cabinet Air Conditioner - Envicool')+(v.dcacSuffix?' '+v.dcacSuffix.trim():'');}},
@@ -861,33 +861,42 @@ var Data = (function(){
       if(raw){ units = JSON.parse(raw); }
       else { units = []; }
     }catch(e){ units = []; }
-    // migrate from old catalog if needed
+    // If units are empty, seed with sample units for each family
     if(!units.length){
-      // try to load legacy catalog
-      var oldCat = [];
-      try{ oldCat = JSON.parse(localStorage.getItem('FaultConsole_catalog_v10')||'[]'); }catch(e){}
-      if(oldCat.length){
-        oldCat.forEach(function(name){
-          // try to guess family from name or assign to CUSTOM
-          var famId = 'CUSTOM';
-          // if name matches a known alias, we could map, but we'll just use CUSTOM
-          // also check if name already exists in units
-          if(!units.some(function(u){return u.name===name;})) {
-            units.push({id:uid(), name:name, familyId:famId});
-          }
-        });
-      }
-      // also extract unique unit names from records
-      records.forEach(function(r){
-        if(r.unitName && !units.some(function(u){return u.name===r.unitName;})){
-          var famId = 'CUSTOM';
-          // check if any family build function can produce this name
-          // but for simplicity, assign CUSTOM
-          units.push({id:uid(), name:r.unitName, familyId:famId});
+      var sampleUnits = {
+        'NCU_NCR': ['NCR48U - 3KW - Nian', 'NCU48U - 2KW - Nian', 'NCR24U - 1.5KW - Nian'],
+        'PSU': ['PSU AC 03 - Ericsson', 'PSU AC 01 - Ericsson', 'PSU AC 02 - Ericsson'],
+        'CLU': ['CLU - Ericsson', 'BBU6102 CLU - Ericsson'],
+        'CCU': ['CCU - Climate Control Board', 'CCU - Thermo Electric Co', 'Climate Control Board - CCU'],
+        'DC_AC': ['DC Cabinet Air Conditioner - Envicool', 'DC Cabinet Air Conditioner - ITMC', 'NAC550D - DC Air Conditioner - Nian', 'NAC650D - DC Air Conditioner - Nian', 'NAC1250D - DC Air Conditioner - Nian', 'NAC2400D - DC Air Conditioner - Nian', 'NAC3000D - DC Air Conditioner - Nian', 'NAC3500D - DC Air Conditioner - Nian'],
+        'RECTIFIER': ['RECTIFIER 48VDC3000 - ITMC', 'Rectifier - Flatpack2 2000W 48V BF', 'PEC-4860 - Rectifier Equipment_Confirmation'],
+        'DCC': ['DCC - Equipment_Confirmation Electronic', 'DCC - Equipment_Confirmation Electronic - Cabinet Conditioner'],
+        'PDU': ['PDU 01 01'],
+        'AIRCOND': ['Air Conditioner - ITMC'],
+        'CONTROLLER': ['Controller Unit - ITMC'],
+        'SMARTPACK': ['Smartpack Extended - ELTEK'],
+        'SCU': ['SCU 01 01 - Ericsson']
+      };
+      for(var fid in sampleUnits){
+        if(sampleUnits.hasOwnProperty(fid)){
+          var list = sampleUnits[fid];
+          list.forEach(function(name){
+            units.push({id:uid(), name:name, familyId:fid});
+          });
         }
-      });
+      }
       saveUnits();
     }
+
+    // Also ensure all units from records exist
+    records.forEach(function(r){
+      if(r.unitName && !getUnitByName(r.unitName)){
+        // try to find a matching family by checking if any family's build can produce this name? hard.
+        // we'll assign to CUSTOM
+        units.push({id:uid(), name:r.unitName, familyId:'CUSTOM'});
+      }
+    });
+    saveUnits();
   }
   function saveUnits(){ try{ localStorage.setItem(UNIT_KEY, JSON.stringify(units)); }catch(e){} }
   function getUnits(){ return units; }
@@ -896,7 +905,6 @@ var Data = (function(){
   function getUnitByName(name){ return units.find(function(u){return u.name===name;}); }
   function addUnit(name, familyId){
     if(!name || !familyId) return null;
-    // check duplicate
     if(units.some(function(u){return u.name===name && u.familyId===familyId;})) return null;
     var u = {id:uid(), name:name, familyId:familyId};
     units.push(u);
@@ -906,7 +914,6 @@ var Data = (function(){
   function editUnit(id, newName, newFamilyId){
     var u = getUnitById(id);
     if(!u) return;
-    // if name changed, check duplicate in same family
     if(newName !== u.name || newFamilyId !== u.familyId){
       var dup = units.some(function(x){ return x.id!==id && x.name===newName && x.familyId===newFamilyId; });
       if(dup) return false;
@@ -969,20 +976,6 @@ var Data = (function(){
     trash = trash.filter(Boolean).map(normalize);
     loadFamilies();
     loadUnits();
-    // ensure all unit names from records exist in units (with CUSTOM family if missing)
-    records.forEach(function(r){
-      if(r.unitName && !getUnitByName(r.unitName)){
-        // try to find a family that can produce this name (check build function)
-        var matched = false;
-        for(var i=0;i<families.length;i++){
-          try {
-            // test with some dummy values? hard. Just assign CUSTOM.
-          }catch(e){}
-        }
-        units.push({id:uid(), name:r.unitName, familyId:'CUSTOM'});
-      }
-    });
-    saveUnits();
     persist(true);
   }
 
@@ -1004,12 +997,18 @@ var Data = (function(){
     else { addHistory(rec, actionLabel||'Created'); records.push(rec); }
     // ensure unit exists in units
     if(rec.unitName){
-      var famId = 'CUSTOM';
-      // try to find family from current record form? not available here
-      // we'll use CUSTOM as fallback
-      if(!getUnitByName(rec.unitName)){
-        units.push({id:uid(), name:rec.unitName, familyId:famId});
-        saveUnits();
+      // try to find which family it belongs to: check if any existing unit matches
+      var existing = getUnitByName(rec.unitName);
+      if(!existing){
+        // try to find a family by checking if this name appears in sample units for a family
+        var foundFamily = 'CUSTOM';
+        for(var i=0;i<families.length;i++){
+          var fam = families[i];
+          // check if this family has a field that can produce this name? hard.
+          // we'll use the current selected family from the form if available (passed via context)
+          // but we don't have that here. We'll use CUSTOM.
+        }
+        addUnit(rec.unitName, foundFamily);
       }
     }
     persist();
@@ -1088,8 +1087,6 @@ var Data = (function(){
       if(blob.families) families = blob.families;
       saveFamilies();
       saveUnits();
-      records.forEach(function(r){ if(r.unitName && !getUnitByName(r.unitName)){ units.push({id:uid(), name:r.unitName, familyId:'CUSTOM'}); } });
-      saveUnits();
       persist();
       UI.toast('Restored from backup');
     }catch(e){ UI.toast('Restore failed: corrupted backup'); }
@@ -1161,7 +1158,6 @@ var Data = (function(){
       try{
         var data = JSON.parse(rd.result);
         if(Array.isArray(data)){
-          // old format: array of records
           var added=0;
           data.forEach(function(item){
             var r = normalize(item);
@@ -1175,7 +1171,6 @@ var Data = (function(){
           snapshot('JSON restore');
           UI.renderBackup();
         } else if(data.records && Array.isArray(data.records)){
-          // new format with units and families
           if(data.families) { families = data.families; saveFamilies(); }
           if(data.units) { units = data.units; saveUnits(); }
           var added2=0;
@@ -1424,18 +1419,18 @@ var UI = (function(){
         (fld.options||[]).forEach(function(o){ input+='<option value="'+o+'"'+(o===val?' selected':'')+'>'+o+'</option>'; });
         input+='</select>';
       } else {
-        input='<input class="field" id="'+id+'" type="text" value="'+val+'" placeholder="'+ph+'" oninput="UI.updatePreview(); UI.checkCustomSuggestion()"'+req+'>';
+        input='<input class="field" id="'+id+'" type="text" value="'+val+'" placeholder="'+ph+'" oninput="UI.updatePreview();"'+req+'>';
       }
       html += '<div><label style="font-size:10.5px;color:var(--ink-faint)">'+label+'</label>'+input+'</div>';
     });
     html += '</div></div>';
     container.innerHTML = html;
-    // show unit suggestions based on the selected family
+    // Show unit suggestions for this family
     var suggestions = Data.getUnitsByFamily(famId);
     var sugContainer = document.getElementById('unitSuggestions');
     if(suggestions.length){
       sugContainer.innerHTML = suggestions.map(function(u){
-        return '<span class="unit-suggestion" onclick="UI.applyUnitSuggestion(\''+u.name.replace(/'/g,"\\'")+'\')">'+esc(u.name)+'</span>';
+        return '<span class="unit-suggestion" onclick="UI.applyUnitSuggestion(\''+u.name.replace(/'/g,"\\'")+'\', \''+famId+'\')">'+esc(u.name)+'</span>';
       }).join('');
     } else {
       sugContainer.innerHTML = '';
@@ -1443,8 +1438,30 @@ var UI = (function(){
     updatePreview();
   }
 
-  function checkCustomSuggestion(){
-    // no-op, we handle suggestions via onFamilyChange
+  function applyUnitSuggestion(name, famId){
+    // Find the unit in the catalog and set the fields accordingly
+    var unitObj = Data.getUnitByName(name);
+    if(!unitObj) return;
+    var fam = Data.getFamily(famId);
+    if(!fam) return;
+    // Fill in the fields based on the family's fields
+    // For simplicity, if the family has a customName field, set it
+    var customField = fam.fields.find(function(ff){ return ff.id==='customName'; });
+    if(customField){
+      var el = document.getElementById('customName');
+      if(el){ el.value = name; updatePreview(); }
+    } else {
+      // For families with structured fields, we'd need to parse the name
+      // For now, we just set the preview
+      toast('Unit applied. Please adjust fields if needed.');
+    }
+    document.getElementById('unitSuggestions').innerHTML='';
+  }
+
+  function updatePreview(){
+    var name = buildUnitName();
+    document.getElementById('unitPreview').textContent = name || 'Select a family and fill in the fields';
+    updateOutputText();
   }
 
   function getFamilyValues(){
@@ -1465,30 +1482,6 @@ var UI = (function(){
       var name = f.build(vals);
       return Data.canonicalUnitName(name);
     } catch(e){ return ''; }
-  }
-
-  function applyUnitSuggestion(name){
-    // find the unit in units to get its family? but we already have family selected.
-    // just fill the customName field if it exists
-    var famId = document.getElementById('unitFamily').value;
-    var f = Data.getFamily(famId);
-    if(!f) return;
-    // find a field named customName
-    var customField = f.fields.find(function(ff){ return ff.id==='customName'; });
-    if(customField){
-      var el = document.getElementById('customName');
-      if(el){ el.value = name; updatePreview(); }
-    } else {
-      // if no customName field, we can't set a free text unit name.
-      toast('This family does not have a custom name field');
-    }
-    document.getElementById('unitSuggestions').innerHTML='';
-  }
-
-  function updatePreview(){
-    var name = buildUnitName();
-    document.getElementById('unitPreview').textContent = name || 'Select a family and fill in the fields';
-    updateOutputText();
   }
 
   function getCurrentRecord(){
@@ -1920,15 +1913,9 @@ var UI = (function(){
     document.getElementById('status').value=r.status||'Pending';
     document.getElementById('approver').value=r.approvedBy||'';
     document.getElementById('notes').value=r.notes||'';
-    // find a family that has customName field or try to guess
-    var unitName = r.unitName;
-    var famId = 'CUSTOM';
-    // try to find unit in units
-    var unitObj = Data.getUnitByName(unitName);
-    if(unitObj) famId = unitObj.familyId;
-    else {
-      // try to find family by matching build result? skip, use CUSTOM
-    }
+    // find unit in catalog
+    var unitObj = Data.getUnitByName(r.unitName);
+    var famId = unitObj ? unitObj.familyId : 'CUSTOM';
     var fam = Data.getFamily(famId);
     if(fam){
       document.getElementById('unitFamily').value = famId;
@@ -1937,11 +1924,11 @@ var UI = (function(){
       var customField = fam.fields.find(function(ff){ return ff.id==='customName'; });
       if(customField){
         var cn = document.getElementById('customName');
-        if(cn) cn.value = unitName;
+        if(cn) cn.value = r.unitName;
       }
       updatePreview();
     } else {
-      // fallback: first family
+      // fallback
       if(Data.families.length) {
         document.getElementById('unitFamily').value = Data.families[0].id;
         onFamilyChange();
@@ -1995,6 +1982,11 @@ var UI = (function(){
     if(record.status==='Approved') record.approvedAt=new Date().toISOString();
 
     var wasUpdate = Data.upsert(record, id ? 'Edited' : 'Created');
+    // Add the unit to catalog if not exists, with the current family
+    var currentFamId = document.getElementById('unitFamily').value;
+    if(currentFamId && !Data.getUnitByName(unitName)){
+      Data.addUnit(unitName, currentFamId);
+    }
     closeModal();
     toast(wasUpdate ? 'Updated' : 'Saved');
   }
@@ -2036,7 +2028,6 @@ var UI = (function(){
     families.forEach(function(f){
       mgmtFam.innerHTML += '<option value="'+f.id+'"'+(f.id===currentFam?' selected':'')+'>'+esc(f.label)+'</option>';
     });
-    // If no current, select first
     if(!currentFam && families.length) mgmtFam.value = families[0].id;
 
     var famId = mgmtFam.value;
@@ -2191,9 +2182,6 @@ var UI = (function(){
     var success = Data.editUnit(id, name, famId);
     if(success === false) { toast('A unit with this name already exists in the chosen family'); return; }
     if(success !== undefined) {
-      // also update records that use this unit name? we could, but we keep the name change only for unit catalog.
-      // For records, the unitName is stored as is. So changing unit name in catalog doesn't affect existing records.
-      // We could optionally update records, but it's safer to let them remain.
       toast('Unit updated');
       closeUnitEditModal();
       renderUnitsView();
@@ -2251,7 +2239,7 @@ var UI = (function(){
 
   return {
     esc:esc, toast:toast, toggleTheme:toggleTheme, loadTheme:loadTheme,
-    toggleScCustom:toggleScCustom, onFamilyChange:onFamilyChange, checkCustomSuggestion:checkCustomSuggestion,
+    toggleScCustom:toggleScCustom, onFamilyChange:onFamilyChange,
     applyUnitSuggestion:applyUnitSuggestion, updatePreview:updatePreview,
     updateOutputText:updateOutputText, copyOutput:copyOutput,
     renderAll:renderAll, debounceRender:debounceRender, renderRecords:renderRecords, renderSites:renderSites,
