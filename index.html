@@ -692,7 +692,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
 <script>
 'use strict';
 /* ═══════════════════════════════════════════════════════════════════
-   DATA MODULE — extended with unit deduplication
+   DATA MODULE — fixed version with deduplication
    ═══════════════════════════════════════════════════════════════════ */
 var Data = (function(){
   var STORAGE_KEY = 'FaultConsole_records_v10';
@@ -736,21 +736,30 @@ var Data = (function(){
   /* ── normalize unit name for deduplication ── */
   function normalizeUnitNameForDedup(name){
     if(!name) return '';
-    var s = String(name).toLowerCase();
-    // Remove common stop words and punctuation
-    var stopWords = ['dc', 'ac', 'air', 'conditioner', 'cabinet', 'unit', 'system', 'controller', 'rectifier', 'psu', 'ncu', 'ncr', 'clu', 'ccu', 'dcc', 'pdu', 'scu', 'smartpack', 'extended', 'compact', 'flatpack', 'equipment', 'confirmation', 'electronic', 'control', 'board', 'thermo', 'electric', 'climate', 'cooler', 'compressor', 'itmc', 'envicool', 'nian', 'porsoo', 'ericsson', 'elteek'];
-    var parts = s.split(/[\s\-_]+/);
-    var filtered = parts.filter(function(p){
-      return p.length > 1 && stopWords.indexOf(p) === -1 && !/^[0-9]+$/.test(p) && !/^[a-z]+\d+$/.test(p);
-    });
-    // Also try to extract a power number (like 2400, 550, etc.)
-    var powerMatch = s.match(/(\d{3,4})/);
-    var power = powerMatch ? powerMatch[1] : '';
-    var brandMatch = s.match(/(nian|envicool|itmc|porsoo|ericsson|elteek)/);
-    var brand = brandMatch ? brandMatch[1] : '';
-    // Build key: brand + power + remaining filtered words
-    var key = brand + '|' + power + '|' + filtered.join('|');
-    return key;
+    try {
+      var s = String(name).toLowerCase().trim();
+      if(!s) return '';
+      // Remove common stop words and punctuation
+      var stopWords = ['dc', 'ac', 'air', 'conditioner', 'cabinet', 'unit', 'system', 'controller', 'rectifier', 'psu', 'ncu', 'ncr', 'clu', 'ccu', 'dcc', 'pdu', 'scu', 'smartpack', 'extended', 'compact', 'flatpack', 'equipment', 'confirmation', 'electronic', 'control', 'board', 'thermo', 'electric', 'climate', 'cooler', 'compressor', 'itmc', 'envicool', 'nian', 'porsoo', 'ericsson', 'elteek'];
+      var parts = s.split(/[\s\-_]+/);
+      var filtered = [];
+      for(var i=0; i<parts.length; i++){
+        var p = parts[i];
+        if(p.length > 1 && stopWords.indexOf(p) === -1 && !/^[0-9]+$/.test(p) && !/^[a-z]+\d+$/.test(p)){
+          filtered.push(p);
+        }
+      }
+      // Also try to extract a power number (like 2400, 550, etc.)
+      var powerMatch = s.match(/(\d{3,4})/);
+      var power = powerMatch ? powerMatch[1] : '';
+      var brandMatch = s.match(/(nian|envicool|itmc|porsoo|ericsson|elteek)/);
+      var brand = brandMatch ? brandMatch[1] : '';
+      // Build key: brand + power + remaining filtered words
+      var key = brand + '|' + power + '|' + filtered.join('|');
+      return key;
+    } catch(e) {
+      return name || '';
+    }
   }
 
   /* ── families ── */
@@ -851,54 +860,61 @@ var Data = (function(){
   };
 
   function deduplicateUnits(){
-    // Group units by normalized name
-    var groups = {};
-    var unitsToRemove = [];
-    units.forEach(function(u){
-      var key = normalizeUnitNameForDedup(u.name);
-      if(!groups[key]) groups[key] = [];
-      groups[key].push(u);
-    });
-
-    var updatedRecords = false;
-    for(var key in groups){
-      var group = groups[key];
-      if(group.length <= 1) continue;
-      // Find the best family for this group (most frequent)
-      var familyCount = {};
-      group.forEach(function(u){
-        familyCount[u.familyId] = (familyCount[u.familyId] || 0) + 1;
+    try {
+      if(!units || units.length === 0) return 0;
+      // Group units by normalized name
+      var groups = {};
+      var unitsToRemove = [];
+      units.forEach(function(u){
+        var key = normalizeUnitNameForDedup(u.name);
+        if(!key) { key = u.name || 'unknown'; }
+        if(!groups[key]) groups[key] = [];
+        groups[key].push(u);
       });
-      var bestFamily = group[0].familyId;
-      var bestCount = 0;
-      for(var fid in familyCount){
-        if(familyCount[fid] > bestCount){
-          bestCount = familyCount[fid];
-          bestFamily = fid;
-        }
-      }
-      // Choose the "best" unit to keep (prefer one that already has the best family)
-      var keep = group.find(function(u){ return u.familyId === bestFamily; }) || group[0];
-      // Update all records that use any other unit in this group
-      group.forEach(function(u){
-        if(u.id === keep.id) return;
-        records.forEach(function(r){
-          if(r.unitName === u.name){
-            r.unitName = keep.name;
-            updatedRecords = true;
-          }
+
+      var updatedRecords = false;
+      for(var key in groups){
+        var group = groups[key];
+        if(group.length <= 1) continue;
+        // Find the best family for this group (most frequent)
+        var familyCount = {};
+        group.forEach(function(u){
+          familyCount[u.familyId] = (familyCount[u.familyId] || 0) + 1;
         });
-        unitsToRemove.push(u.id);
-      });
-    }
+        var bestFamily = group[0].familyId;
+        var bestCount = 0;
+        for(var fid in familyCount){
+          if(familyCount[fid] > bestCount){
+            bestCount = familyCount[fid];
+            bestFamily = fid;
+          }
+        }
+        // Choose the "best" unit to keep (prefer one that already has the best family)
+        var keep = group.find(function(u){ return u.familyId === bestFamily; }) || group[0];
+        // Update all records that use any other unit in this group
+        group.forEach(function(u){
+          if(u.id === keep.id) return;
+          records.forEach(function(r){
+            if(r.unitName === u.name){
+              r.unitName = keep.name;
+              updatedRecords = true;
+            }
+          });
+          unitsToRemove.push(u.id);
+        });
+      }
 
-    // Remove duplicate units
-    if(unitsToRemove.length){
-      units = units.filter(function(u){ return unitsToRemove.indexOf(u.id) === -1; });
-      saveUnits();
-      if(updatedRecords) persist();
+      // Remove duplicate units
+      if(unitsToRemove.length){
+        units = units.filter(function(u){ return unitsToRemove.indexOf(u.id) === -1; });
+        saveUnits();
+        if(updatedRecords) persist();
+      }
+      return unitsToRemove.length;
+    } catch(e) {
+      console.warn('Deduplication error:', e);
+      return 0;
     }
-    return unitsToRemove.length;
   }
 
   function loadUnits(){
@@ -920,7 +936,7 @@ var Data = (function(){
         }
       }
     }
-    // Deduplicate
+    // Deduplicate after loading
     deduplicateUnits();
     saveUnits();
   }
