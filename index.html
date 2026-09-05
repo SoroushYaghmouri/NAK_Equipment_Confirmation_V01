@@ -1,1876 +1,2919 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#0b0f19">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="mobile-web-app-capable" content="yes">
-<title>Equipment_Confirmation Fault Manager v8</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<style>
-/* ═══════════════════════════════════════════════════════════
-   Equipment_Confirmation FAULT MANAGER v8 — Mobile-First Upgrade
-   ═══════════════════════════════════════════════════════════ */
-:root {
-  --bg-primary: #0b0f19;
-  --bg-secondary: #121826;
-  --bg-card: #1a2332;
-  --bg-input: #1e2a3a;
-  --bg-elevated: #222d3f;
-  --border: #2a3a52;
-  --border-light: #364960;
-  --text: #e8edf5;
-  --text-sec: #9aabc4;
-  --text-muted: #6b7f9a;
-  --accent: #3b82f6;
-  --accent-hover: #2563eb;
-  --green: #22c55e;
-  --red: #ef4444;
-  --yellow: #eab308;
-  --purple: #8b5cf6;
-  --shadow: 0 4px 20px rgba(0,0,0,.35);
-  --radius: 14px;
-  --radius-sm: 10px;
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --nav-h: 64px;
-  --header-h: 56px;
-  --transition: .2s ease;
-  --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
-}
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b0f19" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <title>Equipment Fault Manager v9</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js">
+    </script>
+    <style>
+        /* ═══════════════════════════════════════════════════════════
+           Equipment Fault Manager v9 — Mobile-First Upgrade
+           ═══════════════════════════════════════════════════════════ */
+        :root {
+            --bg-primary: #0b0f19;
+            --bg-secondary: #121826;
+            --bg-card: #1a2332;
+            --bg-input: #1e2a3a;
+            --bg-elevated: #222d3f;
+            --border: #2a3a52;
+            --border-light: #364960;
+            --text: #e8edf5;
+            --text-sec: #9aabc4;
+            --text-muted: #6b7f9a;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --green: #22c55e;
+            --red: #ef4444;
+            --yellow: #eab308;
+            --purple: #8b5cf6;
+            --pink: #ec4899;
+            --cyan: #06b6d4;
+            --shadow: 0 4px 20px rgba(0, 0, 0, .35);
+            --radius: 14px;
+            --radius-sm: 10px;
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --nav-h: 64px;
+            --header-h: 56px;
+            --transition: .2s ease;
+            --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
 
-[data-theme="light"] {
-  --bg-primary: #f0f2f7;
-  --bg-secondary: #ffffff;
-  --bg-card: #ffffff;
-  --bg-input: #f4f6f9;
-  --bg-elevated: #eef1f6;
-  --border: #d8dee8;
-  --border-light: #c5cedb;
-  --text: #1a2332;
-  --text-sec: #4a5a74;
-  --text-muted: #7a8ba3;
-  --shadow: 0 4px 16px rgba(0,0,0,.08);
-}
+        [data-theme="light"] {
+            --bg-primary: #f0f2f7;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --bg-input: #f4f6f9;
+            --bg-elevated: #eef1f6;
+            --border: #d8dee8;
+            --border-light: #c5cedb;
+            --text: #1a2332;
+            --text-sec: #4a5a74;
+            --text-muted: #7a8ba3;
+            --shadow: 0 4px 16px rgba(0, 0, 0, .08);
+        }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { height: 100%; -webkit-text-size-adjust: 100%; }
-body {
-  background: var(--bg-primary);
-  color: var(--text);
-  font-family: var(--font);
-  font-size: 14px;
-  line-height: 1.45;
-  min-height: 100%;
-  min-height: 100dvh;
-  padding: 0;
-  padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 8px);
-  -webkit-font-smoothing: antialiased;
-  overscroll-behavior-y: contain;
-  touch-action: manipulation;
-}
-button, input, select, textarea { font-family: inherit; font-size: inherit; }
-button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
-a { color: inherit; text-decoration: none; }
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        html {
+            height: 100%;
+            -webkit-text-size-adjust: 100%;
+        }
+        body {
+            background: var(--bg-primary);
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 14px;
+            line-height: 1.45;
+            min-height: 100%;
+            min-height: 100dvh;
+            padding: 0;
+            padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 8px);
+            -webkit-font-smoothing: antialiased;
+            overscroll-behavior-y: contain;
+            touch-action: manipulation;
+        }
+        button,
+        input,
+        select,
+        textarea {
+            font-family: inherit;
+            font-size: inherit;
+        }
+        button {
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
 
-/* ─── Scrollbar ─── */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 10px;
+        }
 
-/* ─── App Shell ─── */
-.app { max-width: 640px; margin: 0 auto; position: relative; }
+        .app {
+            max-width: 640px;
+            margin: 0 auto;
+            position: relative;
+        }
 
-/* ─── Header (sticky) ─── */
-.header {
-  position: sticky; top: 0; z-index: 50;
-  background: var(--bg-card);
-  border-bottom: 1px solid var(--border);
-  padding: 10px 12px;
-  padding-top: max(10px, env(safe-area-inset-top));
-  display: flex; align-items: center; justify-content: space-between; gap: 8px;
-  box-shadow: var(--shadow);
-}
-.brand { display: flex; align-items: center; gap: 8px; min-width: 0; }
-.logo {
-  width: 36px; height: 36px; flex-shrink: 0;
-  background: linear-gradient(135deg, var(--accent), var(--purple));
-  border-radius: 10px; display: flex; align-items: center; justify-content: center;
-  font-size: 18px; color: #fff; font-weight: 700;
-}
-.brand-text h1 { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.brand-text p { font-size: 10px; color: var(--text-muted); margin-top: -1px; }
-.header-actions { display: flex; gap: 6px; flex-shrink: 0; }
-.icon-btn {
-  width: 40px; height: 40px; border-radius: 10px;
-  border: 1px solid var(--border); background: var(--bg-input);
-  color: var(--text); display: flex; align-items: center; justify-content: center;
-  font-size: 18px; transition: all var(--transition);
-}
-.icon-btn:active { transform: scale(.92); background: var(--bg-elevated); }
-.icon-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+        /* ─── Header ─── */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 12px;
+            padding-top: max(10px, env(safe-area-inset-top));
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            box-shadow: var(--shadow);
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+        .logo {
+            width: 36px;
+            height: 36px;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, var(--accent), var(--purple));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #fff;
+            font-weight: 700;
+        }
+        .brand-text h1 {
+            font-size: 15px;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .brand-text p {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: -1px;
+        }
+        .header-actions {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg-input);
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all var(--transition);
+        }
+        .icon-btn:active {
+            transform: scale(.92);
+            background: var(--bg-elevated);
+        }
+        .icon-btn.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
 
-/* ─── Bottom Nav ─── */
-.bottom-nav {
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 60;
-  background: var(--bg-card);
-  border-top: 1px solid var(--border);
-  padding: 6px 4px calc(6px + var(--safe-bottom));
-  display: flex; justify-content: space-around; align-items: center;
-  box-shadow: 0 -4px 20px rgba(0,0,0,.25);
-  max-width: 640px; margin: 0 auto;
-}
-.nav-item {
-  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
-  padding: 6px 2px; border: 0; background: transparent; color: var(--text-muted);
-  font-size: 10px; font-weight: 600; border-radius: 10px;
-  transition: all var(--transition); min-width: 0;
-}
-.nav-item span.icon { font-size: 20px; line-height: 1; }
-.nav-item.active { color: var(--accent); background: rgba(59,130,246,.12); }
-.nav-item:active { transform: scale(.95); }
+        /* ─── Bottom Nav ─── */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 60;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            padding: 6px 4px calc(6px + var(--safe-bottom));
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, .25);
+            max-width: 640px;
+            margin: 0 auto;
+        }
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: 6px 2px;
+            border: 0;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 10px;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all var(--transition);
+            min-width: 0;
+        }
+        .nav-item span.icon {
+            font-size: 20px;
+            line-height: 1;
+        }
+        .nav-item.active {
+            color: var(--accent);
+            background: rgba(59, 130, 246, .12);
+        }
+        .nav-item:active {
+            transform: scale(.95);
+        }
 
-/* ─── Views ─── */
-.view { display: none; padding: 10px 10px 16px; animation: fadeIn .2s ease; }
-.view.active { display: block; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+        /* ─── Views ─── */
+        .view {
+            display: none;
+            padding: 10px 10px 16px;
+            animation: fadeIn .2s ease;
+        }
+        .view.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
 
-/* ─── Stats ─── */
-.stats {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px;
-}
-.stat {
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm);
-  padding: 8px 4px; text-align: center; box-shadow: var(--shadow);
-}
-.stat small { display: block; font-size: 9px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: .2px; }
-.stat b { display: block; font-size: 16px; font-weight: 700; margin-top: 2px; }
-.stat.green b { color: var(--green); }
-.stat.yellow b { color: var(--yellow); }
-.stat.red b { color: var(--red); }
+        /* ─── Stats ─── */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+        .stat {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 8px 4px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+        .stat small {
+            display: block;
+            font-size: 9px;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .2px;
+        }
+        .stat b {
+            display: block;
+            font-size: 16px;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+        .stat.green b {
+            color: var(--green);
+        }
+        .stat.yellow b {
+            color: var(--yellow);
+        }
+        .stat.red b {
+            color: var(--red);
+        }
+        .stat.purple b {
+            color: var(--purple);
+        }
+        .stat.cyan b {
+            color: var(--cyan);
+        }
 
-/* ─── Panels ─── */
-.panel {
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 12px; margin-bottom: 10px; box-shadow: var(--shadow);
-}
-.panel-title {
-  font-size: 13px; font-weight: 700; margin-bottom: 10px;
-  display: flex; align-items: center; gap: 6px; color: var(--text);
-}
-.panel-title .count {
-  background: var(--bg-input); color: var(--text-sec); font-size: 11px;
-  padding: 2px 7px; border-radius: 20px; font-weight: 600;
-}
+        /* ─── Panels ─── */
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px;
+            margin-bottom: 10px;
+            box-shadow: var(--shadow);
+        }
+        .panel-title {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text);
+        }
+        .panel-title .count {
+            background: var(--bg-input);
+            color: var(--text-sec);
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .panel-title .badge-pill {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 20px;
+            background: var(--accent);
+            color: #fff;
+            margin-left: auto;
+        }
 
-/* ─── Charts ─── */
-.chart-wrap { position: relative; height: 160px; width: 100%; }
-.chart-wrap canvas { width: 100% !important; height: 100% !important; }
+        /* ─── Charts ─── */
+        .chart-wrap {
+            position: relative;
+            height: 160px;
+            width: 100%;
+        }
+        .chart-wrap canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
 
-/* ─── Filters ─── */
-.filters { display: flex; flex-direction: column; gap: 6px; }
-.filter-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.field {
-  width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px;
-  background: var(--bg-input); color: var(--text); font-size: 14px; outline: none;
-  transition: border var(--transition); -webkit-appearance: none;
-}
-.field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,.18); }
-.field::placeholder { color: var(--text-muted); }
-select.field { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239aabc4' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: left 12px center; padding-left: 28px; }
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .chart-grid .chart-wrap {
+            height: 140px;
+        }
 
-/* ─── Cards (mobile-friendly records) ─── */
-.card-list { display: flex; flex-direction: column; gap: 8px; }
-.card {
-  background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-sm);
-  padding: 12px; display: flex; flex-direction: column; gap: 6px;
-  transition: border-color var(--transition);
-}
-.card:active { border-color: var(--accent); }
-.card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap; }
-.card-site { font-weight: 700; font-size: 14px; }
-.card-unit { font-size: 12px; color: var(--text-sec); line-height: 1.3; word-break: break-word; }
-.card-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 11px; color: var(--text-muted); }
-.card-actions { display: flex; gap: 6px; margin-top: 4px; }
-.sn-tags { display: flex; flex-wrap: wrap; gap: 4px; }
-.sn-tag {
-  background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px;
-  padding: 2px 6px; font-family: ui-monospace, monospace; font-size: 10px;
-}
+        @media (max-width: 480px) {
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+            .chart-grid .chart-wrap {
+                height: 150px;
+            }
+        }
 
-/* ─── Badge ─── */
-.badge {
-  display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 20px;
-  font-weight: 600; font-size: 10px; white-space: nowrap;
-}
-.badge.approved { background: rgba(34,197,94,.18); color: var(--green); }
-.badge.pending { background: rgba(234,179,8,.18); color: var(--yellow); }
-.badge.rejected { background: rgba(239,68,68,.18); color: var(--red); }
+        /* ─── Filters ─── */
+        .filters {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .filter-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+        .filter-row.three {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+        .field {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg-input);
+            color: var(--text);
+            font-size: 14px;
+            outline: none;
+            transition: border var(--transition);
+            -webkit-appearance: none;
+        }
+        .field:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, .18);
+        }
+        .field::placeholder {
+            color: var(--text-muted);
+        }
+        select.field {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239aabc4' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 28px;
+        }
 
-/* ─── Buttons ─── */
-.btn {
-  border: 0; border-radius: 10px; padding: 10px 14px; font-weight: 600; font-size: 13px;
-  background: var(--bg-input); color: var(--text); border: 1px solid var(--border);
-  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
-  transition: all var(--transition); min-height: 42px;
-}
-.btn:active { transform: scale(.96); }
-.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-.btn-primary:active { background: var(--accent-hover); }
-.btn-green { background: var(--green); color: #fff; border-color: var(--green); }
-.btn-red { background: var(--red); color: #fff; border-color: var(--red); }
-.btn-outline { background: transparent; }
-.btn-sm { padding: 7px 10px; font-size: 12px; min-height: 34px; border-radius: 8px; }
-.btn-block { width: 100%; }
-.btn-row { display: flex; gap: 6px; }
-.btn-row .btn { flex: 1; }
+        /* ─── Cards ─── */
+        .card-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: border-color var(--transition);
+        }
+        .card:active {
+            border-color: var(--accent);
+        }
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .card-site {
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .card-unit {
+            font-size: 12px;
+            color: var(--text-sec);
+            line-height: 1.3;
+            word-break: break-word;
+        }
+        .card-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        .card-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+        }
+        .sn-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .sn-tag {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 2px 6px;
+            font-family: ui-monospace, monospace;
+            font-size: 10px;
+        }
 
-/* ─── Empty / List items ─── */
-.empty-state {
-  text-align: center; padding: 28px 16px; color: var(--text-muted); font-size: 13px;
-}
-.empty-state .icon { font-size: 36px; margin-bottom: 8px; opacity: .6; }
-.list-item {
-  padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px;
-  background: var(--bg-secondary); display: flex; justify-content: space-between;
-  align-items: center; gap: 8px; margin-bottom: 6px;
-}
-.list-item .muted { font-size: 11px; color: var(--text-muted); }
+        /* ─── Badge ─── */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 10px;
+            white-space: nowrap;
+        }
+        .badge.approved {
+            background: rgba(34, 197, 94, .18);
+            color: var(--green);
+        }
+        .badge.pending {
+            background: rgba(234, 179, 8, .18);
+            color: var(--yellow);
+        }
+        .badge.rejected {
+            background: rgba(239, 68, 68, .18);
+            color: var(--red);
+        }
+        .badge.info {
+            background: rgba(59, 130, 246, .18);
+            color: var(--accent);
+        }
 
-/* ─── Modal (full-screen friendly) ─── */
-.modal-bg {
-  position: fixed; inset: 0; z-index: 100;
-  background: rgba(0,0,0,.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-  display: none; align-items: flex-end; justify-content: center;
-  padding: 0; overscroll-behavior: contain;
-}
-.modal-bg.on { display: flex; }
-.modal {
-  background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: 20px 20px 0 0; width: 100%; max-width: 640px;
-  max-height: 92dvh; overflow-y: auto; padding: 16px 14px calc(16px + var(--safe-bottom));
-  box-shadow: 0 -10px 40px rgba(0,0,0,.4); animation: slideUp .25s ease;
-}
-@keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
-.modal-handle {
-  width: 40px; height: 4px; background: var(--border-light); border-radius: 4px;
-  margin: 0 auto 12px;
-}
-.modal h2 { font-size: 17px; margin-bottom: 2px; }
-.modal .sub { color: var(--text-muted); font-size: 12px; margin-bottom: 14px; }
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.fg { display: flex; flex-direction: column; gap: 4px; }
-.fg.full { grid-column: 1 / -1; }
-.fg label { font-size: 11px; font-weight: 600; color: var(--text-sec); }
-.textarea { min-height: 70px; resize: vertical; font-family: ui-monospace, monospace; font-size: 13px; }
-.unit-preview {
-  background: rgba(59,130,246,.1); border: 1px solid var(--accent); color: var(--accent);
-  padding: 10px 12px; border-radius: 10px; font-weight: 600; font-size: 13px;
-  word-break: break-word; margin: 8px 0;
-}
-.copy-area {
-  background: var(--bg-input); border: 1px solid var(--border); border-radius: 10px;
-  padding: 12px; font-family: ui-monospace, monospace; font-size: 12px;
-  white-space: pre-wrap; word-break: break-all; position: relative; margin-top: 8px;
-  color: var(--text); line-height: 1.5;
-}
-.copy-btn {
-  position: absolute; left: 6px; top: 6px;
-  background: var(--accent); color: #fff; border: 0; border-radius: 8px;
-  padding: 5px 10px; font-size: 11px; font-weight: 600;
-}
-.modal-foot {
-  display: flex; gap: 8px; margin-top: 14px; padding-top: 12px;
-  border-top: 1px solid var(--border);
-}
-.modal-foot .btn { flex: 1; min-height: 46px; font-size: 14px; }
-.unit-structure { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
-.unit-structure .field { font-size: 13px; padding: 8px 10px; }
+        /* ─── Buttons ─── */
+        .btn {
+            border: 0;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-weight: 600;
+            font-size: 13px;
+            background: var(--bg-input);
+            color: var(--text);
+            border: 1px solid var(--border);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all var(--transition);
+            min-height: 42px;
+        }
+        .btn:active {
+            transform: scale(.96);
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+        .btn-primary:active {
+            background: var(--accent-hover);
+        }
+        .btn-green {
+            background: var(--green);
+            color: #fff;
+            border-color: var(--green);
+        }
+        .btn-red {
+            background: var(--red);
+            color: #fff;
+            border-color: var(--red);
+        }
+        .btn-yellow {
+            background: var(--yellow);
+            color: #1a2332;
+            border-color: var(--yellow);
+        }
+        .btn-outline {
+            background: transparent;
+        }
+        .btn-sm {
+            padding: 7px 10px;
+            font-size: 12px;
+            min-height: 34px;
+            border-radius: 8px;
+        }
+        .btn-xs {
+            padding: 4px 8px;
+            font-size: 10px;
+            min-height: 26px;
+            border-radius: 6px;
+        }
+        .btn-block {
+            width: 100%;
+        }
+        .btn-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .btn-row .btn {
+            flex: 1;
+        }
 
-/* ─── Toast ─── */
-.toast {
-  position: fixed; bottom: calc(var(--nav-h) + var(--safe-bottom) + 16px);
-  left: 50%; transform: translateX(-50%) translateY(20px);
-  background: var(--bg-elevated); border: 1px solid var(--accent);
-  color: var(--text); padding: 12px 20px; border-radius: 12px;
-  box-shadow: 0 8px 28px rgba(0,0,0,.4); font-weight: 500; font-size: 13px;
-  z-index: 200; max-width: 90%; text-align: center; opacity: 0;
-  pointer-events: none; transition: all .25s ease;
-}
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        /* ─── Empty ─── */
+        .empty-state {
+            text-align: center;
+            padding: 28px 16px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+        .empty-state .icon {
+            font-size: 36px;
+            margin-bottom: 8px;
+            opacity: .6;
+        }
+        .list-item {
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .list-item .muted {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
 
-/* ─── Table (desktop fallback) ─── */
-.table-box { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; -webkit-overflow-scrolling: touch; }
-table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 520px; }
-th, td { padding: 8px; border-bottom: 1px solid var(--border); text-align: right; vertical-align: middle; }
-th { background: var(--bg-secondary); color: var(--text-sec); font-weight: 600; font-size: 11px; position: sticky; top: 0; }
+        /* ─── Modal ─── */
+        .modal-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(0, 0, 0, .65);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 0;
+            overscroll-behavior: contain;
+        }
+        .modal-bg.on {
+            display: flex;
+        }
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px 20px 0 0;
+            width: 100%;
+            max-width: 640px;
+            max-height: 92dvh;
+            overflow-y: auto;
+            padding: 16px 14px calc(16px + var(--safe-bottom));
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, .4);
+            animation: slideUp .25s ease;
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(40px);
+                opacity: 0;
+            }
+            to {
+                transform: none;
+                opacity: 1;
+            }
+        }
+        .modal-handle {
+            width: 40px;
+            height: 4px;
+            background: var(--border-light);
+            border-radius: 4px;
+            margin: 0 auto 12px;
+        }
+        .modal h2 {
+            font-size: 17px;
+            margin-bottom: 2px;
+        }
+        .modal .sub {
+            color: var(--text-muted);
+            font-size: 12px;
+            margin-bottom: 14px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .fg {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .fg.full {
+            grid-column: 1 / -1;
+        }
+        .fg label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-sec);
+        }
+        .textarea {
+            min-height: 70px;
+            resize: vertical;
+            font-family: ui-monospace, monospace;
+            font-size: 13px;
+        }
+        .unit-preview {
+            background: rgba(59, 130, 246, .1);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 13px;
+            word-break: break-word;
+            margin: 8px 0;
+        }
+        .copy-area {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            font-family: ui-monospace, monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            position: relative;
+            margin-top: 8px;
+            color: var(--text);
+            line-height: 1.5;
+        }
+        .copy-btn {
+            position: absolute;
+            right: 6px;
+            top: 6px;
+            background: var(--accent);
+            color: #fff;
+            border: 0;
+            border-radius: 8px;
+            padding: 5px 10px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .modal-foot {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+        .modal-foot .btn {
+            flex: 1;
+            min-height: 46px;
+            font-size: 14px;
+        }
+        .unit-structure {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .unit-structure .field {
+            font-size: 13px;
+            padding: 8px 10px;
+        }
 
-/* ─── Import text area ─── */
-.import-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; line-height: 1.4; }
+        /* ─── Toast ─── */
+        .toast {
+            position: fixed;
+            bottom: calc(var(--nav-h) + var(--safe-bottom) + 16px);
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--bg-elevated);
+            border: 1px solid var(--accent);
+            color: var(--text);
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, .4);
+            font-weight: 500;
+            font-size: 13px;
+            z-index: 200;
+            max-width: 90%;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: all .25s ease;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
 
-/* ─── Desktop tweaks ─── */
-@media (min-width: 641px) {
-  body { padding-bottom: 20px; }
-  .bottom-nav { display: none; }
-  .app { max-width: 900px; }
-  .header { border-radius: 0 0 14px 14px; margin: 0 8px; }
-  .view { padding: 12px 12px 24px; }
-  .stats { grid-template-columns: repeat(7, 1fr); }
-  .stat b { font-size: 18px; }
-  .chart-wrap { height: 200px; }
-  .modal-bg { align-items: center; padding: 16px; }
-  .modal { border-radius: var(--radius); max-height: 90vh; }
-  .modal-handle { display: none; }
-  .desktop-nav {
-    display: flex; gap: 4px; background: var(--bg-card); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 6px; margin: 10px 12px 0; box-shadow: var(--shadow);
-  }
-  .desktop-nav button {
-    flex: 1; border: 0; background: transparent; padding: 10px; border-radius: 10px;
-    cursor: pointer; font-weight: 600; color: var(--text-sec); font-size: 12px;
-  }
-  .desktop-nav button.active { background: var(--accent); color: #fff; }
-}
-@media (max-width: 640px) {
-  .desktop-nav { display: none; }
-  .hide-mobile { display: none !important; }
-  .show-mobile { display: block !important; }
-  .form-grid { grid-template-columns: 1fr; }
-  .unit-structure { grid-template-columns: 1fr; }
-  .stats { grid-template-columns: repeat(4, 1fr); }
-}
-@media (max-width: 380px) {
-  .stats { grid-template-columns: repeat(2, 1fr); }
-  .stat b { font-size: 15px; }
-  .nav-item { font-size: 9px; }
-  .nav-item span.icon { font-size: 18px; }
-}
+        /* ─── Table ─── */
+        .table-box {
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            -webkit-overflow-scrolling: touch;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            min-width: 520px;
+        }
+        th,
+        td {
+            padding: 8px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+            vertical-align: middle;
+        }
+        th {
+            background: var(--bg-secondary);
+            color: var(--text-sec);
+            font-weight: 600;
+            font-size: 11px;
+            position: sticky;
+            top: 0;
+        }
 
-/* ─── Utility ─── */
-.flex { display: flex; } .gap-6 { gap: 6px; } .mt-8 { margin-top: 8px; }
-.text-muted { color: var(--text-muted); } .fw-700 { font-weight: 700; }
-</style>
+        /* ─── Import ─── */
+        .import-hint {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        /* ─── Desktop ─── */
+        @media (min-width: 641px) {
+            body {
+                padding-bottom: 20px;
+            }
+            .bottom-nav {
+                display: none;
+            }
+            .app {
+                max-width: 900px;
+            }
+            .header {
+                border-radius: 0 0 14px 14px;
+                margin: 0 8px;
+            }
+            .view {
+                padding: 12px 12px 24px;
+            }
+            .stats {
+                grid-template-columns: repeat(7, 1fr);
+            }
+            .stat b {
+                font-size: 18px;
+            }
+            .chart-wrap {
+                height: 200px;
+            }
+            .modal-bg {
+                align-items: center;
+                padding: 16px;
+            }
+            .modal {
+                border-radius: var(--radius);
+                max-height: 90vh;
+            }
+            .modal-handle {
+                display: none;
+            }
+            .desktop-nav {
+                display: flex;
+                gap: 4px;
+                background: var(--bg-card);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                padding: 6px;
+                margin: 10px 12px 0;
+                box-shadow: var(--shadow);
+            }
+            .desktop-nav button {
+                flex: 1;
+                border: 0;
+                background: transparent;
+                padding: 10px;
+                border-radius: 10px;
+                cursor: pointer;
+                font-weight: 600;
+                color: var(--text-sec);
+                font-size: 12px;
+            }
+            .desktop-nav button.active {
+                background: var(--accent);
+                color: #fff;
+            }
+            .chart-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+            .chart-grid .chart-wrap {
+                height: 160px;
+            }
+        }
+        @media (max-width: 640px) {
+            .desktop-nav {
+                display: none;
+            }
+            .hide-mobile {
+                display: none !important;
+            }
+            .show-mobile {
+                display: block !important;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .unit-structure {
+                grid-template-columns: 1fr;
+            }
+            .stats {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .filter-row.three {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (max-width: 380px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .stat b {
+                font-size: 15px;
+            }
+            .nav-item {
+                font-size: 9px;
+            }
+            .nav-item span.icon {
+                font-size: 18px;
+            }
+        }
+
+        .flex {
+            display: flex;
+        }
+        .gap-6 {
+            gap: 6px;
+        }
+        .mt-8 {
+            margin-top: 8px;
+        }
+        .mb-8 {
+            margin-bottom: 8px;
+        }
+        .text-muted {
+            color: var(--text-muted);
+        }
+        .fw-700 {
+            font-weight: 700;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .w-full {
+            width: 100%;
+        }
+        .items-center {
+            align-items: center;
+        }
+        .justify-between {
+            justify-content: space-between;
+        }
+        .gap-4 {
+            gap: 4px;
+        }
+
+        /* unit suggestion pills */
+        .unit-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 4px;
+        }
+        .unit-suggestion {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2px 10px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all var(--transition);
+            color: var(--text-sec);
+        }
+        .unit-suggestion:hover {
+            border-color: var(--accent);
+            color: var(--text);
+        }
+        .unit-suggestion:active {
+            transform: scale(.95);
+        }
+
+        /* backup list */
+        .backup-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 4px;
+            background: var(--bg-secondary);
+        }
+        .backup-item .info {
+            font-size: 12px;
+        }
+        .backup-item .info small {
+            color: var(--text-muted);
+        }
+    </style>
 </head>
 <body>
-<div class="app">
+    <div class="app">
 
-<!-- ════════ HEADER ════════ -->
-<header class="header">
-  <div class="brand">
-    <div class="logo">⚡</div>
-    <div class="brand-text">
-      <h1>Equipment_Confirmation Fault <small style="font-weight:400;opacity:.7">v8</small></h1>
-      <p>مدیریت هوشمند خرابی تجهیزات</p>
+        <!-- ════════ HEADER ════════ -->
+        <header class="header">
+            <div class="brand">
+                <div class="logo">⚡</div>
+                <div class="brand-text">
+                    <h1>Fault Manager <small style="font-weight:400;opacity:.7">v9</small></h1>
+                    <p>Smart Equipment Fault Tracking</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="Theme">🌙</button>
+                <button class="icon-btn primary" onclick="openAdd()" title="New">＋</button>
+            </div>
+        </header>
+
+        <!-- Desktop nav -->
+        <nav class="desktop-nav">
+            <button class="active" data-view="dashboard" onclick="showView('dashboard',this)">📊 Dashboard</button>
+            <button data-view="records" onclick="showView('records',this)">📋 Records</button>
+            <button data-view="approval" onclick="showView('approval',this)">✅ Approval</button>
+            <button data-view="sites" onclick="showView('sites',this)">📍 Sites</button>
+            <button data-view="quality" onclick="showView('quality',this)">⚠ Quality</button>
+            <button data-view="reports" onclick="showView('reports',this)">📑 Reports</button>
+            <button data-view="backup" onclick="showView('backup',this)">💾 Backup</button>
+        </nav>
+
+        <!-- ════════ DASHBOARD ════════ -->
+        <section id="dashboard" class="view active">
+            <div class="stats" id="statsContainer">
+                <div class="stat"><small>Requests</small><b id="kRecords">0</b></div>
+                <div class="stat"><small>Units</small><b id="kQty">0</b></div>
+                <div class="stat"><small>Sites</small><b id="kSites">0</b></div>
+                <div class="stat"><small>Types</small><b id="kTypes">0</b></div>
+                <div class="stat green"><small>Approved</small><b id="kApproved">0</b></div>
+                <div class="stat yellow"><small>Pending</small><b id="kPending">0</b></div>
+                <div class="stat red"><small>Rejected</small><b id="kRejected">0</b></div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="panel">
+                    <div class="panel-title">📈 Top Units</div>
+                    <div class="chart-wrap"><canvas id="equipmentChart"></canvas></div>
+                </div>
+                <div class="panel">
+                    <div class="panel-title">📍 Top Sites</div>
+                    <div class="chart-wrap"><canvas id="siteChart"></canvas></div>
+                </div>
+                <div class="panel">
+                    <div class="panel-title">🔄 Status</div>
+                    <div class="chart-wrap"><canvas id="statusChart"></canvas></div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-title">🕐 Recent Activity</div>
+                <div id="recent" class="card-list"></div>
+            </div>
+            <div class="panel">
+                <div class="panel-title">🔔 Alerts</div>
+                <div id="alerts"></div>
+            </div>
+        </section>
+
+        <!-- ════════ RECORDS ════════ -->
+        <section id="records" class="view">
+            <div class="panel">
+                <div class="panel-title">🔍 Filter &amp; Search</div>
+                <div class="filters">
+                    <input class="field" id="q" placeholder="Search all fields..." oninput="debounceRender()">
+                    <div class="filter-row">
+                        <input class="field" id="fs" placeholder="Site" oninput="debounceRender()">
+                        <input class="field" id="fu" placeholder="Unit" oninput="debounceRender()">
+                    </div>
+                    <div class="filter-row three">
+                        <input class="field" id="fsc" placeholder="SC" oninput="debounceRender()">
+                        <select class="field" id="fst" onchange="renderAll()">
+                            <option value="">All Status</option>
+                            <option>Approved</option>
+                            <option>Pending</option>
+                            <option>Rejected</option>
+                        </select>
+                        <button class="btn btn-outline btn-sm" onclick="clearFilters()">✕ Clear</button>
+                    </div>
+                    <div class="filter-row">
+                        <input class="field" id="fd1" type="date" onchange="renderAll()">
+                        <input class="field" id="fd2" type="date" onchange="renderAll()">
+                    </div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-title">📋 Fault Records <span class="count" id="recordsCount">0</span></div>
+                <div id="recordsList" class="card-list"></div>
+            </div>
+        </section>
+
+        <!-- ════════ APPROVAL ════════ -->
+        <section id="approval" class="view">
+            <div class="panel">
+                <div class="panel-title">✅ Approval Center <span class="count" id="pendingCount">0</span></div>
+                <div id="approvalsList" class="card-list"></div>
+            </div>
+        </section>
+
+        <!-- ════════ SITES ════════ -->
+        <section id="sites" class="view">
+            <div class="panel">
+                <div class="panel-title">📍 Site Overview</div>
+                <div id="sitesList" class="card-list"></div>
+            </div>
+        </section>
+
+        <!-- ════════ QUALITY ════════ -->
+        <section id="quality" class="view">
+            <div class="panel">
+                <div class="panel-title">⚠ Duplicate Serial Numbers</div>
+                <div id="dupSN"></div>
+            </div>
+            <div class="panel">
+                <div class="panel-title">📋 Data Integrity</div>
+                <div id="qualityList"></div>
+            </div>
+            <div class="panel">
+                <div class="panel-title">📚 Unit Catalog <span class="count" id="catalogCount">0</span></div>
+                <div id="catalogList" class="card-list"></div>
+            </div>
+        </section>
+
+        <!-- ════════ REPORTS ════════ -->
+        <section id="reports" class="view">
+            <div class="panel">
+                <div class="panel-title">📑 Management Report</div>
+                <div id="reportContent"></div>
+                <div class="btn-row mt-8">
+                    <button class="btn btn-primary btn-block" onclick="printReport()">🖨 Print Report</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════ BACKUP ════════ -->
+        <section id="backup" class="view">
+            <div class="panel">
+                <div class="panel-title">💾 Backup &amp; Restore</div>
+                <p class="text-muted" style="font-size:12px;margin-bottom:10px;">Export your data as JSON or CSV, or restore from a previous backup.</p>
+                <div class="btn-row">
+                    <button class="btn btn-outline" onclick="exportJSON()">📥 JSON</button>
+                    <button class="btn btn-outline" onclick="exportCSV()">📊 CSV</button>
+                    <button class="btn btn-outline" onclick="document.getElementById('jsonFile').click()">📤 Restore</button>
+                    <input id="jsonFile" type="file" accept=".json" hidden onchange="importJSON(event)">
+                </div>
+                <div style="margin-top:10px;">
+                    <button class="btn btn-outline btn-sm" onclick="exportBackupCSV()">📊 Export Full CSV Backup</button>
+                    <button class="btn btn-outline btn-sm" onclick="document.getElementById('csvRestore').click()">📤 Restore from CSV</button>
+                    <input id="csvRestore" type="file" accept=".csv" hidden onchange="importCSV(event)">
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-title">📋 Backup History <span class="count" id="backupCount">0</span></div>
+                <div id="backupList"></div>
+            </div>
+            <div class="panel">
+                <div class="panel-title">📥 Import from Text</div>
+                <p class="import-hint">
+                    Paste fault records in the standard format. <strong>Multiple records can be imported at once.</strong>
+                </p>
+                <textarea class="field textarea" id="importTextArea" rows="8" placeholder="Example:&#10;SC: Porsoo&#10;Code Site: TH2879&#10;UNIT Name: NCR48U G/01- 3KW - Nian&#10;Fault Affect : Faulty&#10;QTY: 2&#10;SN: 9940640&#10;SN: 9940639&#10;Approved by Soroush Yaghmouri"></textarea>
+                <button class="btn btn-primary btn-block mt-8" onclick="importFromText()">📥 Import Records</button>
+                <div id="importResult" class="mt-8" style="font-size:13px"></div>
+            </div>
+        </section>
+
+        <!-- ════════ BOTTOM NAV ════════ -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-view="dashboard" onclick="showView('dashboard',this)">
+                <span class="icon">📊</span><span>Dashboard</span>
+            </button>
+            <button class="nav-item" data-view="records" onclick="showView('records',this)">
+                <span class="icon">📋</span><span>Records</span>
+            </button>
+            <button class="nav-item" data-view="approval" onclick="showView('approval',this)">
+                <span class="icon">✅</span><span>Approval</span>
+            </button>
+            <button class="nav-item" data-view="sites" onclick="showView('sites',this)">
+                <span class="icon">📍</span><span>Sites</span>
+            </button>
+            <button class="nav-item" data-view="more" onclick="showMoreMenu(this)">
+                <span class="icon">⋯</span><span>More</span>
+            </button>
+        </nav>
+
+        <!-- More sheet -->
+        <div id="moreSheet" class="modal-bg" onclick="if(event.target===this)closeMore()">
+            <div class="modal" style="max-height:50dvh">
+                <div class="modal-handle"></div>
+                <h2>More Menu</h2>
+                <div class="sub">Additional tools</div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                    <button class="btn" onclick="showView('quality');closeMore()">⚠ Quality Check</button>
+                    <button class="btn" onclick="showView('reports');closeMore()">📑 Reports</button>
+                    <button class="btn" onclick="showView('backup');closeMore()">💾 Backup &amp; Restore</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════ MODAL ════════ -->
+        <div id="modalbg" class="modal-bg">
+            <div class="modal">
+                <div class="modal-handle"></div>
+                <h2 id="mtitle">New Fault Record</h2>
+                <div class="sub">Enter the details below. Output is ready to copy.</div>
+                <form id="form" onsubmit="saveRecord(event)">
+                    <input type="hidden" id="eid">
+                    <div class="form-grid">
+                        <div class="fg">
+                            <label>Date</label>
+                            <input class="field" id="date" type="date" required onchange="updateOutputText()">
+                        </div>
+                        <div class="fg">
+                            <label>SC (Contractor)</label>
+                            <select class="field" id="scSelect" onchange="toggleScCustom(); updateOutputText()">
+                                <option value="Porsoo">Porsoo</option>
+                                <option value="Porsoo-Sub">Porsoo-Sub</option>
+                                <option value="Team-Telecom">Team-Telecom</option>
+                                <option value="Farhikhteghan">Farhikhteghan</option>
+                                <option value="custom">Custom…</option>
+                            </select>
+                            <input class="field" id="scCustom" style="display:none; margin-top:4px;" placeholder="Enter SC name" oninput="updateOutputText()">
+                        </div>
+                        <div class="fg full">
+                            <label>Site Code</label>
+                            <input class="field" id="site" placeholder="TH0168" required autocomplete="off" oninput="updateOutputText()">
+                        </div>
+
+                        <div class="fg full">
+                            <label>Unit Family</label>
+                            <select class="field" id="unitFamily" onchange="onFamilyChange()">
+                                <option value="">-- Select Family --</option>
+                                <option value="NCU_NCR">NCU / NCR</option>
+                                <option value="PSU">PSU AC</option>
+                                <option value="CLU">CLU / BBU</option>
+                                <option value="CCU">CCU / Climate</option>
+                                <option value="DC_AC">DC Air Conditioner</option>
+                                <option value="RECTIFIER">Rectifier</option>
+                                <option value="DCC">DCC</option>
+                                <option value="PDU">PDU</option>
+                                <option value="AIRCOND">Air Conditioner - ITMC</option>
+                                <option value="CONTROLLER">Controller Unit</option>
+                                <option value="SMARTPACK">Smartpack</option>
+                                <option value="SCU">SCU</option>
+                                <option value="CUSTOM">Custom</option>
+                            </select>
+                            <!-- Unit suggestions from catalog -->
+                            <div class="unit-suggestions" id="unitSuggestions"></div>
+                        </div>
+
+                        <div class="fg full" id="familyFields"></div>
+
+                        <div class="fg">
+                            <label>Fault Affect</label>
+                            <input class="field" id="fault" value="Faulty" oninput="updateOutputText()">
+                        </div>
+                        <div class="fg">
+                            <label>QTY</label>
+                            <input class="field" id="qty" type="number" min="1" value="1" required oninput="updateOutputText()">
+                        </div>
+                        <div class="fg full">
+                            <label>Serial Numbers (one per line — must match QTY)</label>
+                            <textarea class="field textarea" id="sns" rows="3" placeholder="One serial number per line" oninput="updateOutputText()"></textarea>
+                        </div>
+                        <div class="fg">
+                            <label>Status</label>
+                            <select class="field" id="status" onchange="updateOutputText()">
+                                <option>Pending</option>
+                                <option>Approved</option>
+                                <option>Rejected</option>
+                            </select>
+                        </div>
+                        <div class="fg">
+                            <label>Approver</label>
+                            <input class="field" id="approver" placeholder="Soroush Yaghmouri" oninput="updateOutputText()">
+                        </div>
+                        <div class="fg full">
+                            <label>Notes</label>
+                            <textarea class="field" id="notes" rows="2" oninput="updateOutputText()"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="unit-preview" id="unitPreview">Select a family and fill in the fields</div>
+                    <div class="copy-area" id="copyArea">Output will appear here<button type="button" class="copy-btn" onclick="copyOutput()">📋 Copy</button></div>
+
+                    <div class="modal-foot">
+                        <button type="button" class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">💾 Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="toast" class="toast"></div>
     </div>
-  </div>
-  <div class="header-actions">
-    <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="تم">🌙</button>
-    <button class="icon-btn primary" onclick="openAdd()" title="جدید">＋</button>
-  </div>
-</header>
 
-<!-- Desktop nav (hidden on mobile) -->
-<nav class="desktop-nav">
-  <button class="active" data-view="dashboard" onclick="showView('dashboard',this)">📊 داشبورد</button>
-  <button data-view="records" onclick="showView('records',this)">📋 سوابق</button>
-  <button data-view="approval" onclick="showView('approval',this)">✅ تأیید</button>
-  <button data-view="sites" onclick="showView('sites',this)">📍 سایت‌ها</button>
-  <button data-view="quality" onclick="showView('quality',this)">⚠ کیفیت</button>
-  <button data-view="reports" onclick="showView('reports',this)">📑 گزارش</button>
-  <button data-view="importtext" onclick="showView('importtext',this)">📥 وارد کردن</button>
-</nav>
+    <script>
+        /* ═══════════════════════════════════════════════════════════
+           UNIT FAMILY CONFIG
+           ═══════════════════════════════════════════════════════════ */
+        var FAMILY_CONFIG = {
+            NCU_NCR: {
+                label: 'NCU / NCR',
+                fields: [
+                    { id: 'ncuPrefix', type: 'select', label: 'Type', options: ['NCU', 'NCR'], default: 'NCR' },
+                    { id: 'ncuVoltage', type: 'text', label: 'Voltage', default: '48', placeholder: '48' },
+                    { id: 'ncuVersion', type: 'text', label: 'Version', default: 'U', placeholder: 'U' },
+                    { id: 'ncuSubtype', type: 'text', label: 'Subtype (e.g. C/11)', placeholder: 'C/11' },
+                    { id: 'ncuPower', type: 'select', label: 'Power', options: ['3KW', '2KW', '1.5KW', 'N/A'],
+                    default: '3KW' }
+                ],
+                build: function(v) {
+                    var p = v.ncuPrefix || 'NCR';
+                    var vol = v.ncuVoltage || '48';
+                    var ver = v.ncuVersion || 'U';
+                    var sub = v.ncuSubtype ? ' ' + v.ncuSubtype.trim() : '';
+                    var pw = (v.ncuPower && v.ncuPower !== 'N/A') ? ' - ' + v.ncuPower : '';
+                    return p + vol + ver + sub + pw;
+                }
+            },
+            PSU: {
+                label: 'PSU AC',
+                fields: [
+                    { id: 'psuVersion', type: 'select', label: 'Version', options: ['AC 01 (1KW)', 'AC 02 (2KW)',
+                            'AC 03 (3KW)'
+                        ], default: 'AC 03 (3KW)' },
+                    { id: 'psuSuffix', type: 'text', label: 'Suffix', placeholder: '- Ericsson (optional)' }
+                ],
+                build: function(v) {
+                    var base = v.psuVersion ? v.psuVersion.split('(')[0].trim() : 'PSU AC 03';
+                    var suff = v.psuSuffix ? ' ' + v.psuSuffix.trim() : '';
+                    return 'PSU ' + base + suff;
+                }
+            },
+            CLU: {
+                label: 'CLU / BBU',
+                fields: [
+                    { id: 'cluType', type: 'select', label: 'Type', options: ['CLU', 'BBU6102 CLU'], default: 'CLU' },
+                    { id: 'cluSuffix', type: 'text', label: 'Suffix', placeholder: '- Ericsson (or empty)' }
+                ],
+                build: function(v) {
+                    var base = v.cluType || 'CLU';
+                    var suff = v.cluSuffix ? ' ' + v.cluSuffix.trim() : '';
+                    if (base === 'CLU' && !suff) suff = ' - Ericsson';
+                    return base + suff;
+                }
+            },
+            CCU: {
+                label: 'CCU / Climate Control',
+                fields: [
+                    { id: 'ccuType', type: 'select', label: 'Type', options: ['CCU - Climate Control Board',
+                            'CCU - Thermo Electric Co', 'Climate Control Board - CCU', 'Climat Control Board'
+                        ], default: 'CCU - Climate Control Board' },
+                    { id: 'ccuSuffix', type: 'text', label: 'Extra', placeholder: '- Ericsson etc.' }
+                ],
+                build: function(v) {
+                    var base = v.ccuType || 'CCU - Climate Control Board';
+                    var suff = v.ccuSuffix ? ' ' + v.ccuSuffix.trim() : '';
+                    return base + suff;
+                }
+            },
+            DC_AC: {
+                label: 'DC Air Conditioner',
+                fields: [
+                    { id: 'dcacModel', type: 'select', label: 'Model', options: [
+                            'DC Cabinet Air Conditioner - Envicool',
+                            'DC Cabinet Air Conditioner - ITMC',
+                            'NAC550D - DC Air Conditioner - Nian',
+                            'NAC650D - DC Air Conditioner - Nian',
+                            'NAC1250D - DC Air Conditioner - Nian',
+                            'NAC2400D - DC Air Conditioner - Nian',
+                            'NAC3000D - DC Air Conditioner - Nian',
+                            'NAC3500D - DC Air Conditioner - Nian'
+                        ], default: 'DC Cabinet Air Conditioner - Envicool' },
+                    { id: 'dcacSuffix', type: 'text', label: 'Suffix', placeholder: 'e.g. - Cooler, - Compressor' }
+                ],
+                build: function(v) {
+                    var base = v.dcacModel || 'DC Cabinet Air Conditioner - Envicool';
+                    var suff = v.dcacSuffix ? ' ' + v.dcacSuffix.trim() : '';
+                    return base + suff;
+                }
+            },
+            RECTIFIER: {
+                label: 'Rectifier',
+                fields: [
+                    { id: 'recType', type: 'select', label: 'Type', options: [
+                            'RECTIFIER 48VDC3000 - ITMC',
+                            'Rectifier - Flatpack2 2000W 48V BF',
+                            'PEC-4860 - Rectifier Equipment_Confirmation'
+                        ], default: 'RECTIFIER 48VDC3000 - ITMC' },
+                    { id: 'recSuffix', type: 'text', label: 'Suffix', placeholder: '' }
+                ],
+                build: function(v) {
+                    var base = v.recType || 'RECTIFIER 48VDC3000 - ITMC';
+                    var suff = v.recSuffix ? ' ' + v.recSuffix.trim() : '';
+                    return base + suff;
+                }
+            },
+            DCC: {
+                label: 'DCC',
+                fields: [
+                    { id: 'dccType', type: 'select', label: 'Type', options: [
+                            'DCC - Equipment_Confirmation Electronic',
+                            'DCC - Equipment_Confirmation Electronic - Cabinet Conditioner'
+                        ], default: 'DCC - Equipment_Confirmation Electronic' }
+                ],
+                build: function(v) { return v.dccType || 'DCC - Equipment_Confirmation Electronic'; }
+            },
+            PDU: {
+                label: 'PDU',
+                fields: [
+                    { id: 'pduType', type: 'text', label: 'PDU Type', default: 'PDU 01 01', placeholder: 'PDU 01 01' }
+                ],
+                build: function(v) { return v.pduType || 'PDU 01 01'; }
+            },
+            AIRCOND: {
+                label: 'Air Conditioner - ITMC',
+                fields: [
+                    { id: 'airType', type: 'text', label: 'Model', default: 'Air Conditioner - ITMC',
+                        placeholder: 'Air Conditioner - ITMC' }
+                ],
+                build: function(v) { return v.airType || 'Air Conditioner - ITMC'; }
+            },
+            CONTROLLER: {
+                label: 'Controller Unit',
+                fields: [
+                    { id: 'ctrlType', type: 'text', label: 'Model', default: 'Controller Unit - ITMC',
+                        placeholder: 'Controller Unit - ITMC' }
+                ],
+                build: function(v) { return v.ctrlType || 'Controller Unit - ITMC'; }
+            },
+            SMARTPACK: {
+                label: 'Smartpack',
+                fields: [
+                    { id: 'smartType', type: 'text', label: 'Model', default: 'Smartpack Extended - ELTEK',
+                        placeholder: 'Smartpack Extended - ELTEK' }
+                ],
+                build: function(v) { return v.smartType || 'Smartpack Extended - ELTEK'; }
+            },
+            SCU: {
+                label: 'SCU',
+                fields: [
+                    { id: 'scuType', type: 'text', label: 'Model', default: 'SCU 01 01 - Ericsson',
+                        placeholder: 'SCU 01 01 - Ericsson' }
+                ],
+                build: function(v) { return v.scuType || 'SCU 01 01 - Ericsson'; }
+            },
+            CUSTOM: {
+                label: 'Custom',
+                fields: [
+                    { id: 'customName', type: 'text', label: 'Full Unit Name', placeholder: 'Enter exact unit name',
+                        required: true }
+                ],
+                build: function(v) { return v.customName || ''; }
+            }
+        };
 
-<!-- ════════ DASHBOARD ════════ -->
-<section id="dashboard" class="view active">
-  <div class="stats" id="statsContainer">
-    <div class="stat"><small>درخواست</small><b id="kRecords">0</b></div>
-    <div class="stat"><small>تعداد</small><b id="kQty">0</b></div>
-    <div class="stat"><small>سایت</small><b id="kSites">0</b></div>
-    <div class="stat"><small>نوع</small><b id="kTypes">0</b></div>
-    <div class="stat green"><small>تأیید</small><b id="kApproved">0</b></div>
-    <div class="stat yellow"><small>در انتظار</small><b id="kPending">0</b></div>
-    <div class="stat red"><small>رد</small><b id="kRejected">0</b></div>
-  </div>
+        /* ═══════════════════════════════════════════════════════════
+           ALIASES & CATALOG (auto-learns from input)
+           ═══════════════════════════════════════════════════════════ */
+        var ALIAS_MAP = {
+            "BBU CLU": "BBU6102 CLU - Ericsson",
+            "BBU6102 CLU": "BBU6102 CLU - Ericsson",
+            "BBU6102 CLU - ERICSSON": "BBU6102 CLU - Ericsson",
+            "CLU": "CLU - Ericsson",
+            "CLU - ERICSSON": "CLU - Ericsson",
+            "CLU - BBUB102 CLU - Ericsson": "CLU - Ericsson",
+            "Climat Control Board": "CCU - Climate Control Board",
+            "Climat Control Board - Ericsson": "CCU - Climate Control Board",
+            "Climate Control Board - CCU": "CCU - Climate Control Board",
+            "CCU - Climate Control Board": "CCU - Climate Control Board",
+            "Thermo Electric Co - CCU": "CCU - Thermo Electric Co",
+            "DC cabinet air conditioner - Envicool": "DC Cabinet Air Conditioner - Envicool",
+            "DC Cabinet Air Conditioner - Envicool": "DC Cabinet Air Conditioner - Envicool",
+            "DCC-Equipment_Confirmation ELECTRONIC": "DCC - Equipment_Confirmation Electronic",
+            "DCC-Equipment_Confirmation ELECTRONIC - Cabinet Conditioner": "DCC - Equipment_Confirmation Electronic - Cabinet Conditioner",
+            "PSU AC 03": "PSU AC 03 - Ericsson",
+            "PEC- 4860 - Rectifier Equipment_Confirmation": "PEC-4860 - Rectifier Equipment_Confirmation",
+            "PECSU - 2020 - Equipment_Confirmation": "PECSU-2020 - Equipment_Confirmation",
+            "NCR48U - Nian": "NCR48U - 3KW - Nian",
+            "NCR48U - NIAN": "NCR48U - 3KW - Nian",
+            "NCR48U 3KW": "NCR48U - 3KW - Nian",
+            "NCR48U - 3KW": "NCR48U - 3KW - Nian"
+        };
 
-  <div class="panel">
-    <div class="panel-title">📈 تجهیزات پرتکرار</div>
-    <div class="chart-wrap"><canvas id="equipmentChart"></canvas></div>
-  </div>
-  <div class="panel">
-    <div class="panel-title">📊 سایت‌های پرخرابی</div>
-    <div class="chart-wrap"><canvas id="siteChart"></canvas></div>
-  </div>
-  <div class="panel">
-    <div class="panel-title">🔄 وضعیت‌ها</div>
-    <div class="chart-wrap"><canvas id="statusChart"></canvas></div>
-  </div>
-  <div class="panel">
-    <div class="panel-title">🕐 آخرین فعالیت‌ها</div>
-    <div id="recent" class="card-list"></div>
-  </div>
-  <div class="panel">
-    <div class="panel-title">🔔 هشدارها</div>
-    <div id="alerts"></div>
-  </div>
-</section>
+        // Catalog of known units (auto-populated from records)
+        var unitCatalog = [];
 
-<!-- ════════ RECORDS ════════ -->
-<section id="records" class="view">
-  <div class="panel">
-    <div class="panel-title">🔍 فیلتر و جستجو</div>
-    <div class="filters">
-      <input class="field" id="q" placeholder="جستجو در همه فیلدها..." oninput="debounceRender()">
-      <div class="filter-row">
-        <input class="field" id="fs" placeholder="سایت" oninput="debounceRender()">
-        <input class="field" id="fu" placeholder="یونیت" oninput="debounceRender()">
-      </div>
-      <div class="filter-row">
-        <input class="field" id="fsc" placeholder="پیمانکار (SC)" oninput="debounceRender()">
-        <select class="field" id="fst" onchange="renderAll()">
-          <option value="">همه وضعیت‌ها</option>
-          <option>Approved</option>
-          <option>Pending</option>
-          <option>Rejected</option>
-        </select>
-      </div>
-      <div class="filter-row">
-        <input class="field" id="fd1" type="date" onchange="renderAll()">
-        <input class="field" id="fd2" type="date" onchange="renderAll()">
-      </div>
-      <div class="filter-row">
-        <button class="btn btn-outline btn-sm" onclick="clearFilters()">✕ پاک کردن</button>
-      </div>
-    </div>
-  </div>
-  <div class="panel">
-    <div class="panel-title">📋 سوابق خرابی <span class="count" id="recordsCount">0</span></div>
-    <div id="recordsList" class="card-list"></div>
-  </div>
-</section>
-
-<!-- ════════ APPROVAL ════════ -->
-<section id="approval" class="view">
-  <div class="panel">
-    <div class="panel-title">✅ مرکز تأیید <span class="count" id="pendingCount">0</span></div>
-    <div id="approvalsList" class="card-list"></div>
-  </div>
-</section>
-
-<!-- ════════ SITES ════════ -->
-<section id="sites" class="view">
-  <div class="panel">
-    <div class="panel-title">📍 نمای کلی سایت‌ها</div>
-    <div id="sitesList" class="card-list"></div>
-  </div>
-</section>
-
-<!-- ════════ QUALITY ════════ -->
-<section id="quality" class="view">
-  <div class="panel">
-    <div class="panel-title">⚠ سریال‌های تکراری</div>
-    <div id="dupSN"></div>
-  </div>
-  <div class="panel">
-    <div class="panel-title">📋 یکپارچگی داده</div>
-    <div id="qualityList"></div>
-  </div>
-</section>
-
-<!-- ════════ REPORTS ════════ -->
-<section id="reports" class="view">
-  <div class="panel">
-    <div class="panel-title">📑 گزارش مدیریتی</div>
-    <div id="reportContent"></div>
-    <div class="btn-row mt-8">
-      <button class="btn btn-primary btn-block" onclick="printReport()">🖨 چاپ گزارش</button>
-    </div>
-  </div>
-  <div class="panel">
-    <div class="panel-title">💾 پشتیبان‌گیری</div>
-    <div class="btn-row">
-      <button class="btn btn-outline" onclick="exportJSON()">📥 JSON</button>
-      <button class="btn btn-outline" onclick="exportCSV()">📊 CSV</button>
-      <button class="btn btn-outline" onclick="document.getElementById('jsonFile').click()">📤 وارد کردن</button>
-      <input id="jsonFile" type="file" accept=".json" hidden onchange="importJSON(event)">
-    </div>
-  </div>
-</section>
-
-<!-- ════════ IMPORT TEXT ════════ -->
-<section id="importtext" class="view">
-  <div class="panel">
-    <div class="panel-title">📥 وارد کردن از متن</div>
-    <p class="import-hint">
-      متن رکوردهای خرابی را دقیقاً با فرمت استاندارد پیست کنید. 
-      <strong>می‌توانید چندین رکورد را به‌طور هم‌زمان وارد کنید.</strong>
-    </p>
-    <textarea class="field textarea" id="importTextArea" rows="12" placeholder="مثلاً:&#10;SC: Porsoo&#10;Code Site: TH2879&#10;UNIT Name: NCR48U G/01- 3KW - Nian&#10;Fault Affect : Faulty&#10;QTY: 2&#10;SN: 9940640&#10;SN: 9940639&#10;Approved by Soroush Yaghmouri"></textarea>
-    <button class="btn btn-primary btn-block mt-8" onclick="importFromText()">📥 وارد کردن همه رکوردها</button>
-    <div id="importResult" class="mt-8" style="font-size:13px"></div>
-  </div>
-</section>
-
-<!-- ════════ BOTTOM NAV (Mobile) ════════ -->
-<nav class="bottom-nav">
-  <button class="nav-item active" data-view="dashboard" onclick="showView('dashboard',this)">
-    <span class="icon">📊</span><span>داشبورد</span>
-  </button>
-  <button class="nav-item" data-view="records" onclick="showView('records',this)">
-    <span class="icon">📋</span><span>سوابق</span>
-  </button>
-  <button class="nav-item" data-view="approval" onclick="showView('approval',this)">
-    <span class="icon">✅</span><span>تأیید</span>
-  </button>
-  <button class="nav-item" data-view="sites" onclick="showView('sites',this)">
-    <span class="icon">📍</span><span>سایت</span>
-  </button>
-  <button class="nav-item" data-view="more" onclick="showMoreMenu(this)">
-    <span class="icon">⋯</span><span>بیشتر</span>
-  </button>
-</nav>
-
-<!-- More menu (quality / reports / import) -->
-<div id="moreSheet" class="modal-bg" onclick="if(event.target===this)closeMore()">
-  <div class="modal" style="max-height:50dvh">
-    <div class="modal-handle"></div>
-    <h2>منوی بیشتر</h2>
-    <div class="sub">گزینه‌های اضافی</div>
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <button class="btn" onclick="showView('quality');closeMore()">⚠ کیفیت داده</button>
-      <button class="btn" onclick="showView('reports');closeMore()">📑 گزارش و پشتیبان</button>
-      <button class="btn" onclick="showView('importtext');closeMore()">📥 وارد کردن از متن</button>
-    </div>
-  </div>
-</div>
-
-<!-- ════════ MODAL ════════ -->
-<div id="modalbg" class="modal-bg">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <h2 id="mtitle">خرابی جدید</h2>
-    <div class="sub">جزئیات را وارد کنید. خروجی آماده کپی است.</div>
-    <form id="form" onsubmit="saveRecord(event)">
-      <input type="hidden" id="eid">
-      <div class="form-grid">
-        <div class="fg">
-          <label>تاریخ</label>
-          <input class="field" id="date" type="date" required onchange="updateOutputText()">
-        </div>
-        <div class="fg">
-          <label>پیمانکار (SC)</label>
-          <select class="field" id="scSelect" onchange="toggleScCustom(); updateOutputText()">
-            <option value="Porsoo">Porsoo</option>
-            <option value="Porsoo-Sub">Porsoo-Sub</option>
-            <option value="Team-Telecom">Team-Telecom</option>
-            <option value="Farhikhteghan">Farhikhteghan</option>
-            <option value="custom">سفارشی...</option>
-          </select>
-          <input class="field" id="scCustom" style="display:none; margin-top:4px;" placeholder="نام پیمانکار را وارد کنید" oninput="updateOutputText()">
-        </div>
-        <div class="fg full">
-          <label>کد سایت</label>
-          <input class="field" id="site" placeholder="TH0168" required autocomplete="off" oninput="updateOutputText()">
-        </div>
-
-        <div class="fg full">
-          <label>خانواده یونیت</label>
-          <select class="field" id="unitFamily" onchange="onFamilyChange()">
-            <option value="">-- انتخاب خانواده --</option>
-            <option value="NCU_NCR">NCU / NCR</option>
-            <option value="PSU">PSU AC</option>
-            <option value="CLU">CLU / BBU</option>
-            <option value="CCU">CCU / Climate</option>
-            <option value="DC_AC">DC Air Conditioner</option>
-            <option value="RECTIFIER">Rectifier</option>
-            <option value="DCC">DCC</option>
-            <option value="PDU">PDU</option>
-            <option value="AIRCOND">Air Conditioner - ITMC</option>
-            <option value="CONTROLLER">Controller Unit</option>
-            <option value="SMARTPACK">Smartpack</option>
-            <option value="SCU">SCU</option>
-            <option value="CUSTOM">سفارشی (Custom)</option>
-          </select>
-        </div>
-
-        <div class="fg full" id="familyFields"></div>
-
-        <div class="fg">
-          <label>تأثیر خرابی</label>
-          <input class="field" id="fault" value="Faulty" oninput="updateOutputText()">
-        </div>
-        <div class="fg">
-          <label>تعداد (QTY)</label>
-          <input class="field" id="qty" type="number" min="1" value="1" required oninput="updateOutputText()">
-        </div>
-        <div class="fg full">
-          <label>شماره سریال (هر خط یک SN — باید با QTY برابر باشد)</label>
-          <textarea class="field textarea" id="sns" rows="3" placeholder="هر شماره سریال در یک خط" oninput="updateOutputText()"></textarea>
-        </div>
-        <div class="fg">
-          <label>وضعیت</label>
-          <select class="field" id="status" onchange="updateOutputText()">
-            <option>Pending</option>
-            <option>Approved</option>
-            <option>Rejected</option>
-          </select>
-        </div>
-        <div class="fg">
-          <label>تأییدکننده</label>
-          <input class="field" id="approver" placeholder="Soroush Yaghmouri" oninput="updateOutputText()">
-        </div>
-        <div class="fg full">
-          <label>یادداشت</label>
-          <textarea class="field" id="notes" rows="2" oninput="updateOutputText()"></textarea>
-        </div>
-      </div>
-
-      <div class="unit-preview" id="unitPreview">خانواده را انتخاب و فیلدها را پر کنید</div>
-      <div class="copy-area" id="copyArea">خروجی اینجا نمایش داده می‌شود<button type="button" class="copy-btn" onclick="copyOutput()">📋 کپی</button></div>
-
-      <div class="modal-foot">
-        <button type="button" class="btn btn-outline" onclick="closeModal()">انصراف</button>
-        <button type="submit" class="btn btn-primary">💾 ذخیره</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<div id="toast" class="toast"></div>
-</div>
-
-<script>
-/* ═══════════════════════════════════════════════════════════
-   UNIT FAMILY CONFIG
-   ═══════════════════════════════════════════════════════════ */
-var FAMILY_CONFIG = {
-  NCU_NCR: {
-    label: 'NCU / NCR',
-    fields: [
-      {id:'ncuPrefix', type:'select', label:'Type', options:['NCU','NCR'], default:'NCR'},
-      {id:'ncuVoltage', type:'text', label:'Voltage', default:'48', placeholder:'48'},
-      {id:'ncuVersion', type:'text', label:'Version', default:'U', placeholder:'U'},
-      {id:'ncuSubtype', type:'text', label:'Subtype (e.g. C/11)', placeholder:'C/11'},
-      {id:'ncuPower', type:'select', label:'Power', options:['3KW','2KW','1.5KW','N/A'], default:'3KW'}
-    ],
-    build: function(v) {
-      var p = v.ncuPrefix || 'NCR';
-      var vol = v.ncuVoltage || '48';
-      var ver = v.ncuVersion || 'U';
-      var sub = v.ncuSubtype ? ' ' + v.ncuSubtype.trim() : '';
-      var pw = (v.ncuPower && v.ncuPower !== 'N/A') ? ' - ' + v.ncuPower : '';
-      return p + vol + ver + sub + pw;
-    }
-  },
-  PSU: {
-    label: 'PSU AC',
-    fields: [
-      {id:'psuVersion', type:'select', label:'Version', options:['AC 01 (1KW)','AC 02 (2KW)','AC 03 (3KW)'], default:'AC 03 (3KW)'},
-      {id:'psuSuffix', type:'text', label:'Suffix', placeholder:'- Ericsson (optional)'}
-    ],
-    build: function(v) {
-      var base = v.psuVersion ? v.psuVersion.split('(')[0].trim() : 'PSU AC 03';
-      var suff = v.psuSuffix ? ' ' + v.psuSuffix.trim() : '';
-      return 'PSU ' + base + suff;
-    }
-  },
-  CLU: {
-    label: 'CLU / BBU',
-    fields: [
-      {id:'cluType', type:'select', label:'Type', options:['CLU','BBU6102 CLU'], default:'CLU'},
-      {id:'cluSuffix', type:'text', label:'Suffix', placeholder:'- Ericsson (or empty)'}
-    ],
-    build: function(v) {
-      var base = v.cluType || 'CLU';
-      var suff = v.cluSuffix ? ' ' + v.cluSuffix.trim() : '';
-      if (base === 'CLU' && !suff) suff = ' - Ericsson';
-      return base + suff;
-    }
-  },
-  CCU: {
-    label: 'CCU / Climate Control',
-    fields: [
-      {id:'ccuType', type:'select', label:'Type', options:['CCU - Climate Control Board','CCU - Thermo Electric Co','Climate Control Board - CCU','Climat Control Board'], default:'CCU - Climate Control Board'},
-      {id:'ccuSuffix', type:'text', label:'Extra', placeholder:'- Ericsson etc.'}
-    ],
-    build: function(v) {
-      var base = v.ccuType || 'CCU - Climate Control Board';
-      var suff = v.ccuSuffix ? ' ' + v.ccuSuffix.trim() : '';
-      return base + suff;
-    }
-  },
-  DC_AC: {
-    label: 'DC Air Conditioner',
-    fields: [
-      {id:'dcacModel', type:'select', label:'Model', options:['DC Cabinet Air Conditioner - Envicool','DC Cabinet Air Conditioner - ITMC','NAC550D - DC Air Conditioner - Nian','NAC650D - DC Air Conditioner - Nian','NAC1250D - DC Air Conditioner - Nian','NAC2400D - DC Air Conditioner - Nian','NAC3000D - DC Air Conditioner - Nian','NAC3500D - DC Air Conditioner - Nian'], default:'DC Cabinet Air Conditioner - Envicool'},
-      {id:'dcacSuffix', type:'text', label:'Suffix', placeholder:'e.g. - Cooler, - Compressor'}
-    ],
-    build: function(v) {
-      var base = v.dcacModel || 'DC Cabinet Air Conditioner - Envicool';
-      var suff = v.dcacSuffix ? ' ' + v.dcacSuffix.trim() : '';
-      return base + suff;
-    }
-  },
-  RECTIFIER: {
-    label: 'Rectifier',
-    fields: [
-      {id:'recType', type:'select', label:'Type', options:['RECTIFIER 48VDC3000 - ITMC','Rectifier - Flatpack2 2000W 48V BF','PEC-4860 - Rectifier Equipment_Confirmation'], default:'RECTIFIER 48VDC3000 - ITMC'},
-      {id:'recSuffix', type:'text', label:'Suffix', placeholder:''}
-    ],
-    build: function(v) {
-      var base = v.recType || 'RECTIFIER 48VDC3000 - ITMC';
-      var suff = v.recSuffix ? ' ' + v.recSuffix.trim() : '';
-      return base + suff;
-    }
-  },
-  DCC: {
-    label: 'DCC',
-    fields: [
-      {id:'dccType', type:'select', label:'Type', options:['DCC - Equipment_Confirmation Electronic','DCC - Equipment_Confirmation Electronic - Cabinet Conditioner'], default:'DCC - Equipment_Confirmation Electronic'}
-    ],
-    build: function(v) { return v.dccType || 'DCC - Equipment_Confirmation Electronic'; }
-  },
-  PDU: {
-    label: 'PDU',
-    fields: [
-      {id:'pduType', type:'text', label:'PDU Type', default:'PDU 01 01', placeholder:'PDU 01 01'}
-    ],
-    build: function(v) { return v.pduType || 'PDU 01 01'; }
-  },
-  AIRCOND: {
-    label: 'Air Conditioner - ITMC',
-    fields: [
-      {id:'airType', type:'text', label:'Model', default:'Air Conditioner - ITMC', placeholder:'Air Conditioner - ITMC'}
-    ],
-    build: function(v) { return v.airType || 'Air Conditioner - ITMC'; }
-  },
-  CONTROLLER: {
-    label: 'Controller Unit',
-    fields: [
-      {id:'ctrlType', type:'text', label:'Model', default:'Controller Unit - ITMC', placeholder:'Controller Unit - ITMC'}
-    ],
-    build: function(v) { return v.ctrlType || 'Controller Unit - ITMC'; }
-  },
-  SMARTPACK: {
-    label: 'Smartpack',
-    fields: [
-      {id:'smartType', type:'text', label:'Model', default:'Smartpack Extended - ELTEK', placeholder:'Smartpack Extended - ELTEK'}
-    ],
-    build: function(v) { return v.smartType || 'Smartpack Extended - ELTEK'; }
-  },
-  SCU: {
-    label: 'SCU',
-    fields: [
-      {id:'scuType', type:'text', label:'Model', default:'SCU 01 01 - Ericsson', placeholder:'SCU 01 01 - Ericsson'}
-    ],
-    build: function(v) { return v.scuType || 'SCU 01 01 - Ericsson'; }
-  },
-  CUSTOM: {
-    label: 'سفارشی',
-    fields: [
-      {id:'customName', type:'text', label:'نام کامل یونیت', placeholder:'نام دقیق یونیت را بنویسید', required: true}
-    ],
-    build: function(v) { return v.customName || ''; }
-  }
-};
-
-/* ═══════════════════════════════════════════════════════════
-   ALIASES
-   ═══════════════════════════════════════════════════════════ */
-var ALIAS_MAP = {
-  "BBU CLU": "BBU6102 CLU - Ericsson",
-  "BBU6102 CLU": "BBU6102 CLU - Ericsson",
-  "BBU6102 CLU - ERICSSON": "BBU6102 CLU - Ericsson",
-  "CLU": "CLU - Ericsson",
-  "CLU - ERICSSON": "CLU - Ericsson",
-  "CLU - BBUB102 CLU - Ericsson": "CLU - Ericsson",
-  "Climat Control Board": "CCU - Climate Control Board",
-  "Climat Control Board - Ericsson": "CCU - Climate Control Board",
-  "Climate Control Board - CCU": "CCU - Climate Control Board",
-  "CCU - Climate Control Board": "CCU - Climate Control Board",
-  "Thermo Electric Co - CCU": "CCU - Thermo Electric Co",
-  "DC cabinet air conditioner - Envicool": "DC Cabinet Air Conditioner - Envicool",
-  "DC Cabinet Air Conditioner - Envicool": "DC Cabinet Air Conditioner - Envicool",
-  "DCC-Equipment_Confirmation ELECTRONIC": "DCC - Equipment_Confirmation Electronic",
-  "DCC-Equipment_Confirmation ELECTRONIC - Cabinet Conditioner": "DCC - Equipment_Confirmation Electronic - Cabinet Conditioner",
-  "PSU AC 03": "PSU AC 03 - Ericsson",
-  "PEC- 4860 - Rectifier Equipment_Confirmation": "PEC-4860 - Rectifier Equipment_Confirmation",
-  "PECSU - 2020 - Equipment_Confirmation": "PECSU-2020 - Equipment_Confirmation",
-  "NCR48U - Nian": "NCR48U - 3KW - Nian",
-  "NCR48U - NIAN": "NCR48U - 3KW - Nian",
-  "NCR48U 3KW": "NCR48U - 3KW - Nian",
-  "NCR48U - 3KW": "NCR48U - 3KW - Nian"
-};
-
-function canonicalUnitName(n) {
-  if (!n) return '';
-  var norm = String(n).replace(/\s+/g, ' ').trim();
-  if (ALIAS_MAP[norm]) return ALIAS_MAP[norm];
-  var low = norm.toLowerCase();
-  for (var k in ALIAS_MAP) {
-    if (k.toLowerCase() === low) return ALIAS_MAP[k];
-  }
-  return norm;
-}
-
-/* ═══════════════════════════════════════════════════════════
-   SC SELECT / CUSTOM TOGGLE
-   ═══════════════════════════════════════════════════════════ */
-function toggleScCustom() {
-  var sel = document.getElementById('scSelect');
-  var customInput = document.getElementById('scCustom');
-  if (sel.value === 'custom') {
-    customInput.style.display = 'block';
-    customInput.focus();
-  } else {
-    customInput.style.display = 'none';
-    customInput.value = '';
-  }
-  updateOutputText();
-}
-
-function getScValue() {
-  var sel = document.getElementById('scSelect');
-  if (sel.value === 'custom') {
-    return document.getElementById('scCustom').value.trim() || '';
-  }
-  return sel.value;
-}
-
-function setScValue(val) {
-  var sel = document.getElementById('scSelect');
-  var customInput = document.getElementById('scCustom');
-  var options = Array.from(sel.options).map(o => o.value);
-  if (options.indexOf(val) !== -1) {
-    sel.value = val;
-    customInput.style.display = 'none';
-    customInput.value = '';
-  } else {
-    sel.value = 'custom';
-    customInput.style.display = 'block';
-    customInput.value = val || '';
-  }
-}
-
-/* ═══════════════════════════════════════════════════════════
-   DYNAMIC FORM
-   ═══════════════════════════════════════════════════════════ */
-function onFamilyChange() {
-  var fam = document.getElementById('unitFamily').value;
-  var cfg = FAMILY_CONFIG[fam];
-  var container = document.getElementById('familyFields');
-  if (!cfg) {
-    container.innerHTML = '';
-    updatePreview();
-    return;
-  }
-  var html = '<div class="fg full"><label>' + cfg.label + ' — فیلدها</label><div class="unit-structure">';
-  cfg.fields.forEach(function(f) {
-    var id = f.id, label = f.label || '', val = f.default || '', ph = f.placeholder || '', req = f.required ? ' required' : '';
-    var input = '';
-    if (f.type === 'select') {
-      input = '<select class="field" id="' + id + '" onchange="updatePreview()">';
-      (f.options || []).forEach(function(o) {
-        input += '<option value="' + o + '"' + (o === val ? ' selected' : '') + '>' + o + '</option>';
-      });
-      input += '</select>';
-    } else {
-      input = '<input class="field" id="' + id + '" type="text" value="' + val + '" placeholder="' + ph + '" oninput="updatePreview()"' + req + '>';
-    }
-    html += '<div><label style="font-size:11px;color:var(--text-muted)">' + label + '</label>' + input + '</div>';
-  });
-  html += '</div></div>';
-  container.innerHTML = html;
-  updatePreview();
-}
-
-function getFamilyValues() {
-  var fam = document.getElementById('unitFamily').value;
-  var cfg = FAMILY_CONFIG[fam];
-  if (!cfg) return {};
-  var vals = {};
-  cfg.fields.forEach(function(f) {
-    var el = document.getElementById(f.id);
-    if (el) vals[f.id] = el.value;
-  });
-  return vals;
-}
-
-function buildUnitName() {
-  var fam = document.getElementById('unitFamily').value;
-  var cfg = FAMILY_CONFIG[fam];
-  if (!cfg) return '';
-  return canonicalUnitName(cfg.build(getFamilyValues()));
-}
-
-function updatePreview() {
-  var name = buildUnitName();
-  document.getElementById('unitPreview').textContent = name || 'خانواده را انتخاب و فیلدها را پر کنید';
-  updateOutputText();
-}
-
-function getCurrentRecord() {
-  var snsRaw = document.getElementById('sns').value;
-  var sns = snsRaw.split(/[\n,;]+/).map(function(s) { return s.trim(); }).filter(Boolean);
-  return {
-    sc: getScValue() || 'Porsoo',
-    site: document.getElementById('site').value.trim().toUpperCase(),
-    unit: buildUnitName(),
-    fault: document.getElementById('fault').value.trim() || 'Faulty',
-    qty: parseInt(document.getElementById('qty').value) || 1,
-    sns: sns,
-    status: document.getElementById('status').value,
-    approver: document.getElementById('approver').value.trim(),
-    notes: document.getElementById('notes').value.trim()
-  };
-}
-
-function formatRecordText(r) {
-  if (!r) return 'خروجی اینجا نمایش داده می‌شود';
-  var lines = [];
-  lines.push('SC: ' + (r.sc || 'Porsoo'));
-  lines.push('Code Site: ' + (r.site || ''));
-  lines.push('UNIT Name: ' + (r.unit || ''));
-  lines.push('Fault Affect : ' + (r.fault || 'Faulty'));
-  lines.push('QTY: ' + (r.qty || 1));
-  var qty = r.qty || 1;
-  var sns = (r.sns || []).slice();
-  while (sns.length < qty) sns.push('');
-  if (sns.length > qty) sns = sns.slice(0, qty);
-  sns.forEach(function(sn) { lines.push('SN: ' + (sn || '')); });
-  if (r.status === 'Approved' || r.approver) {
-    lines.push('Approved by ' + (r.approver || 'Soroush Yaghmouri'));
-  } else if (r.status === 'Rejected') {
-    lines.push('Rejected');
-  } else {
-    lines.push('Pending');
-  }
-  if (r.notes) lines.push('Notes: ' + r.notes);
-  return lines.join('\n');
-}
-
-function updateOutputText() {
-  var rec = getCurrentRecord();
-  var txt = formatRecordText(rec);
-  document.getElementById('copyArea').innerHTML = txt + '<button type="button" class="copy-btn" onclick="copyOutput()">📋 کپی</button>';
-}
-
-function copyOutput() {
-  var text = document.getElementById('copyArea').innerText.replace('📋 کپی', '').trim();
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(function() { toast('کپی شد!'); }).catch(function() { fallbackCopy(text); });
-  } else {
-    fallbackCopy(text);
-  }
-}
-
-function fallbackCopy(text) {
-  var ta = document.createElement('textarea');
-  ta.value = text;
-  ta.style.position = 'fixed'; ta.style.opacity = '0';
-  document.body.appendChild(ta);
-  ta.select();
-  try { document.execCommand('copy'); toast('کپی شد!'); } catch (e) { toast('کپی ناموفق'); }
-  document.body.removeChild(ta);
-}
-
-/* ═══════════════════════════════════════════════════════════
-   IMPORT FROM TEXT — Bulk import (multiple records)
-   ═══════════════════════════════════════════════════════════ */
-function importFromText() {
-  var text = document.getElementById('importTextArea').value;
-  if (!text.trim()) { toast('لطفاً متن رکورد را پیست کنید.'); return; }
-
-  var lines = text.split('\n').map(function(l) { return l.trim(); }).filter(function(l) { return l !== ''; });
-  
-  var recordsToAdd = [];
-  var current = null;
-  var state = 'idle'; // 'idle' or 'in_record'
-  
-  for (var i = 0; i < lines.length; i++) {
-    var line = lines[i];
-    
-    // Skip separators
-    if (/^={3,}$/.test(line) || /^TRA$/i.test(line)) {
-      continue;
-    }
-    
-    // Check for start of record: "SC: ..."
-    var scMatch = line.match(/^SC\s*[:：]\s*(.*)/i);
-    if (scMatch) {
-      // If we have a previous record in progress, finalize it
-      if (current && current.sc) {
-        recordsToAdd.push(current);
-      }
-      // Start new record
-      current = {
-        sc: scMatch[1].trim() || 'Porsoo',
-        site: '',
-        unit: '',
-        fault: 'Faulty',
-        qty: 1,
-        sns: [],
-        status: 'Pending',
-        approver: '',
-        notes: '',
-        date: new Date().toISOString().slice(0, 10) // default today
-      };
-      state = 'in_record';
-      continue;
-    }
-    
-    // If not in a record, skip
-    if (state !== 'in_record' || !current) continue;
-    
-    // Check if line is "Approved" or "Approved by ..." (finalizes record)
-    var appMatch = line.match(/^Approved\s*by\s+(.*)/i);
-    if (appMatch) {
-      current.status = 'Approved';
-      current.approver = appMatch[1].trim() || 'Soroush Yaghmouri';
-      recordsToAdd.push(current);
-      current = null;
-      state = 'idle';
-      continue;
-    }
-    if (/^Approved$/i.test(line)) {
-      current.status = 'Approved';
-      if (!current.approver) current.approver = 'Soroush Yaghmouri';
-      recordsToAdd.push(current);
-      current = null;
-      state = 'idle';
-      continue;
-    }
-    if (/^Rejected$/i.test(line)) {
-      current.status = 'Rejected';
-      recordsToAdd.push(current);
-      current = null;
-      state = 'idle';
-      continue;
-    }
-    if (/^Pending$/i.test(line)) {
-      current.status = 'Pending';
-      recordsToAdd.push(current);
-      current = null;
-      state = 'idle';
-      continue;
-    }
-    
-    // Parse fields within record
-    var siteMatch = line.match(/^Code Site\s*[:：]\s*(.*)/i);
-    if (siteMatch) {
-      current.site = siteMatch[1].trim().toUpperCase();
-      continue;
-    }
-    var unitMatch = line.match(/^UNIT Name\s*[:：]\s*(.*)/i);
-    if (unitMatch) {
-      current.unit = canonicalUnitName(unitMatch[1].trim());
-      continue;
-    }
-    var faultMatch = line.match(/^Fault Affect\s*[:：]\s*(.*)/i);
-    if (faultMatch) {
-      current.fault = faultMatch[1].trim();
-      continue;
-    }
-    var qtyMatch = line.match(/^QTY\s*[:：]\s*(\d+)/i);
-    if (qtyMatch) {
-      current.qty = parseInt(qtyMatch[1], 10) || 1;
-      continue;
-    }
-    var snMatch = line.match(/^SN\s*[:：]\s*(.*)/i);
-    if (snMatch) {
-      var sn = snMatch[1].trim();
-      if (sn) current.sns.push(sn);
-      continue;
-    }
-    
-    // Otherwise, treat as notes (append)
-    if (current) {
-      current.notes += (current.notes ? ' ' : '') + line;
-    }
-  }
-  
-  // After loop, if there is a current record, add it
-  if (current && current.sc) {
-    recordsToAdd.push(current);
-  }
-  
-  // Now process recordsToAdd: validate and add to main records
-  var added = 0;
-  var errors = [];
-  recordsToAdd.forEach(function(rec) {
-    // Validate: site, qty, sns length
-    if (!rec.site) {
-      errors.push('رکورد با SC "' + rec.sc + '" فاقد کد سایت است');
-    }
-    if (!rec.unit) {
-      errors.push('رکورد با SC "' + rec.sc + '" فاقد نام یونیت است');
-    }
-    if (rec.sns.length !== rec.qty) {
-      errors.push('تعداد سریال‌های رکورد با SC "' + rec.sc + '" با QTY مطابقت ندارد (' + rec.sns.length + ' ≠ ' + rec.qty + ')');
-    }
-    // Create new record object
-    var newRecord = {
-      id: uid(),
-      date: rec.date || new Date().toISOString().slice(0, 10),
-      sc: rec.sc || 'Porsoo',
-      codeSite: rec.site || '',
-      unitName: rec.unit || '',
-      faultAffect: rec.fault || 'Faulty',
-      qty: rec.qty || 1,
-      serialNumbers: rec.sns,
-      status: rec.status || 'Pending',
-      approvedBy: rec.approver || '',
-      approvedAt: rec.status === 'Approved' ? new Date().toISOString() : '',
-      notes: rec.notes || ''
-    };
-    records.push(newRecord);
-    added++;
-  });
-  
-  persist();
-  
-  var resultDiv = document.getElementById('importResult');
-  if (added > 0) {
-    resultDiv.innerHTML = '<span style="color:var(--green)">✅ ' + added + ' رکورد با موفقیت وارد شد!</span>';
-    if (errors.length) {
-      resultDiv.innerHTML += '<br><span style="color:var(--yellow)">⚠ ' + errors.join('; ') + '</span>';
-    }
-    document.getElementById('importTextArea').value = '';
-    toast(added + ' رکورد وارد شد!');
-    showView('records');
-  } else {
-    resultDiv.innerHTML = '<span style="color:var(--red)">❌ هیچ رکوردی وارد نشد. متن را بررسی کنید.</span>';
-    toast('ورود ناموفق');
-  }
-}
-
-/* ═══════════════════════════════════════════════════════════
-   THEME
-   ═══════════════════════════════════════════════════════════ */
-function toggleTheme() {
-  var body = document.body;
-  var isLight = body.getAttribute('data-theme') === 'light';
-  if (isLight) {
-    body.removeAttribute('data-theme');
-    document.getElementById('themeBtn').textContent = '🌙';
-    localStorage.setItem('Equipment_Confirmation_theme', 'dark');
-  } else {
-    body.setAttribute('data-theme', 'light');
-    document.getElementById('themeBtn').textContent = '☀️';
-    localStorage.setItem('Equipment_Confirmation_theme', 'light');
-  }
-  setTimeout(renderCharts, 50);
-}
-
-function loadTheme() {
-  var t = localStorage.getItem('Equipment_Confirmation_theme');
-  if (t === 'light') {
-    document.body.setAttribute('data-theme', 'light');
-    document.getElementById('themeBtn').textContent = '☀️';
-  }
-}
-
-/* ═══════════════════════════════════════════════════════════
-   DATA LAYER
-   ═══════════════════════════════════════════════════════════ */
-var STORAGE_KEY = 'Equipment_ConfirmationFaultManager_v8';
-var records = [];
-var editId = null;
-var chartInstances = {};
-var _debounceTimer = null;
-
-function uid() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-}
-
-function normalize(r) {
-  var sns = Array.isArray(r.serialNumbers)
-    ? r.serialNumbers
-    : String(r.serialNumbers || '').split(/[\n,;]+/).map(function(x) { return x.trim(); }).filter(Boolean);
-  return {
-    id: r.id || uid(),
-    date: r.date || '',
-    sc: r.sc || 'Porsoo',
-    codeSite: String(r.codeSite || '').trim().toUpperCase(),
-    unitName: canonicalUnitName(r.unitName || ''),
-    faultAffect: r.faultAffect || 'Faulty',
-    qty: Number(r.qty) || 1,
-    serialNumbers: sns,
-    status: r.status || (r.approved === true ? 'Approved' : 'Pending'),
-    approvedBy: r.approvedBy || '',
-    approvedAt: r.approvedAt || '',
-    notes: r.notes || ''
-  };
-}
-
-function load() {
-  try {
-    var raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      var old = localStorage.getItem('Equipment_ConfirmationFaultManager_v7');
-      if (old) {
-        raw = old;
-        localStorage.setItem(STORAGE_KEY, old);
-      }
-    }
-    records = JSON.parse(raw || '[]');
-  } catch (e) {
-    records = [];
-  }
-  records = records.filter(Boolean).map(normalize);
-  var uniq = {};
-  records.forEach(function(r) { if (!uniq[r.id]) uniq[r.id] = r; });
-  records = Object.values(uniq);
-  records.forEach(function(r) { r.unitName = canonicalUnitName(r.unitName); });
-  persist();
-}
-
-function persist() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-  renderAll();
-}
-
-/* ═══════════════════════════════════════════════════════════
-   HELPERS
-   ═══════════════════════════════════════════════════════════ */
-function esc(s) {
-  return String(s == null ? '' : s).replace(/[&<>"']/g, function(m) {
-    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
-  });
-}
-
-function formatDate(s) {
-  if (!s) return '—';
-  var d = new Date(s + 'T00:00:00');
-  return isNaN(d) ? s : d.toLocaleDateString('fa-IR');
-}
-
-function badge(st) {
-  var cls = st === 'Approved' ? 'approved' : st === 'Rejected' ? 'rejected' : 'pending';
-  var label = st === 'Approved' ? 'تأیید' : st === 'Rejected' ? 'رد' : 'در انتظار';
-  return '<span class="badge ' + cls + '">' + label + '</span>';
-}
-
-function statusLabel(st) {
-  return st === 'Approved' ? 'تأیید' : st === 'Rejected' ? 'رد' : 'در انتظار';
-}
-
-/* ═══════════════════════════════════════════════════════════
-   CHARTS
-   ═══════════════════════════════════════════════════════════ */
-function destroyChart(id) {
-  if (chartInstances[id]) {
-    chartInstances[id].destroy();
-    delete chartInstances[id];
-  }
-}
-
-function getChartColors() {
-  var isLight = document.body.getAttribute('data-theme') === 'light';
-  return {
-    grid: isLight ? '#d8dee8' : '#2a3a52',
-    text: isLight ? '#4a5a74' : '#9aabc4',
-    bg: isLight ? '#ffffff' : '#1a2332'
-  };
-}
-
-function renderCharts() {
-  var eqMap = {}, siteMap = {}, statusMap = { Approved: 0, Pending: 0, Rejected: 0 };
-  records.forEach(function(r) {
-    var k = r.unitName || 'Unknown';
-    eqMap[k] = (eqMap[k] || 0) + r.qty;
-    var s = r.codeSite || 'Unknown';
-    siteMap[s] = (siteMap[s] || 0) + r.qty;
-    if (r.status === 'Approved') statusMap.Approved++;
-    else if (r.status === 'Pending') statusMap.Pending++;
-    else if (r.status === 'Rejected') statusMap.Rejected++;
-  });
-
-  var eq = Object.entries(eqMap).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 8);
-  var site = Object.entries(siteMap).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 8);
-  var colors = ['#3b82f6', '#8b5cf6', '#22c55e', '#eab308', '#ef4444', '#ec4899', '#14b8a6', '#f97316'];
-  var cc = getChartColors();
-
-  destroyChart('equipmentChart');
-  var ctx1 = document.getElementById('equipmentChart');
-  if (ctx1) {
-    chartInstances.equipmentChart = new Chart(ctx1.getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels: eq.map(function(x) { return x[0].length > 14 ? x[0].slice(0, 13) + '…' : x[0]; }),
-        datasets: [{ label: 'QTY', data: eq.map(function(x) { return x[1]; }), backgroundColor: colors.slice(0, eq.length), borderRadius: 5 }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { beginAtZero: true, grid: { color: cc.grid }, ticks: { color: cc.text, font: { size: 10 } } },
-          x: { grid: { display: false }, ticks: { color: cc.text, maxRotation: 40, font: { size: 9 } } }
+        function canonicalUnitName(n) {
+            if (!n) return '';
+            var norm = String(n).replace(/\s+/g, ' ').trim();
+            if (ALIAS_MAP[norm]) return ALIAS_MAP[norm];
+            var low = norm.toLowerCase();
+            for (var k in ALIAS_MAP) {
+                if (k.toLowerCase() === low) return ALIAS_MAP[k];
+            }
+            return norm;
         }
-      }
-    });
-  }
 
-  destroyChart('siteChart');
-  var ctx2 = document.getElementById('siteChart');
-  if (ctx2) {
-    chartInstances.siteChart = new Chart(ctx2.getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels: site.map(function(x) { return x[0].length > 10 ? x[0].slice(0, 9) + '…' : x[0]; }),
-        datasets: [{ label: 'QTY', data: site.map(function(x) { return x[1]; }), backgroundColor: colors.slice(0, site.length), borderRadius: 5 }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { beginAtZero: true, grid: { color: cc.grid }, ticks: { color: cc.text, font: { size: 10 } } },
-          x: { grid: { display: false }, ticks: { color: cc.text, maxRotation: 40, font: { size: 9 } } }
+        // Learn a unit name and add to catalog
+        function learnUnitName(name) {
+            if (!name) return;
+            name = canonicalUnitName(name);
+            if (!name) return;
+            if (!unitCatalog.includes(name)) {
+                unitCatalog.push(name);
+                unitCatalog.sort();
+                saveCatalog();
+            }
         }
-      }
-    });
-  }
 
-  destroyChart('statusChart');
-  var ctx3 = document.getElementById('statusChart');
-  if (ctx3) {
-    chartInstances.statusChart = new Chart(ctx3.getContext('2d'), {
-      type: 'doughnut',
-      data: {
-        labels: ['تأیید', 'در انتظار', 'رد'],
-        datasets: [{
-          data: [statusMap.Approved, statusMap.Pending, statusMap.Rejected],
-          backgroundColor: ['#22c55e', '#eab308', '#ef4444'],
-          borderColor: cc.bg,
-          borderWidth: 3
-        }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'bottom', labels: { color: cc.text, font: { size: 11 }, padding: 12 } }
-        },
-        cutout: '62%'
-      }
-    });
-  }
-}
+        function saveCatalog() {
+            try {
+                localStorage.setItem('EquipmentFaultCatalog_v9', JSON.stringify(unitCatalog));
+            } catch (e) {}
+        }
 
-/* ═══════════════════════════════════════════════════════════
-   RENDER ALL
-   ═══════════════════════════════════════════════════════════ */
-function stats() {
-  var q = 0, sites = new Set(), types = new Set(), a = 0, p = 0, rej = 0;
-  records.forEach(function(r) {
-    q += r.qty;
-    if (r.codeSite) sites.add(r.codeSite);
-    if (r.unitName) types.add(r.unitName);
-    if (r.status === 'Approved') a++;
-    else if (r.status === 'Pending') p++;
-    else if (r.status === 'Rejected') rej++;
-  });
-  return { n: records.length, q: q, s: sites.size, t: types.size, a: a, p: p, r: rej };
-}
+        function loadCatalog() {
+            try {
+                var raw = localStorage.getItem('EquipmentFaultCatalog_v9');
+                if (raw) {
+                    unitCatalog = JSON.parse(raw);
+                } else {
+                    // Seed with some common units
+                    unitCatalog = [
+                        "NCR48U - 3KW - Nian",
+                        "PSU AC 03 - Ericsson",
+                        "CLU - Ericsson",
+                        "CCU - Climate Control Board",
+                        "DC Cabinet Air Conditioner - Envicool",
+                        "RECTIFIER 48VDC3000 - ITMC",
+                        "DCC - Equipment_Confirmation Electronic",
+                        "PDU 01 01",
+                        "Air Conditioner - ITMC",
+                        "Controller Unit - ITMC",
+                        "Smartpack Extended - ELTEK",
+                        "SCU 01 01 - Ericsson"
+                    ];
+                    unitCatalog.sort();
+                    saveCatalog();
+                }
+            } catch (e) {
+                unitCatalog = [];
+            }
+        }
 
-function renderAll() {
-  var x = stats();
-  var ids = ['kRecords', 'kQty', 'kSites', 'kTypes', 'kApproved', 'kPending', 'kRejected'];
-  var vals = [x.n, x.q, x.s, x.t, x.a, x.p, x.r];
-  for (var i = 0; i < ids.length; i++) {
-    var el = document.getElementById(ids[i]);
-    if (el) el.textContent = vals[i];
-  }
-  renderCharts();
-  renderDashboardLists();
-  renderRecords();
-  renderApprovals();
-  renderSites();
-  renderQuality();
-  renderReport();
-}
+        function suggestUnits(input) {
+            if (!input || input.length < 1) return [];
+            var lower = input.toLowerCase();
+            return unitCatalog.filter(function(u) {
+                return u.toLowerCase().includes(lower);
+            }).slice(0, 8);
+        }
 
-function debounceRender() {
-  clearTimeout(_debounceTimer);
-  _debounceTimer = setTimeout(function() {
-    renderRecords();
-  }, 180);
-}
+        function renderUnitSuggestions(input) {
+            var container = document.getElementById('unitSuggestions');
+            var suggestions = suggestUnits(input);
+            if (!suggestions.length) {
+                container.innerHTML = '';
+                return;
+            }
+            container.innerHTML = suggestions.map(function(s) {
+                return '<span class="unit-suggestion" onclick="applyUnitSuggestion(\'' + s.replace(/'/g, "\\'") +
+                    '\')">' + s + '</span>';
+            }).join('');
+        }
 
-function renderDashboardLists() {
-  var recent = records.slice().sort(function(a, b) { return b.date.localeCompare(a.date); }).slice(0, 6);
-  var recentEl = document.getElementById('recent');
-  if (!recent.length) {
-    recentEl.innerHTML = '<div class="empty-state"><div class="icon">📭</div>هنوز فعالیتی ثبت نشده</div>';
-  } else {
-    recentEl.innerHTML = recent.map(function(r) {
-      return '<div class="card" onclick="editRecord(\'' + r.id + '\')">' +
-        '<div class="card-top"><span class="card-site">' + esc(r.codeSite) + ' <span style="font-weight:400;color:var(--text-muted)">(' + esc(r.sc) + ')</span></span>' + badge(r.status) + '</div>' +
-        '<div class="card-unit">' + esc(r.unitName) + '</div>' +
-        '<div class="card-meta">' + formatDate(r.date) + ' • QTY ' + r.qty + '</div>' +
-        '</div>';
-    }).join('');
-  }
+        function applyUnitSuggestion(name) {
+            // Set custom family and fill the name
+            document.getElementById('unitFamily').value = 'CUSTOM';
+            onFamilyChange();
+            document.getElementById('customName').value = name;
+            updatePreview();
+            document.getElementById('unitSuggestions').innerHTML = '';
+            toast('Unit applied: ' + name);
+        }
 
-  var dup = duplicateSN();
-  var alerts = [];
-  if (!records.length) alerts.push('دیتابیس خالی است');
-  if (dup.length) alerts.push(dup.length + ' گروه سریال تکراری');
-  var pend = records.filter(function(r) { return r.status === 'Pending'; }).length;
-  if (pend) alerts.push(pend + ' مورد در انتظار تأیید');
-  var alertsEl = document.getElementById('alerts');
-  if (!alerts.length) {
-    alertsEl.innerHTML = '<div class="list-item" style="color:var(--green)">✓ همه چیز مرتب است</div>';
-  } else {
-    alertsEl.innerHTML = alerts.map(function(x) {
-      return '<div class="list-item">⚠ ' + esc(x) + '</div>';
-    }).join('');
-  }
-}
+        // Watch the custom name field for suggestions
+        document.addEventListener('DOMContentLoaded', function() {
+            var customNameField = document.getElementById('customName');
+            if (customNameField) {
+                customNameField.addEventListener('input', function() {
+                    renderUnitSuggestions(this.value);
+                });
+            }
+            // Also watch the unit family dropdown to show suggestions when custom is selected
+            document.getElementById('unitFamily').addEventListener('change', function() {
+                if (this.value === 'CUSTOM') {
+                    var cn = document.getElementById('customName');
+                    if (cn) renderUnitSuggestions(cn.value);
+                } else {
+                    document.getElementById('unitSuggestions').innerHTML = '';
+                }
+            });
+        });
 
-/* ═══════════════════════════════════════════════════════════
-   RECORDS
-   ═══════════════════════════════════════════════════════════ */
-function filtered() {
-  var q = (document.getElementById('q')?.value || '').toLowerCase().trim();
-  var site = (document.getElementById('fs')?.value || '').toLowerCase().trim();
-  var unit = (document.getElementById('fu')?.value || '').toLowerCase().trim();
-  var sc = (document.getElementById('fsc')?.value || '').toLowerCase().trim();
-  var st = document.getElementById('fst')?.value || '';
-  var d1 = document.getElementById('fd1')?.value || '';
-  var d2 = document.getElementById('fd2')?.value || '';
-  return records.filter(function(r) {
-    var haystack = [r.codeSite, r.unitName, r.faultAffect, r.sc].concat(r.serialNumbers, [r.approvedBy, r.notes]).join(' ').toLowerCase();
-    if (q && !haystack.includes(q)) return false;
-    if (site && !r.codeSite.toLowerCase().includes(site)) return false;
-    if (unit && !r.unitName.toLowerCase().includes(unit)) return false;
-    if (sc && !r.sc.toLowerCase().includes(sc)) return false;
-    if (st && r.status !== st) return false;
-    if (d1 && r.date < d1) return false;
-    if (d2 && r.date > d2) return false;
-    return true;
-  });
-}
+        /* ═══════════════════════════════════════════════════════════
+           SC SELECT / CUSTOM TOGGLE
+           ═══════════════════════════════════════════════════════════ */
+        function toggleScCustom() {
+            var sel = document.getElementById('scSelect');
+            var customInput = document.getElementById('scCustom');
+            if (sel.value === 'custom') {
+                customInput.style.display = 'block';
+                customInput.focus();
+            } else {
+                customInput.style.display = 'none';
+                customInput.value = '';
+            }
+            updateOutputText();
+        }
 
-function renderRecords() {
-  var list = filtered().sort(function(a, b) { return b.date.localeCompare(a.date); });
-  var el = document.getElementById('recordsList');
-  var cnt = document.getElementById('recordsCount');
-  if (cnt) cnt.textContent = list.length;
-  if (!list.length) {
-    el.innerHTML = '<div class="empty-state"><div class="icon">📋</div>رکوردی یافت نشد</div>';
-    return;
-  }
-  el.innerHTML = list.map(function(r) {
-    return '<div class="card">' +
-      '<div class="card-top"><span class="card-site">' + esc(r.codeSite) + ' <span style="font-weight:400;color:var(--text-muted)">(' + esc(r.sc) + ')</span></span>' + badge(r.status) + '</div>' +
-      '<div class="card-unit">' + esc(r.unitName) + '</div>' +
-      '<div class="card-meta">' +
-        formatDate(r.date) + ' • QTY ' + r.qty +
-        (r.faultAffect ? ' • ' + esc(r.faultAffect) : '') +
-      '</div>' +
-      (r.serialNumbers.length ? '<div class="sn-tags">' + r.serialNumbers.map(function(s) {
-        return '<span class="sn-tag">' + esc(s) + '</span>';
-      }).join('') + '</div>' : '') +
-      '<div class="card-actions">' +
-        '<button class="btn btn-sm" onclick="editRecord(\'' + r.id + '\')">✎ ویرایش</button>' +
-        '<button class="btn btn-sm btn-red" onclick="delRecord(\'' + r.id + '\')">✕ حذف</button>' +
-      '</div>' +
-    '</div>';
-  }).join('');
-}
+        function getScValue() {
+            var sel = document.getElementById('scSelect');
+            if (sel.value === 'custom') {
+                return document.getElementById('scCustom').value.trim() || '';
+            }
+            return sel.value;
+        }
 
-/* ═══════════════════════════════════════════════════════════
-   APPROVALS
-   ═══════════════════════════════════════════════════════════ */
-function renderApprovals() {
-  var list = records.filter(function(r) { return r.status === 'Pending'; })
-    .sort(function(a, b) { return b.date.localeCompare(a.date); });
-  var el = document.getElementById('approvalsList');
-  var cnt = document.getElementById('pendingCount');
-  if (cnt) cnt.textContent = list.length;
-  if (!list.length) {
-    el.innerHTML = '<div class="empty-state"><div class="icon">✅</div>موردی در انتظار نیست</div>';
-    return;
-  }
-  el.innerHTML = list.map(function(r) {
-    return '<div class="card">' +
-      '<div class="card-top"><span class="card-site">' + esc(r.codeSite) + ' <span style="font-weight:400;color:var(--text-muted)">(' + esc(r.sc) + ')</span></span>' + badge(r.status) + '</div>' +
-      '<div class="card-unit">' + esc(r.unitName) + '</div>' +
-      '<div class="card-meta">' + formatDate(r.date) + ' • QTY ' + r.qty + '</div>' +
-      '<div class="card-actions">' +
-        '<button class="btn btn-sm btn-green" onclick="decision(\'' + r.id + '\',\'Approved\')">✓ تأیید</button>' +
-        '<button class="btn btn-sm btn-red" onclick="decision(\'' + r.id + '\',\'Rejected\')">✕ رد</button>' +
-      '</div>' +
-    '</div>';
-  }).join('');
-}
+        function setScValue(val) {
+            var sel = document.getElementById('scSelect');
+            var customInput = document.getElementById('scCustom');
+            var options = Array.from(sel.options).map(function(o) { return o.value; });
+            if (options.indexOf(val) !== -1) {
+                sel.value = val;
+                customInput.style.display = 'none';
+                customInput.value = '';
+            } else {
+                sel.value = 'custom';
+                customInput.style.display = 'block';
+                customInput.value = val || '';
+            }
+        }
 
-/* ═══════════════════════════════════════════════════════════
-   SITES
-   ═══════════════════════════════════════════════════════════ */
-function renderSites() {
-  var map = {};
-  records.forEach(function(r) {
-    if (!map[r.codeSite]) map[r.codeSite] = { n: 0, q: 0, t: new Set(), a: 0, p: 0, last: '' };
-    var x = map[r.codeSite];
-    x.n++; x.q += r.qty;
-    if (r.unitName) x.t.add(r.unitName);
-    if (r.status === 'Approved') x.a++;
-    if (r.status === 'Pending') x.p++;
-    if (!x.last || r.date > x.last) x.last = r.date;
-  });
-  var entries = Object.entries(map).sort(function(a, b) { return b[1].q - a[1].q; });
-  var el = document.getElementById('sitesList');
-  if (!entries.length) {
-    el.innerHTML = '<div class="empty-state"><div class="icon">📍</div>سایتی ثبت نشده</div>';
-    return;
-  }
-  el.innerHTML = entries.map(function(item) {
-    var s = item[0], x = item[1];
-    return '<div class="card">' +
-      '<div class="card-top"><span class="card-site">' + esc(s) + '</span></div>' +
-      '<div class="card-meta">' +
-        x.n + ' درخواست • ' + x.q + ' واحد • ' + x.t.size + ' نوع' +
-      '</div>' +
-      '<div class="card-meta">' +
-        'تأیید: ' + x.a + ' • در انتظار: ' + x.p + ' • آخرین: ' + formatDate(x.last) +
-      '</div>' +
-      '<div class="card-actions">' +
-        '<button class="btn btn-sm" onclick="siteFilter(\'' + esc(s) + '\')">مشاهده سوابق</button>' +
-      '</div>' +
-    '</div>';
-  }).join('');
-}
+        /* ═══════════════════════════════════════════════════════════
+           DYNAMIC FORM
+           ═══════════════════════════════════════════════════════════ */
+        function onFamilyChange() {
+            var fam = document.getElementById('unitFamily').value;
+            var cfg = FAMILY_CONFIG[fam];
+            var container = document.getElementById('familyFields');
+            if (!cfg) {
+                container.innerHTML = '';
+                document.getElementById('unitSuggestions').innerHTML = '';
+                updatePreview();
+                return;
+            }
+            var html = '<div class="fg full"><label>' + cfg.label + ' — Fields</label><div class="unit-structure">';
+            cfg.fields.forEach(function(f) {
+                var id = f.id,
+                    label = f.label || '',
+                    val = f.default || '',
+                    ph = f.placeholder || '',
+                    req = f.required ? ' required' : '';
+                var input = '';
+                if (f.type === 'select') {
+                    input = '<select class="field" id="' + id + '" onchange="updatePreview()">';
+                    (f.options || []).forEach(function(o) {
+                        input += '<option value="' + o + '"' + (o === val ? ' selected' : '') + '>' + o +
+                        '</option>';
+                    });
+                    input += '</select>';
+                } else {
+                    input = '<input class="field" id="' + id + '" type="text" value="' + val +
+                        '" placeholder="' + ph + '" oninput="updatePreview(); checkCustomSuggestion()"' +
+                        req + '>';
+                }
+                html += '<div><label style="font-size:11px;color:var(--text-muted)">' + label + '</label>' + input +
+                    '</div>';
+            });
+            html += '</div></div>';
+            container.innerHTML = html;
 
-function siteFilter(s) {
-  showView('records');
-  document.getElementById('fs').value = s;
-  renderRecords();
-}
+            if (fam === 'CUSTOM') {
+                setTimeout(function() {
+                    var cn = document.getElementById('customName');
+                    if (cn) {
+                        cn.addEventListener('input', function() {
+                            renderUnitSuggestions(this.value);
+                        });
+                        renderUnitSuggestions(cn.value);
+                    }
+                }, 50);
+            } else {
+                document.getElementById('unitSuggestions').innerHTML = '';
+            }
+            updatePreview();
+        }
 
-/* ═══════════════════════════════════════════════════════════
-   QUALITY
-   ═══════════════════════════════════════════════════════════ */
-function duplicateSN() {
-  var m = {};
-  records.forEach(function(r) {
-    r.serialNumbers.forEach(function(sn) {
-      if (sn && sn.toUpperCase() !== 'NA') {
-        if (!m[sn]) m[sn] = [];
-        m[sn].push(r.codeSite);
-      }
-    });
-  });
-  return Object.entries(m).filter(function(e) { return e[1].length > 1; });
-}
+        function checkCustomSuggestion() {
+            var fam = document.getElementById('unitFamily').value;
+            if (fam === 'CUSTOM') {
+                var cn = document.getElementById('customName');
+                if (cn) renderUnitSuggestions(cn.value);
+            }
+        }
 
-function renderQuality() {
-  var dup = duplicateSN();
-  var dupEl = document.getElementById('dupSN');
-  if (!dup.length) {
-    dupEl.innerHTML = '<div class="list-item" style="color:var(--green)">✓ سریال تکراری یافت نشد</div>';
-  } else {
-    dupEl.innerHTML = dup.map(function(e) {
-      return '<div class="list-item"><span><b>' + esc(e[0]) + '</b><br><span class="muted">' +
-        esc([...new Set(e[1])].join(', ')) + '</span></span><span class="badge rejected">تکراری</span></div>';
-    }).join('');
-  }
+        function getFamilyValues() {
+            var fam = document.getElementById('unitFamily').value;
+            var cfg = FAMILY_CONFIG[fam];
+            if (!cfg) return {};
+            var vals = {};
+            cfg.fields.forEach(function(f) {
+                var el = document.getElementById(f.id);
+                if (el) vals[f.id] = el.value;
+            });
+            return vals;
+        }
 
-  var issues = [];
-  records.forEach(function(r) {
-    if (!r.unitName) issues.push(r.codeSite + ': یونیت خالی');
-    if (r.serialNumbers.length && r.serialNumbers.length !== r.qty) issues.push(r.codeSite + ': عدم تطابق QTY و SN');
-    if (!r.serialNumbers.length) issues.push(r.codeSite + ': بدون سریال');
-    if (r.serialNumbers.includes('NA')) issues.push(r.codeSite + ': SN برابر NA');
-  });
-  var qEl = document.getElementById('qualityList');
-  if (!issues.length) {
-    qEl.innerHTML = '<div class="list-item" style="color:var(--green)">✓ داده‌ها یکپارچه هستند</div>';
-  } else {
-    qEl.innerHTML = issues.map(function(x) {
-      return '<div class="list-item">⚠ ' + esc(x) + '</div>';
-    }).join('');
-  }
-}
+        function buildUnitName() {
+            var fam = document.getElementById('unitFamily').value;
+            var cfg = FAMILY_CONFIG[fam];
+            if (!cfg) return '';
+            var name = cfg.build(getFamilyValues());
+            var canonical = canonicalUnitName(name);
+            // Learn it
+            if (canonical) learnUnitName(canonical);
+            return canonical;
+        }
 
-/* ═══════════════════════════════════════════════════════════
-   REPORTS
-   ═══════════════════════════════════════════════════════════ */
-function renderReport() {
-  var x = stats();
-  var html = '<div class="stats" style="grid-template-columns:repeat(3,1fr);margin-bottom:12px">' +
-    ['درخواست‌ها', 'واحدهای خراب', 'سایت‌ها', 'تأیید شده', 'در انتظار', 'رد شده'].map(function(label, i) {
-      return '<div class="stat"><small>' + label + '</small><b>' + Object.values(x)[i] + '</b></div>';
-    }).join('') + '</div>';
+        function updatePreview() {
+            var name = buildUnitName();
+            document.getElementById('unitPreview').textContent = name || 'Select a family and fill in the fields';
+            updateOutputText();
+        }
 
-  html += '<h4 style="font-size:13px;margin:10px 0 6px">۱۰ سایت برتر</h4>';
-  var map = {};
-  records.forEach(function(r) {
-    var k = r.codeSite || 'Unknown';
-    map[k] = (map[k] || 0) + r.qty;
-  });
-  var sorted = Object.entries(map).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 10);
-  if (!sorted.length) {
-    html += '<div class="empty-state">داده‌ای نیست</div>';
-  } else {
-    html += '<div class="card-list">';
-    sorted.forEach(function(item, idx) {
-      var s = item[0], q = item[1];
-      var cnt = records.filter(function(r) { return r.codeSite === s; }).length;
-      html += '<div class="list-item"><span><b>' + (idx + 1) + '. ' + esc(s) + '</b><br><span class="muted">' +
-        cnt + ' درخواست</span></span><span class="fw-700">' + q + ' واحد</span></div>';
-    });
-    html += '</div>';
-  }
-  document.getElementById('reportContent').innerHTML = html;
-}
+        function getCurrentRecord() {
+            var snsRaw = document.getElementById('sns').value;
+            var sns = snsRaw.split(/[\n,;]+/).map(function(s) { return s.trim(); }).filter(Boolean);
+            return {
+                sc: getScValue() || 'Porsoo',
+                site: document.getElementById('site').value.trim().toUpperCase(),
+                unit: buildUnitName(),
+                fault: document.getElementById('fault').value.trim() || 'Faulty',
+                qty: parseInt(document.getElementById('qty').value) || 1,
+                sns: sns,
+                status: document.getElementById('status').value,
+                approver: document.getElementById('approver').value.trim(),
+                notes: document.getElementById('notes').value.trim()
+            };
+        }
 
-/* ═══════════════════════════════════════════════════════════
-   CRUD
-   ═══════════════════════════════════════════════════════════ */
-function openAdd() {
-  editId = null;
-  document.getElementById('form').reset();
-  document.getElementById('eid').value = '';
-  document.getElementById('date').value = new Date().toISOString().slice(0, 10);
-  setScValue('Porsoo');
-  document.getElementById('fault').value = 'Faulty';
-  document.getElementById('status').value = 'Pending';
-  document.getElementById('qty').value = 1;
-  document.getElementById('unitFamily').value = '';
-  document.getElementById('familyFields').innerHTML = '';
-  document.getElementById('unitPreview').textContent = 'خانواده را انتخاب و فیلدها را پر کنید';
-  document.getElementById('mtitle').textContent = 'خرابی جدید';
-  updateOutputText();
-  document.getElementById('modalbg').classList.add('on');
-  document.body.style.overflow = 'hidden';
-}
+        function formatRecordText(r) {
+            if (!r) return 'Output will appear here';
+            var lines = [];
+            lines.push('SC: ' + (r.sc || 'Porsoo'));
+            lines.push('Code Site: ' + (r.site || ''));
+            lines.push('UNIT Name: ' + (r.unit || ''));
+            lines.push('Fault Affect : ' + (r.fault || 'Faulty'));
+            lines.push('QTY: ' + (r.qty || 1));
+            var qty = r.qty || 1;
+            var sns = (r.sns || []).slice();
+            while (sns.length < qty) sns.push('');
+            if (sns.length > qty) sns = sns.slice(0, qty);
+            sns.forEach(function(sn) { lines.push('SN: ' + (sn || '')); });
+            if (r.status === 'Approved' || r.approver) {
+                lines.push('Approved by ' + (r.approver || 'Soroush Yaghmouri'));
+            } else if (r.status === 'Rejected') {
+                lines.push('Rejected');
+            } else {
+                lines.push('Pending');
+            }
+            if (r.notes) lines.push('Notes: ' + r.notes);
+            return lines.join('\n');
+        }
 
-function editRecord(id) {
-  var r = records.find(function(x) { return x.id === id; });
-  if (!r) return;
-  editId = id;
-  document.getElementById('eid').value = id;
-  document.getElementById('date').value = r.date || '';
-  setScValue(r.sc || 'Porsoo');
-  document.getElementById('site').value = r.codeSite || '';
-  document.getElementById('fault').value = r.faultAffect || 'Faulty';
-  document.getElementById('qty').value = r.qty || 1;
-  document.getElementById('sns').value = (r.serialNumbers || []).join('\n');
-  document.getElementById('status').value = r.status || 'Pending';
-  document.getElementById('approver').value = r.approvedBy || '';
-  document.getElementById('notes').value = r.notes || '';
-  document.getElementById('unitFamily').value = 'CUSTOM';
-  document.getElementById('familyFields').innerHTML =
-    '<div class="fg full"><label>یونیت سفارشی</label><input class="field" id="customName" value="' +
-    esc(r.unitName) + '" placeholder="نام دقیق یونیت" oninput="updatePreview()"></div>';
-  updatePreview();
-  document.getElementById('mtitle').textContent = 'ویرایش خرابی';
-  document.getElementById('modalbg').classList.add('on');
-  document.body.style.overflow = 'hidden';
-}
+        function updateOutputText() {
+            var rec = getCurrentRecord();
+            var txt = formatRecordText(rec);
+            document.getElementById('copyArea').innerHTML = txt +
+                '<button type="button" class="copy-btn" onclick="copyOutput()">📋 Copy</button>';
+        }
 
-function closeModal() {
-  document.getElementById('modalbg').classList.remove('on');
-  document.body.style.overflow = '';
-}
+        function copyOutput() {
+            var text = document.getElementById('copyArea').innerText.replace('📋 Copy', '').trim();
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(function() { toast('Copied!'); }).catch(function() {
+                    fallbackCopy(text);
+                });
+            } else {
+                fallbackCopy(text);
+            }
+        }
 
-function saveRecord(e) {
-  e.preventDefault();
-  var unitName = buildUnitName();
-  if (!unitName) { toast('خانواده یونیت را انتخاب و فیلدها را پر کنید.'); return; }
-  var qty = parseInt(document.getElementById('qty').value) || 1;
-  var snsRaw = document.getElementById('sns').value;
-  var sns = snsRaw.split(/[\n,;]+/).map(function(s) { return s.trim(); }).filter(Boolean);
-  if (sns.length !== qty) {
-    toast('تعداد SN (' + sns.length + ') با QTY (' + qty + ') برابر نیست');
-    return;
-  }
-  var id = document.getElementById('eid').value;
-  var record = {
-    id: id || uid(),
-    date: document.getElementById('date').value,
-    sc: getScValue() || 'Porsoo',
-    codeSite: document.getElementById('site').value.trim().toUpperCase(),
-    unitName: unitName,
-    faultAffect: document.getElementById('fault').value.trim() || 'Faulty',
-    qty: qty,
-    serialNumbers: sns,
-    status: document.getElementById('status').value,
-    approvedBy: document.getElementById('approver').value.trim(),
-    approvedAt: '',
-    notes: document.getElementById('notes').value.trim()
-  };
-  if (record.status === 'Approved' && !record.approvedBy) record.approvedBy = 'Soroush Yaghmouri';
-  if (record.status === 'Approved') record.approvedAt = new Date().toISOString();
+        function fallbackCopy(text) {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy');
+                toast('Copied!'); } catch (e) { toast('Copy failed'); }
+            document.body.removeChild(ta);
+        }
 
-  var idx = records.findIndex(function(r) { return r.id === record.id; });
-  if (idx >= 0) records[idx] = record;
-  else records.push(record);
-  persist();
-  closeModal();
-  toast(idx >= 0 ? 'به‌روزرسانی شد' : 'ذخیره شد');
-}
+        /* ═══════════════════════════════════════════════════════════
+           IMPORT FROM TEXT — Bulk import
+           ═══════════════════════════════════════════════════════════ */
+        function importFromText() {
+            var text = document.getElementById('importTextArea').value;
+            if (!text.trim()) { toast('Please paste record text.'); return; }
 
-function decision(id, st) {
-  var r = records.find(function(x) { return x.id === id; });
-  if (!r) return;
-  r.status = st;
-  r.approvedBy = st === 'Approved' ? (r.approvedBy || 'Soroush Yaghmouri') : '';
-  r.approvedAt = new Date().toISOString();
-  persist();
-  toast(st === 'Approved' ? 'تأیید شد' : 'رد شد');
-}
+            var lines = text.split('\n').map(function(l) { return l.trim(); }).filter(function(l) { return l !== ''; });
 
-function delRecord(id) {
-  if (!confirm('آیا از حذف این رکورد مطمئن هستید؟')) return;
-  records = records.filter(function(r) { return r.id !== id; });
-  persist();
-  toast('حذف شد');
-}
+            var recordsToAdd = [];
+            var current = null;
+            var state = 'idle';
 
-function clearFilters() {
-  ['q', 'fs', 'fu', 'fsc', 'fst', 'fd1', 'fd2'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.value = '';
-  });
-  renderRecords();
-}
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i];
+                if (/^={3,}$/.test(line) || /^TRA$/i.test(line)) continue;
 
-/* ═══════════════════════════════════════════════════════════
-   VIEW SWITCH
-   ═══════════════════════════════════════════════════════════ */
-function showView(id, btn) {
-  document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
-  var view = document.getElementById(id);
-  if (view) view.classList.add('active');
+                var scMatch = line.match(/^SC\s*[:：]\s*(.*)/i);
+                if (scMatch) {
+                    if (current && current.sc) {
+                        recordsToAdd.push(current);
+                    }
+                    current = {
+                        sc: scMatch[1].trim() || 'Porsoo',
+                        site: '',
+                        unit: '',
+                        fault: 'Faulty',
+                        qty: 1,
+                        sns: [],
+                        status: 'Pending',
+                        approver: '',
+                        notes: '',
+                        date: new Date().toISOString().slice(0, 10)
+                    };
+                    state = 'in_record';
+                    continue;
+                }
 
-  document.querySelectorAll('.bottom-nav .nav-item').forEach(function(b) {
-    b.classList.toggle('active', b.getAttribute('data-view') === id);
-  });
-  document.querySelectorAll('.desktop-nav button').forEach(function(b) {
-    b.classList.toggle('active', b.getAttribute('data-view') === id);
-  });
+                if (state !== 'in_record' || !current) continue;
 
-  if (['quality', 'reports', 'importtext'].indexOf(id) >= 0) {
-    document.querySelectorAll('.bottom-nav .nav-item').forEach(function(b) {
-      b.classList.toggle('active', b.getAttribute('data-view') === 'more');
-    });
-  }
+                var appMatch = line.match(/^Approved\s*by\s+(.*)/i);
+                if (appMatch) {
+                    current.status = 'Approved';
+                    current.approver = appMatch[1].trim() || 'Soroush Yaghmouri';
+                    recordsToAdd.push(current);
+                    current = null;
+                    state = 'idle';
+                    continue;
+                }
+                if (/^Approved$/i.test(line)) {
+                    current.status = 'Approved';
+                    if (!current.approver) current.approver = 'Soroush Yaghmouri';
+                    recordsToAdd.push(current);
+                    current = null;
+                    state = 'idle';
+                    continue;
+                }
+                if (/^Rejected$/i.test(line)) {
+                    current.status = 'Rejected';
+                    recordsToAdd.push(current);
+                    current = null;
+                    state = 'idle';
+                    continue;
+                }
+                if (/^Pending$/i.test(line)) {
+                    current.status = 'Pending';
+                    recordsToAdd.push(current);
+                    current = null;
+                    state = 'idle';
+                    continue;
+                }
 
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  renderAll();
-}
+                var siteMatch = line.match(/^Code Site\s*[:：]\s*(.*)/i);
+                if (siteMatch) {
+                    current.site = siteMatch[1].trim().toUpperCase();
+                    continue;
+                }
+                var unitMatch = line.match(/^UNIT Name\s*[:：]\s*(.*)/i);
+                if (unitMatch) {
+                    var u = unitMatch[1].trim();
+                    current.unit = canonicalUnitName(u);
+                    learnUnitName(current.unit);
+                    continue;
+                }
+                var faultMatch = line.match(/^Fault Affect\s*[:：]\s*(.*)/i);
+                if (faultMatch) {
+                    current.fault = faultMatch[1].trim();
+                    continue;
+                }
+                var qtyMatch = line.match(/^QTY\s*[:：]\s*(\d+)/i);
+                if (qtyMatch) {
+                    current.qty = parseInt(qtyMatch[1], 10) || 1;
+                    continue;
+                }
+                var snMatch = line.match(/^SN\s*[:：]\s*(.*)/i);
+                if (snMatch) {
+                    var sn = snMatch[1].trim();
+                    if (sn) current.sns.push(sn);
+                    continue;
+                }
 
-function showMoreMenu(btn) {
-  document.getElementById('moreSheet').classList.add('on');
-  document.body.style.overflow = 'hidden';
-}
+                if (current) {
+                    current.notes += (current.notes ? ' ' : '') + line;
+                }
+            }
 
-function closeMore() {
-  document.getElementById('moreSheet').classList.remove('on');
-  document.body.style.overflow = '';
-}
+            if (current && current.sc) {
+                recordsToAdd.push(current);
+            }
 
-/* ═══════════════════════════════════════════════════════════
-   EXPORT / IMPORT
-   ═══════════════════════════════════════════════════════════ */
-function exportJSON() {
-  if (!records.length) return toast('داده‌ای نیست');
-  download(JSON.stringify(records, null, 2), 'Equipment_Confirmation_backup_v8.json', 'application/json');
-  toast('بک‌آپ JSON گرفته شد');
-}
+            var added = 0;
+            var errors = [];
+            recordsToAdd.forEach(function(rec) {
+                if (!rec.site) {
+                    errors.push('Record with SC "' + rec.sc + '" missing site code');
+                }
+                if (!rec.unit) {
+                    errors.push('Record with SC "' + rec.sc + '" missing unit name');
+                }
+                if (rec.sns.length !== rec.qty) {
+                    errors.push('Record with SC "' + rec.sc + '" SN count (' + rec.sns.length + ') ≠ QTY (' + rec
+                        .qty + ')');
+                }
+                var newRecord = {
+                    id: uid(),
+                    date: rec.date || new Date().toISOString().slice(0, 10),
+                    sc: rec.sc || 'Porsoo',
+                    codeSite: rec.site || '',
+                    unitName: rec.unit || '',
+                    faultAffect: rec.fault || 'Faulty',
+                    qty: rec.qty || 1,
+                    serialNumbers: rec.sns,
+                    status: rec.status || 'Pending',
+                    approvedBy: rec.approver || '',
+                    approvedAt: rec.status === 'Approved' ? new Date().toISOString() : '',
+                    notes: rec.notes || ''
+                };
+                records.push(newRecord);
+                learnUnitName(newRecord.unitName);
+                added++;
+            });
 
-function importJSON(e) {
-  var f = e.target.files[0];
-  if (!f) return;
-  var rd = new FileReader();
-  rd.onload = function() {
-    try {
-      var data = JSON.parse(rd.result);
-      if (!Array.isArray(data)) throw new Error('Invalid');
-      var added = 0;
-      data.forEach(function(item) {
-        var r = normalize(item);
-        var idx = records.findIndex(function(x) { return x.id === r.id; });
-        if (idx >= 0) records[idx] = r;
-        else { records.push(r); added++; }
-      });
-      persist();
-      toast(added + ' رکورد وارد شد');
-    } catch (err) {
-      toast('وارد کردن ناموفق بود');
-    }
-  };
-  rd.readAsText(f);
-  e.target.value = '';
-}
+            persist();
 
-function exportCSV() {
-  if (!records.length) return toast('داده‌ای نیست');
-  var h = ['Date', 'SC', 'CodeSite', 'UnitName', 'FaultAffect', 'QTY', 'SerialNumbers', 'Status', 'ApprovedBy', 'Notes'];
-  var rows = records.map(function(r) {
-    return [r.date, r.sc, r.codeSite, r.unitName, r.faultAffect, r.qty, r.serialNumbers.join('; '), r.status, r.approvedBy, r.notes];
-  });
-  var csv = '\ufeff' + [h].concat(rows).map(function(row) {
-    return row.map(function(cell) {
-      return '"' + String(cell == null ? '' : cell).replace(/"/g, '""') + '"';
-    }).join(',');
-  }).join('\n');
-  download(csv, 'Equipment_Confirmation_report_v8.csv', 'text/csv;charset=utf-8');
-  toast('CSV صادر شد');
-}
+            var resultDiv = document.getElementById('importResult');
+            if (added > 0) {
+                resultDiv.innerHTML = '<span style="color:var(--green)">✅ ' + added +
+                    ' record(s) imported successfully!</span>';
+                if (errors.length) {
+                    resultDiv.innerHTML += '<br><span style="color:var(--yellow)">⚠ ' + errors.join('; ') + '</span>';
+                }
+                document.getElementById('importTextArea').value = '';
+                toast(added + ' record(s) imported!');
+                showView('records');
+            } else {
+                resultDiv.innerHTML = '<span style="color:var(--red)">❌ No records imported. Check your text format.</span>';
+                toast('Import failed');
+            }
+        }
 
-function download(content, filename, mime) {
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([content], { type: mime }));
-  a.download = filename;
-  a.click();
-  setTimeout(function() { URL.revokeObjectURL(a.href); }, 500);
-}
+        /* ═══════════════════════════════════════════════════════════
+           THEME
+           ═══════════════════════════════════════════════════════════ */
+        function toggleTheme() {
+            var body = document.body;
+            var isLight = body.getAttribute('data-theme') === 'light';
+            if (isLight) {
+                body.removeAttribute('data-theme');
+                document.getElementById('themeBtn').textContent = '🌙';
+                localStorage.setItem('Equipment_Confirmation_theme', 'dark');
+            } else {
+                body.setAttribute('data-theme', 'light');
+                document.getElementById('themeBtn').textContent = '☀️';
+                localStorage.setItem('Equipment_Confirmation_theme', 'light');
+            }
+            setTimeout(renderCharts, 50);
+        }
 
-function printReport() {
-  var w = window.open('', '_blank');
-  w.document.write(
-    '<html><head><title>گزارش Equipment_Confirmation</title><style>' +
-    'body{font-family:Tahoma,Arial;padding:20px;direction:rtl}table{width:100%;border-collapse:collapse}' +
-    'td,th{border:1px solid #ccc;padding:8px;text-align:right}h1{font-size:18px}' +
-    '</style></head><body><h1>گزارش مدیریتی خرابی تجهیزات Equipment_Confirmation</h1>' +
-    document.getElementById('reportContent').innerHTML +
-    '</body></html>'
-  );
-  w.document.close();
-  w.print();
-}
+        function loadTheme() {
+            var t = localStorage.getItem('Equipment_Confirmation_theme');
+            if (t === 'light') {
+                document.body.setAttribute('data-theme', 'light');
+                document.getElementById('themeBtn').textContent = '☀️';
+            }
+        }
 
-/* ═══════════════════════════════════════════════════════════
-   TOAST
-   ═══════════════════════════════════════════════════════════ */
-function toast(msg) {
-  var el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(window._tt);
-  window._tt = setTimeout(function() { el.classList.remove('show'); }, 2600);
-}
+        /* ═══════════════════════════════════════════════════════════
+           DATA LAYER
+           ═══════════════════════════════════════════════════════════ */
+        var STORAGE_KEY = 'Equipment_ConfirmationFaultManager_v9';
+        var records = [];
+        var editId = null;
+        var chartInstances = {};
+        var _debounceTimer = null;
 
-/* ═══════════════════════════════════════════════════════════
-   INIT
-   ═══════════════════════════════════════════════════════════ */
-document.getElementById('modalbg').addEventListener('click', function(e) {
-  if (e.target.id === 'modalbg') closeModal();
-});
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    closeModal();
-    closeMore();
-  }
-});
+        function uid() {
+            return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+        }
 
-document.addEventListener('touchend', function() {}, { passive: true });
+        function normalize(r) {
+            var sns = Array.isArray(r.serialNumbers) ?
+                r.serialNumbers :
+                String(r.serialNumbers || '').split(/[\n,;]+/).map(function(x) { return x.trim(); }).filter(Boolean);
+            return {
+                id: r.id || uid(),
+                date: r.date || '',
+                sc: r.sc || 'Porsoo',
+                codeSite: String(r.codeSite || '').trim().toUpperCase(),
+                unitName: canonicalUnitName(r.unitName || ''),
+                faultAffect: r.faultAffect || 'Faulty',
+                qty: Number(r.qty) || 1,
+                serialNumbers: sns,
+                status: r.status || (r.approved === true ? 'Approved' : 'Pending'),
+                approvedBy: r.approvedBy || '',
+                approvedAt: r.approvedAt || '',
+                notes: r.notes || ''
+            };
+        }
 
-loadTheme();
-load();
-</script>
+        function load() {
+            try {
+                var raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) {
+                    var old = localStorage.getItem('Equipment_ConfirmationFaultManager_v8');
+                    if (old) {
+                        raw = old;
+                        localStorage.setItem(STORAGE_KEY, old);
+                    }
+                }
+                records = JSON.parse(raw || '[]');
+            } catch (e) {
+                records = [];
+            }
+            records = records.filter(Boolean).map(normalize);
+            var uniq = {};
+            records.forEach(function(r) { if (!uniq[r.id]) uniq[r.id] = r; });
+            records = Object.values(uniq);
+            records.forEach(function(r) {
+                r.unitName = canonicalUnitName(r.unitName);
+                learnUnitName(r.unitName);
+            });
+            persist();
+            loadCatalog();
+        }
+
+        function persist() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+            renderAll();
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           HELPERS
+           ═══════════════════════════════════════════════════════════ */
+        function esc(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, function(m) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+            });
+        }
+
+        function formatDate(s) {
+            if (!s) return '—';
+            var d = new Date(s + 'T00:00:00');
+            return isNaN(d) ? s : d.toLocaleDateString('en-US');
+        }
+
+        function badge(st) {
+            var cls = st === 'Approved' ? 'approved' : st === 'Rejected' ? 'rejected' : 'pending';
+            var label = st === 'Approved' ? 'Approved' : st === 'Rejected' ? 'Rejected' : 'Pending';
+            return '<span class="badge ' + cls + '">' + label + '</span>';
+        }
+
+        function statusLabel(st) {
+            return st === 'Approved' ? 'Approved' : st === 'Rejected' ? 'Rejected' : 'Pending';
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           CHARTS
+           ═══════════════════════════════════════════════════════════ */
+        function destroyChart(id) {
+            if (chartInstances[id]) {
+                chartInstances[id].destroy();
+                delete chartInstances[id];
+            }
+        }
+
+        function getChartColors() {
+            var isLight = document.body.getAttribute('data-theme') === 'light';
+            return {
+                grid: isLight ? '#d8dee8' : '#2a3a52',
+                text: isLight ? '#4a5a74' : '#9aabc4',
+                bg: isLight ? '#ffffff' : '#1a2332'
+            };
+        }
+
+        function renderCharts() {
+            var eqMap = {},
+                siteMap = {},
+                statusMap = { Approved: 0, Pending: 0, Rejected: 0 };
+            records.forEach(function(r) {
+                var k = r.unitName || 'Unknown';
+                eqMap[k] = (eqMap[k] || 0) + r.qty;
+                var s = r.codeSite || 'Unknown';
+                siteMap[s] = (siteMap[s] || 0) + r.qty;
+                if (r.status === 'Approved') statusMap.Approved++;
+                else if (r.status === 'Pending') statusMap.Pending++;
+                else if (r.status === 'Rejected') statusMap.Rejected++;
+            });
+
+            var eq = Object.entries(eqMap).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 8);
+            var site = Object.entries(siteMap).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 8);
+            var colors = ['#3b82f6', '#8b5cf6', '#22c55e', '#eab308', '#ef4444', '#ec4899', '#14b8a6', '#f97316'];
+            var cc = getChartColors();
+
+            destroyChart('equipmentChart');
+            var ctx1 = document.getElementById('equipmentChart');
+            if (ctx1) {
+                chartInstances.equipmentChart = new Chart(ctx1.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: eq.map(function(x) { return x[0].length > 14 ? x[0].slice(0, 13) + '…' : x[0]; }),
+                        datasets: [{ label: 'QTY', data: eq.map(function(x) { return x[1]; }),
+                            backgroundColor: colors.slice(0, eq.length), borderRadius: 5 }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: cc.grid }, ticks: { color: cc.text,
+                                    font: { size: 10 } } },
+                            x: { grid: { display: false }, ticks: { color: cc.text, maxRotation: 40,
+                                    font: { size: 9 } } }
+                        }
+                    }
+                });
+            }
+
+            destroyChart('siteChart');
+            var ctx2 = document.getElementById('siteChart');
+            if (ctx2) {
+                chartInstances.siteChart = new Chart(ctx2.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: site.map(function(x) { return x[0].length > 10 ? x[0].slice(0, 9) + '…' : x[0]; }),
+                        datasets: [{ label: 'QTY', data: site.map(function(x) { return x[1]; }),
+                            backgroundColor: colors.slice(0, site.length), borderRadius: 5 }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: cc.grid }, ticks: { color: cc.text,
+                                    font: { size: 10 } } },
+                            x: { grid: { display: false }, ticks: { color: cc.text, maxRotation: 40,
+                                    font: { size: 9 } } }
+                        }
+                    }
+                });
+            }
+
+            destroyChart('statusChart');
+            var ctx3 = document.getElementById('statusChart');
+            if (ctx3) {
+                chartInstances.statusChart = new Chart(ctx3.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Approved', 'Pending', 'Rejected'],
+                        datasets: [{
+                            data: [statusMap.Approved, statusMap.Pending, statusMap.Rejected],
+                            backgroundColor: ['#22c55e', '#eab308', '#ef4444'],
+                            borderColor: cc.bg,
+                            borderWidth: 3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { color: cc.text, font: { size: 11 },
+                                    padding: 12 } }
+                        },
+                        cutout: '62%'
+                    }
+                });
+            }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           RENDER ALL
+           ═══════════════════════════════════════════════════════════ */
+        function stats() {
+            var q = 0,
+                sites = new Set(),
+                types = new Set(),
+                a = 0,
+                p = 0,
+                rej = 0;
+            records.forEach(function(r) {
+                q += r.qty;
+                if (r.codeSite) sites.add(r.codeSite);
+                if (r.unitName) types.add(r.unitName);
+                if (r.status === 'Approved') a++;
+                else if (r.status === 'Pending') p++;
+                else if (r.status === 'Rejected') rej++;
+            });
+            return { n: records.length, q: q, s: sites.size, t: types.size, a: a, p: p, r: rej };
+        }
+
+        function renderAll() {
+            var x = stats();
+            var ids = ['kRecords', 'kQty', 'kSites', 'kTypes', 'kApproved', 'kPending', 'kRejected'];
+            var vals = [x.n, x.q, x.s, x.t, x.a, x.p, x.r];
+            for (var i = 0; i < ids.length; i++) {
+                var el = document.getElementById(ids[i]);
+                if (el) el.textContent = vals[i];
+            }
+            renderCharts();
+            renderDashboardLists();
+            renderRecords();
+            renderApprovals();
+            renderSites();
+            renderQuality();
+            renderReport();
+            renderBackup();
+        }
+
+        function debounceRender() {
+            clearTimeout(_debounceTimer);
+            _debounceTimer = setTimeout(function() {
+                renderRecords();
+            }, 180);
+        }
+
+        function renderDashboardLists() {
+            var recent = records.slice().sort(function(a, b) { return b.date.localeCompare(a.date); }).slice(0, 6);
+            var recentEl = document.getElementById('recent');
+            if (!recent.length) {
+                recentEl.innerHTML = '<div class="empty-state"><div class="icon">📭</div>No activity recorded yet</div>';
+            } else {
+                recentEl.innerHTML = recent.map(function(r) {
+                    return '<div class="card" onclick="editRecord(\'' + r.id + '\')">' +
+                        '<div class="card-top"><span class="card-site">' + esc(r.codeSite) +
+                        ' <span style="font-weight:400;color:var(--text-muted)">(' + esc(r.sc) +
+                        ')</span></span>' + badge(r.status) + '</div>' +
+                        '<div class="card-unit">' + esc(r.unitName) + '</div>' +
+                        '<div class="card-meta">' + formatDate(r.date) + ' • QTY ' + r.qty + '</div>' +
+                        '</div>';
+                }).join('');
+            }
+
+            var dup = duplicateSN();
+            var alerts = [];
+            if (!records.length) alerts.push('Database is empty');
+            if (dup.length) alerts.push(dup.length + ' duplicate SN group(s)');
+            var pend = records.filter(function(r) { return r.status === 'Pending'; }).length;
+            if (pend) alerts.push(pend + ' pending approval');
+            var alertsEl = document.getElementById('alerts');
+            if (!alerts.length) {
+                alertsEl.innerHTML = '<div class="list-item" style="color:var(--green)">✓ All clear</div>';
+            } else {
+                alertsEl.innerHTML = alerts.map(function(x) {
+                    return '<div class="list-item">⚠ ' + esc(x) + '</div>';
+                }).join('');
+            }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           RECORDS
+           ═══════════════════════════════════════════════════════════ */
+        function filtered() {
+            var q = (document.getElementById('q')?.value || '').toLowerCase().trim();
+            var site = (document.getElementById('fs')?.value || '').toLowerCase().trim();
+            var unit = (document.getElementById('fu')?.value || '').toLowerCase().trim();
+            var sc = (document.getElementById('fsc')?.value || '').toLowerCase().trim();
+            var st = document.getElementById('fst')?.value || '';
+            var d1 = document.getElementById('fd1')?.value || '';
+            var d2 = document.getElementById('fd2')?.value || '';
+            return records.filter(function(r) {
+                var haystack = [r.codeSite, r.unitName, r.faultAffect, r.sc].concat(r.serialNumbers, [r
+                    .approvedBy, r.notes
+                ]).join(' ').toLowerCase();
+                if (q && !haystack.includes(q)) return false;
+                if (site && !r.codeSite.toLowerCase().includes(site)) return false;
+                if (unit && !r.unitName.toLowerCase().includes(unit)) return false;
+                if (sc && !r.sc.toLowerCase().includes(sc)) return false;
+                if (st && r.status !== st) return false;
+                if (d1 && r.date < d1) return false;
+                if (d2 && r.date > d2) return false;
+                return true;
+            });
+        }
+
+        function renderRecords() {
+            var list = filtered().sort(function(a, b) { return b.date.localeCompare(a.date); });
+            var el = document.getElementById('recordsList');
+            var cnt = document.getElementById('recordsCount');
+            if (cnt) cnt.textContent = list.length;
+            if (!list.length) {
+                el.innerHTML = '<div class="empty-state"><div class="icon">📋</div>No records found</div>';
+                return;
+            }
+            el.innerHTML = list.map(function(r) {
+                return '<div class="card">' +
+                    '<div class="card-top"><span class="card-site">' + esc(r.codeSite) +
+                    ' <span style="font-weight:400;color:var(--text-muted)">(' + esc(r.sc) +
+                    ')</span></span>' + badge(r.status) + '</div>' +
+                    '<div class="card-unit">' + esc(r.unitName) + '</div>' +
+                    '<div class="card-meta">' +
+                    formatDate(r.date) + ' • QTY ' + r.qty +
+                    (r.faultAffect ? ' • ' + esc(r.faultAffect) : '') +
+                    '</div>' +
+                    (r.serialNumbers.length ? '<div class="sn-tags">' + r.serialNumbers.map(function(s) {
+                        return '<span class="sn-tag">' + esc(s) + '</span>';
+                    }).join('') + '</div>' : '') +
+                    '<div class="card-actions">' +
+                    '<button class="btn btn-sm" onclick="editRecord(\'' + r.id + '\')">✎ Edit</button>' +
+                    '<button class="btn btn-sm btn-red" onclick="delRecord(\'' + r.id + '\')">✕ Delete</button>' +
+                    '</div>' +
+                    '</div>';
+            }).join('');
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           APPROVALS
+           ═══════════════════════════════════════════════════════════ */
+        function renderApprovals() {
+            var list = records.filter(function(r) { return r.status === 'Pending'; })
+                .sort(function(a, b) { return b.date.localeCompare(a.date); });
+            var el = document.getElementById('approvalsList');
+            var cnt = document.getElementById('pendingCount');
+            if (cnt) cnt.textContent = list.length;
+            if (!list.length) {
+                el.innerHTML = '<div class="empty-state"><div class="icon">✅</div>Nothing pending</div>';
+                return;
+            }
+            el.innerHTML = list.map(function(r) {
+                return '<div class="card">' +
+                    '<div class="card-top"><span class="card-site">' + esc(r.codeSite) +
+                    ' <span style="font-weight:400;color:var(--text-muted)">(' + esc(r.sc) +
+                    ')</span></span>' + badge(r.status) + '</div>' +
+                    '<div class="card-unit">' + esc(r.unitName) + '</div>' +
+                    '<div class="card-meta">' + formatDate(r.date) + ' • QTY ' + r.qty + '</div>' +
+                    '<div class="card-actions">' +
+                    '<button class="btn btn-sm btn-green" onclick="decision(\'' + r.id +
+                    '\',\'Approved\')">✓ Approve</button>' +
+                    '<button class="btn btn-sm btn-red" onclick="decision(\'' + r.id +
+                    '\',\'Rejected\')">✕ Reject</button>' +
+                    '</div>' +
+                    '</div>';
+            }).join('');
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           SITES
+           ═══════════════════════════════════════════════════════════ */
+        function renderSites() {
+            var map = {};
+            records.forEach(function(r) {
+                if (!map[r.codeSite]) map[r.codeSite] = { n: 0, q: 0, t: new Set(), a: 0, p: 0, last: '' };
+                var x = map[r.codeSite];
+                x.n++;
+                x.q += r.qty;
+                if (r.unitName) x.t.add(r.unitName);
+                if (r.status === 'Approved') x.a++;
+                if (r.status === 'Pending') x.p++;
+                if (!x.last || r.date > x.last) x.last = r.date;
+            });
+            var entries = Object.entries(map).sort(function(a, b) { return b[1].q - a[1].q; });
+            var el = document.getElementById('sitesList');
+            if (!entries.length) {
+                el.innerHTML = '<div class="empty-state"><div class="icon">📍</div>No sites registered</div>';
+                return;
+            }
+            el.innerHTML = entries.map(function(item) {
+                var s = item[0],
+                    x = item[1];
+                return '<div class="card">' +
+                    '<div class="card-top"><span class="card-site">' + esc(s) + '</span></div>' +
+                    '<div class="card-meta">' +
+                    x.n + ' requests • ' + x.q + ' units • ' + x.t.size + ' types' +
+                    '</div>' +
+                    '<div class="card-meta">' +
+                    'Approved: ' + x.a + ' • Pending: ' + x.p + ' • Last: ' + formatDate(x.last) +
+                    '</div>' +
+                    '<div class="card-actions">' +
+                    '<button class="btn btn-sm" onclick="siteFilter(\'' + esc(s) + '\')">View Records</button>' +
+                    '</div>' +
+                    '</div>';
+            }).join('');
+        }
+
+        function siteFilter(s) {
+            showView('records');
+            document.getElementById('fs').value = s;
+            renderRecords();
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           QUALITY
+           ═══════════════════════════════════════════════════════════ */
+        function duplicateSN() {
+            var m = {};
+            records.forEach(function(r) {
+                r.serialNumbers.forEach(function(sn) {
+                    if (sn && sn.toUpperCase() !== 'NA') {
+                        if (!m[sn]) m[sn] = [];
+                        m[sn].push(r.codeSite);
+                    }
+                });
+            });
+            return Object.entries(m).filter(function(e) { return e[1].length > 1; });
+        }
+
+        function renderQuality() {
+            var dup = duplicateSN();
+            var dupEl = document.getElementById('dupSN');
+            if (!dup.length) {
+                dupEl.innerHTML = '<div class="list-item" style="color:var(--green)">✓ No duplicate SNs found</div>';
+            } else {
+                dupEl.innerHTML = dup.map(function(e) {
+                    return '<div class="list-item"><span><b>' + esc(e[0]) + '</b><br><span class="muted">' +
+                        esc([...new Set(e[1])].join(', ')) + '</span></span><span class="badge rejected">Duplicate</span></div>';
+                }).join('');
+            }
+
+            var issues = [];
+            records.forEach(function(r) {
+                if (!r.unitName) issues.push(r.codeSite + ': missing unit name');
+                if (r.serialNumbers.length && r.serialNumbers.length !== r.qty) issues.push(r.codeSite +
+                    ': QTY/SN mismatch');
+                if (!r.serialNumbers.length) issues.push(r.codeSite + ': no serial numbers');
+                if (r.serialNumbers.includes('NA')) issues.push(r.codeSite + ': SN is "NA"');
+            });
+            var qEl = document.getElementById('qualityList');
+            if (!issues.length) {
+                qEl.innerHTML = '<div class="list-item" style="color:var(--green)">✓ Data is consistent</div>';
+            } else {
+                qEl.innerHTML = issues.map(function(x) {
+                    return '<div class="list-item">⚠ ' + esc(x) + '</div>';
+                }).join('');
+            }
+
+            // Catalog
+            var catalogEl = document.getElementById('catalogList');
+            var cntEl = document.getElementById('catalogCount');
+            if (cntEl) cntEl.textContent = unitCatalog.length;
+            if (!unitCatalog.length) {
+                catalogEl.innerHTML = '<div class="empty-state"><div class="icon">📚</div>No units in catalog</div>';
+            } else {
+                catalogEl.innerHTML = unitCatalog.slice(0, 30).map(function(u) {
+                    var count = records.filter(function(r) { return r.unitName === u; }).length;
+                    return '<div class="list-item"><span>' + esc(u) +
+                        '</span><span class="muted">' + count + ' records</span></div>';
+                }).join('');
+                if (unitCatalog.length > 30) {
+                    catalogEl.innerHTML +=
+                        '<div class="text-muted text-center" style="padding:6px;font-size:11px;">… and ' + (unitCatalog
+                            .length - 30) + ' more</div>';
+                }
+            }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           REPORTS
+           ═══════════════════════════════════════════════════════════ */
+        function renderReport() {
+            var x = stats();
+            var html = '<div class="stats" style="grid-template-columns:repeat(3,1fr);margin-bottom:12px">' +
+                ['Requests', 'Faulty Units', 'Sites', 'Approved', 'Pending', 'Rejected'].map(function(label, i) {
+                    return '<div class="stat"><small>' + label + '</small><b>' + Object.values(x)[i] + '</b></div>';
+                }).join('') + '</div>';
+
+            html += '<h4 style="font-size:13px;margin:10px 0 6px">Top 10 Sites</h4>';
+            var map = {};
+            records.forEach(function(r) {
+                var k = r.codeSite || 'Unknown';
+                map[k] = (map[k] || 0) + r.qty;
+            });
+            var sorted = Object.entries(map).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 10);
+            if (!sorted.length) {
+                html += '<div class="empty-state">No data</div>';
+            } else {
+                html += '<div class="card-list">';
+                sorted.forEach(function(item, idx) {
+                    var s = item[0],
+                        q = item[1];
+                    var cnt = records.filter(function(r) { return r.codeSite === s; }).length;
+                    html += '<div class="list-item"><span><b>' + (idx + 1) + '. ' + esc(s) +
+                        '</b><br><span class="muted">' +
+                        cnt + ' requests</span></span><span class="fw-700">' + q + ' units</span></div>';
+                });
+                html += '</div>';
+            }
+
+            // Top units
+            html += '<h4 style="font-size:13px;margin:10px 0 6px">Top 10 Faulty Units</h4>';
+            var unitMap = {};
+            records.forEach(function(r) {
+                var k = r.unitName || 'Unknown';
+                unitMap[k] = (unitMap[k] || 0) + r.qty;
+            });
+            var unitSorted = Object.entries(unitMap).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 10);
+            if (!unitSorted.length) {
+                html += '<div class="empty-state">No data</div>';
+            } else {
+                html += '<div class="card-list">';
+                unitSorted.forEach(function(item, idx) {
+                    var u = item[0],
+                        q = item[1];
+                    html += '<div class="list-item"><span><b>' + (idx + 1) + '. ' + esc(u) +
+                        '</b></span><span class="fw-700">' + q + ' units</span></div>';
+                });
+                html += '</div>';
+            }
+
+            document.getElementById('reportContent').innerHTML = html;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           BACKUP
+           ═══════════════════════════════════════════════════════════ */
+        function renderBackup() {
+            var backups = [];
+            try {
+                var raw = localStorage.getItem('Equipment_Backup_History_v9');
+                if (raw) backups = JSON.parse(raw);
+            } catch (e) {}
+            var el = document.getElementById('backupList');
+            var cnt = document.getElementById('backupCount');
+            if (cnt) cnt.textContent = backups.length;
+            if (!backups.length) {
+                el.innerHTML = '<div class="empty-state"><div class="icon">💾</div>No backups yet</div>';
+                return;
+            }
+            el.innerHTML = backups.slice(0, 10).map(function(b) {
+                return '<div class="backup-item">' +
+                    '<div class="info">' + esc(b.name) + ' <small>' + formatDate(b.date) + '</small></div>' +
+                    '<button class="btn btn-xs btn-outline" onclick="restoreBackup(\'' + esc(b.id) +
+                    '\')">Restore</button>' +
+                    '</div>';
+            }).join('');
+        }
+
+        function exportJSON() {
+            if (!records.length) return toast('No data to export');
+            download(JSON.stringify(records, null, 2), 'fault_backup_v9.json', 'application/json');
+            toast('JSON backup downloaded');
+            addBackupHistory('JSON Backup');
+        }
+
+        function exportCSV() {
+            if (!records.length) return toast('No data to export');
+            var h = ['Date', 'SC', 'CodeSite', 'UnitName', 'FaultAffect', 'QTY', 'SerialNumbers', 'Status', 'ApprovedBy',
+                'Notes'
+            ];
+            var rows = records.map(function(r) {
+                return [r.date, r.sc, r.codeSite, r.unitName, r.faultAffect, r.qty, r.serialNumbers.join('; '), r
+                    .status, r.approvedBy, r.notes
+                ];
+            });
+            var csv = '\ufeff' + [h].concat(rows).map(function(row) {
+                return row.map(function(cell) {
+                    return '"' + String(cell == null ? '' : cell).replace(/"/g, '""') + '"';
+                }).join(',');
+            }).join('\n');
+            download(csv, 'fault_report_v9.csv', 'text/csv;charset=utf-8');
+            toast('CSV exported');
+            addBackupHistory('CSV Export');
+        }
+
+        function exportBackupCSV() {
+            // Full CSV with all fields for backup/restore
+            if (!records.length) return toast('No data to export');
+            var h = ['id', 'Date', 'SC', 'CodeSite', 'UnitName', 'FaultAffect', 'QTY', 'SerialNumbers', 'Status',
+                'ApprovedBy', 'ApprovedAt', 'Notes'
+            ];
+            var rows = records.map(function(r) {
+                return [r.id, r.date, r.sc, r.codeSite, r.unitName, r.faultAffect, r.qty, r.serialNumbers.join('; '),
+                    r.status, r.approvedBy, r.approvedAt || '', r.notes
+                ];
+            });
+            var csv = '\ufeff' + [h].concat(rows).map(function(row) {
+                return row.map(function(cell) {
+                    return '"' + String(cell == null ? '' : cell).replace(/"/g, '""') + '"';
+                }).join(',');
+            }).join('\n');
+            download(csv, 'fault_full_backup_v9.csv', 'text/csv;charset=utf-8');
+            toast('Full CSV backup downloaded');
+            addBackupHistory('Full CSV Backup');
+        }
+
+        function importJSON(e) {
+            var f = e.target.files[0];
+            if (!f) return;
+            var rd = new FileReader();
+            rd.onload = function() {
+                try {
+                    var data = JSON.parse(rd.result);
+                    if (!Array.isArray(data)) throw new Error('Invalid');
+                    var added = 0;
+                    data.forEach(function(item) {
+                        var r = normalize(item);
+                        var idx = records.findIndex(function(x) { return x.id === r.id; });
+                        if (idx >= 0) records[idx] = r;
+                        else { records.push(r);
+                            added++; }
+                        learnUnitName(r.unitName);
+                    });
+                    persist();
+                    toast(added + ' record(s) restored');
+                    addBackupHistory('JSON Restore');
+                } catch (err) {
+                    toast('Restore failed: invalid JSON');
+                }
+            };
+            rd.readAsText(f);
+            e.target.value = '';
+        }
+
+        function importCSV(event) {
+            var f = event.target.files[0];
+            if (!f) return;
+            var rd = new FileReader();
+            rd.onload = function() {
+                try {
+                    var text = rd.result;
+                    var lines = text.split('\n').filter(function(l) { return l.trim(); });
+                    if (lines.length < 2) throw new Error('Empty CSV');
+                    var headers = lines[0].split(',').map(function(h) { return h.replace(/^"|"$/g, '').trim(); });
+                    var idIdx = headers.indexOf('id');
+                    var dateIdx = headers.indexOf('Date');
+                    var scIdx = headers.indexOf('SC');
+                    var siteIdx = headers.indexOf('CodeSite');
+                    var unitIdx = headers.indexOf('UnitName');
+                    var faultIdx = headers.indexOf('FaultAffect');
+                    var qtyIdx = headers.indexOf('QTY');
+                    var snIdx = headers.indexOf('SerialNumbers');
+                    var statusIdx = headers.indexOf('Status');
+                    var appIdx = headers.indexOf('ApprovedBy');
+                    var appAtIdx = headers.indexOf('ApprovedAt');
+                    var notesIdx = headers.indexOf('Notes');
+
+                    var added = 0;
+                    for (var i = 1; i < lines.length; i++) {
+                        var row = parseCSVRow(lines[i]);
+                        if (row.length < 5) continue;
+                        var sns = (snIdx >= 0 && row[snIdx]) ? row[snIdx].split(';').map(function(s) { return s
+                                .trim(); }).filter(Boolean) : [];
+                        var r = {
+                            id: (idIdx >= 0 && row[idIdx]) ? row[idIdx] : uid(),
+                            date: (dateIdx >= 0 && row[dateIdx]) ? row[dateIdx] : '',
+                            sc: (scIdx >= 0 && row[scIdx]) ? row[scIdx] : 'Porsoo',
+                            codeSite: (siteIdx >= 0 && row[siteIdx]) ? row[siteIdx].toUpperCase() : '',
+                            unitName: (unitIdx >= 0 && row[unitIdx]) ? canonicalUnitName(row[unitIdx]) : '',
+                            faultAffect: (faultIdx >= 0 && row[faultIdx]) ? row[faultIdx] : 'Faulty',
+                            qty: (qtyIdx >= 0 && row[qtyIdx]) ? parseInt(row[qtyIdx]) || 1 : 1,
+                            serialNumbers: sns,
+                            status: (statusIdx >= 0 && row[statusIdx]) ? row[statusIdx] : 'Pending',
+                            approvedBy: (appIdx >= 0 && row[appIdx]) ? row[appIdx] : '',
+                            approvedAt: (appAtIdx >= 0 && row[appAtIdx]) ? row[appAtIdx] : '',
+                            notes: (notesIdx >= 0 && row[notesIdx]) ? row[notesIdx] : ''
+                        };
+                        var norm = normalize(r);
+                        var idx = records.findIndex(function(x) { return x.id === norm.id; });
+                        if (idx >= 0) records[idx] = norm;
+                        else { records.push(norm);
+                            added++; }
+                        learnUnitName(norm.unitName);
+                    }
+                    persist();
+                    toast(added + ' record(s) restored from CSV');
+                    addBackupHistory('CSV Restore');
+                } catch (err) {
+                    toast('CSV restore failed: ' + err.message);
+                }
+            };
+            rd.readAsText(f);
+            event.target.value = '';
+        }
+
+        function parseCSVRow(line) {
+            var result = [];
+            var current = '';
+            var inQuotes = false;
+            for (var i = 0; i < line.length; i++) {
+                var ch = line[i];
+                if (ch === '"') {
+                    if (inQuotes && line[i + 1] === '"') {
+                        current += '"';
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (ch === ',' && !inQuotes) {
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += ch;
+                }
+            }
+            result.push(current.trim());
+            return result;
+        }
+
+        function download(content, filename, mime) {
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([content], { type: mime }));
+            a.download = filename;
+            a.click();
+            setTimeout(function() { URL.revokeObjectURL(a.href); }, 500);
+        }
+
+        function addBackupHistory(name) {
+            try {
+                var raw = localStorage.getItem('Equipment_Backup_History_v9');
+                var backups = raw ? JSON.parse(raw) : [];
+                backups.unshift({ id: uid(), name: name, date: new Date().toISOString().slice(0, 10) });
+                if (backups.length > 50) backups = backups.slice(0, 50);
+                localStorage.setItem('Equipment_Backup_History_v9', JSON.stringify(backups));
+            } catch (e) {}
+        }
+
+        function restoreBackup(id) {
+            // This is a placeholder — actual restore would need to load from a stored backup
+            // For now we just show a message
+            toast('To restore, use the "Restore" button with a JSON or CSV file');
+        }
+
+        function printReport() {
+            var w = window.open('', '_blank');
+            w.document.write(
+                '<html><head><title>Equipment Fault Report</title><style>' +
+                'body{font-family:Arial,sans-serif;padding:20px}table{width:100%;border-collapse:collapse}' +
+                'td,th{border:1px solid #ccc;padding:8px;text-align:left}h1{font-size:18px}' +
+                '</style></head><body><h1>Equipment Fault Management Report</h1>' +
+                document.getElementById('reportContent').innerHTML +
+                '</body></html>'
+            );
+            w.document.close();
+            w.print();
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           CRUD
+           ═══════════════════════════════════════════════════════════ */
+        function openAdd() {
+            editId = null;
+            document.getElementById('form').reset();
+            document.getElementById('eid').value = '';
+            document.getElementById('date').value = new Date().toISOString().slice(0, 10);
+            setScValue('Porsoo');
+            document.getElementById('fault').value = 'Faulty';
+            document.getElementById('status').value = 'Pending';
+            document.getElementById('qty').value = 1;
+            document.getElementById('unitFamily').value = '';
+            document.getElementById('familyFields').innerHTML = '';
+            document.getElementById('unitSuggestions').innerHTML = '';
+            document.getElementById('unitPreview').textContent = 'Select a family and fill in the fields';
+            document.getElementById('mtitle').textContent = 'New Fault Record';
+            updateOutputText();
+            document.getElementById('modalbg').classList.add('on');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function editRecord(id) {
+            var r = records.find(function(x) { return x.id === id; });
+            if (!r) return;
+            editId = id;
+            document.getElementById('eid').value = id;
+            document.getElementById('date').value = r.date || '';
+            setScValue(r.sc || 'Porsoo');
+            document.getElementById('site').value = r.codeSite || '';
+            document.getElementById('fault').value = r.faultAffect || 'Faulty';
+            document.getElementById('qty').value = r.qty || 1;
+            document.getElementById('sns').value = (r.serialNumbers || []).join('\n');
+            document.getElementById('status').value = r.status || 'Pending';
+            document.getElementById('approver').value = r.approvedBy || '';
+            document.getElementById('notes').value = r.notes || '';
+            document.getElementById('unitFamily').value = 'CUSTOM';
+            document.getElementById('familyFields').innerHTML =
+                '<div class="fg full"><label>Custom Unit</label><input class="field" id="customName" value="' +
+                esc(r.unitName) + '" placeholder="Enter exact unit name" oninput="updatePreview(); renderUnitSuggestions(this.value)"></div>';
+            updatePreview();
+            document.getElementById('mtitle').textContent = 'Edit Fault Record';
+            document.getElementById('modalbg').classList.add('on');
+            document.body.style.overflow = 'hidden';
+            // Show suggestions for the existing value
+            setTimeout(function() {
+                var cn = document.getElementById('customName');
+                if (cn) renderUnitSuggestions(cn.value);
+            }, 100);
+        }
+
+        function closeModal() {
+            document.getElementById('modalbg').classList.remove('on');
+            document.body.style.overflow = '';
+            document.getElementById('unitSuggestions').innerHTML = '';
+        }
+
+        function saveRecord(e) {
+            e.preventDefault();
+            var unitName = buildUnitName();
+            if (!unitName) { toast('Select a unit family and fill in the fields.'); return; }
+            var qty = parseInt(document.getElementById('qty').value) || 1;
+            var snsRaw = document.getElementById('sns').value;
+            var sns = snsRaw.split(/[\n,;]+/).map(function(s) { return s.trim(); }).filter(Boolean);
+            if (sns.length !== qty) {
+                toast('SN count (' + sns.length + ') does not match QTY (' + qty + ')');
+                return;
+            }
+            var id = document.getElementById('eid').value;
+            var record = {
+                id: id || uid(),
+                date: document.getElementById('date').value,
+                sc: getScValue() || 'Porsoo',
+                codeSite: document.getElementById('site').value.trim().toUpperCase(),
+                unitName: unitName,
+                faultAffect: document.getElementById('fault').value.trim() || 'Faulty',
+                qty: qty,
+                serialNumbers: sns,
+                status: document.getElementById('status').value,
+                approvedBy: document.getElementById('approver').value.trim(),
+                approvedAt: '',
+                notes: document.getElementById('notes').value.trim()
+            };
+            if (record.status === 'Approved' && !record.approvedBy) record.approvedBy = 'Soroush Yaghmouri';
+            if (record.status === 'Approved') record.approvedAt = new Date().toISOString();
+
+            learnUnitName(record.unitName);
+
+            var idx = records.findIndex(function(r) { return r.id === record.id; });
+            if (idx >= 0) records[idx] = record;
+            else records.push(record);
+            persist();
+            closeModal();
+            toast(idx >= 0 ? 'Updated' : 'Saved');
+        }
+
+        function decision(id, st) {
+            var r = records.find(function(x) { return x.id === id; });
+            if (!r) return;
+            r.status = st;
+            r.approvedBy = st === 'Approved' ? (r.approvedBy || 'Soroush Yaghmouri') : '';
+            r.approvedAt = st === 'Approved' ? new Date().toISOString() : '';
+            persist();
+            toast(st === 'Approved' ? 'Approved' : 'Rejected');
+        }
+
+        function delRecord(id) {
+            if (!confirm('Delete this record?')) return;
+            records = records.filter(function(r) { return r.id !== id; });
+            persist();
+            toast('Deleted');
+        }
+
+        function clearFilters() {
+            ['q', 'fs', 'fu', 'fsc', 'fst', 'fd1', 'fd2'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            renderRecords();
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           VIEW SWITCH
+           ═══════════════════════════════════════════════════════════ */
+        function showView(id, btn) {
+            document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
+            var view = document.getElementById(id);
+            if (view) view.classList.add('active');
+
+            document.querySelectorAll('.bottom-nav .nav-item').forEach(function(b) {
+                b.classList.toggle('active', b.getAttribute('data-view') === id);
+            });
+            document.querySelectorAll('.desktop-nav button').forEach(function(b) {
+                b.classList.toggle('active', b.getAttribute('data-view') === id);
+            });
+
+            if (['quality', 'reports', 'backup'].indexOf(id) >= 0) {
+                document.querySelectorAll('.bottom-nav .nav-item').forEach(function(b) {
+                    b.classList.toggle('active', b.getAttribute('data-view') === 'more');
+                });
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            renderAll();
+        }
+
+        function showMoreMenu(btn) {
+            document.getElementById('moreSheet').classList.add('on');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMore() {
+            document.getElementById('moreSheet').classList.remove('on');
+            document.body.style.overflow = '';
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           TOAST
+           ═══════════════════════════════════════════════════════════ */
+        function toast(msg) {
+            var el = document.getElementById('toast');
+            el.textContent = msg;
+            el.classList.add('show');
+            clearTimeout(window._tt);
+            window._tt = setTimeout(function() { el.classList.remove('show'); }, 2600);
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           INIT
+           ═══════════════════════════════════════════════════════════ */
+        document.getElementById('modalbg').addEventListener('click', function(e) {
+            if (e.target.id === 'modalbg') closeModal();
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+                closeMore();
+            }
+        });
+
+        document.addEventListener('touchend', function() {}, { passive: true });
+
+        loadTheme();
+        loadCatalog();
+        load();
+    </script>
 </body>
 </html>
