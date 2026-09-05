@@ -288,9 +288,46 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
 .unit-suggestion{background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:2px 10px;font-size:11px;cursor:pointer;transition:all var(--tr);color:var(--ink-dim);font-family:var(--mono)}
 .unit-suggestion:hover{border-color:var(--signal);color:var(--ink)}
 .unit-suggestion:active{transform:scale(.95)}
+.unit-suggestion.active{background:var(--signal-dim);border-color:var(--signal);color:var(--signal-hi)}
 
 .backup-item{display:flex;justify-content:space-between;align-items:center;padding:9px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:5px;background:var(--bg-2)}
 .backup-item .info{font-size:12px} .backup-item .info small{color:var(--ink-faint);font-family:var(--mono)}
+
+/* ─── NEW: Advanced Unit Selector ─── */
+.unit-selector-box{
+  background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius-sm);
+  padding:10px;margin-bottom:8px;
+}
+.unit-search-wrap{position:relative}
+.unit-search-results{
+  position:absolute;left:0;right:0;top:100%;z-index:20;
+  background:var(--bg-1);border:1px solid var(--line);border-radius:9px;
+  max-height:220px;overflow-y:auto;box-shadow:var(--shadow);display:none;margin-top:4px;
+}
+.unit-search-results.on{display:block}
+.unit-result-item{
+  padding:9px 12px;border-bottom:1px solid var(--line-soft);cursor:pointer;
+  display:flex;flex-direction:column;gap:2px;transition:background var(--tr);
+}
+.unit-result-item:last-child{border-bottom:0}
+.unit-result-item:hover,.unit-result-item:active{background:var(--signal-dim)}
+.unit-result-item .name{font-weight:600;font-size:13px;font-family:var(--mono)}
+.unit-result-item .meta{font-size:10.5px;color:var(--ink-faint)}
+.unit-selected-banner{
+  display:none;align-items:center;gap:8px;flex-wrap:wrap;
+  background:var(--ok-dim);border:1px solid var(--ok);border-radius:8px;
+  padding:8px 10px;margin-top:8px;font-size:12.5px;
+}
+.unit-selected-banner.on{display:flex}
+.unit-selected-banner .name{font-weight:700;font-family:var(--mono);color:var(--ok);flex:1;min-width:0;word-break:break-word}
+.unit-mode-tabs{display:flex;gap:4px;margin-bottom:8px}
+.unit-mode-tab{
+  flex:1;padding:7px 6px;border-radius:8px;border:1px solid var(--line);
+  background:var(--bg-2);font-size:11.5px;font-weight:600;text-align:center;
+  color:var(--ink-dim);transition:all var(--tr);
+}
+.unit-mode-tab.active{background:var(--signal);border-color:var(--signal);color:#161207}
+.unit-mode-tab:active{transform:scale(.97)}
 
 @media print{
   .header,.bottom-nav,.desktop-nav,.btn-row{display:none !important}
@@ -512,7 +549,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
     </div>
   </section>
 
-  <!-- ══════ IMPORT (accessible from Backup > More) ══════ -->
+  <!-- ══════ IMPORT ══════ -->
   <section id="importview" class="view">
     <div class="panel">
       <div class="panel-title">Import from text</div>
@@ -550,7 +587,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
     </div>
   </div>
 
-  <!-- ══════ RECORD MODAL ══════ -->
+  <!-- ══════ RECORD MODAL (UPGRADED UNIT SECTION) ══════ -->
   <div id="modalbg" class="modal-bg">
     <div class="modal">
       <div class="modal-handle"></div>
@@ -578,18 +615,45 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
             <div class="err-msg" id="siteErr" style="display:none"></div>
           </div>
 
+          <!-- ══════ UPGRADED UNIT SELECTOR ══════ -->
           <div class="fg full">
-            <label>Unit family</label>
-            <div style="display:flex;gap:6px;align-items:center">
-              <select class="field" id="unitFamily" onchange="UI.onFamilyChange()" style="flex:1">
-                <option value="">-- Select family --</option>
-              </select>
-              <button type="button" class="btn btn-sm btn-primary" onclick="UI.openAddFamily()" title="Add new family">＋</button>
-            </div>
-            <div class="unit-suggestions" id="unitSuggestions"></div>
-          </div>
+            <label>Unit selection</label>
+            <div class="unit-selector-box">
+              <div class="unit-mode-tabs">
+                <button type="button" class="unit-mode-tab active" id="modeSearch" onclick="UI.setUnitMode('search')">🔍 Search catalog</button>
+                <button type="button" class="unit-mode-tab" id="modeBuild" onclick="UI.setUnitMode('build')">⚙ Build from family</button>
+              </div>
 
-          <div class="fg full" id="familyFields"></div>
+              <!-- SEARCH MODE -->
+              <div id="unitSearchMode">
+                <div class="unit-search-wrap">
+                  <input class="field" id="unitSearchInput" placeholder="Type to search units… (e.g. NCR48, CLU, Envicool)" autocomplete="off"
+                    oninput="UI.onUnitSearch()" onfocus="UI.onUnitSearch()" onkeydown="UI.unitSearchKey(event)">
+                  <div class="unit-search-results" id="unitSearchResults"></div>
+                </div>
+                <div class="unit-selected-banner" id="unitSelectedBanner">
+                  <span class="name" id="unitSelectedName"></span>
+                  <span class="badge info" id="unitSelectedFamily"></span>
+                  <button type="button" class="btn btn-xs btn-outline" onclick="UI.clearSelectedUnit()">Clear</button>
+                </div>
+              </div>
+
+              <!-- BUILD MODE -->
+              <div id="unitBuildMode" style="display:none">
+                <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+                  <select class="field" id="unitFamily" onchange="UI.onFamilyChange()" style="flex:1">
+                    <option value="">-- Select family --</option>
+                  </select>
+                  <button type="button" class="btn btn-sm btn-primary" onclick="UI.openAddFamily()" title="Add new family">＋</button>
+                </div>
+                <input class="field" id="unitSuggestionFilter" placeholder="Filter suggestions…" style="margin-bottom:6px;display:none"
+                  oninput="UI.filterUnitSuggestions()">
+                <div class="unit-suggestions" id="unitSuggestions"></div>
+                <div class="fg full" id="familyFields" style="margin-top:8px"></div>
+              </div>
+            </div>
+          </div>
+          <!-- ══════ END UPGRADED UNIT SELECTOR ══════ -->
 
           <div class="fg"><label>Fault affect</label><input class="field" id="fault" value="Faulty" oninput="UI.updateOutputText()"></div>
           <div class="fg"><label>QTY</label><input class="field" id="qty" type="number" min="1" value="1" required oninput="UI.updateOutputText()"></div>
@@ -606,7 +670,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
           <div class="fg full"><label>Notes</label><textarea class="field" id="notes" rows="2" oninput="UI.updateOutputText()"></textarea></div>
         </div>
 
-        <div class="unit-preview" id="unitPreview">Select a family and fill in the fields</div>
+        <div class="unit-preview" id="unitPreview">Select or build a unit</div>
         <div class="copy-area" id="copyArea">Output will appear here<button type="button" class="copy-btn" onclick="UI.copyOutput()">Copy</button></div>
         <div id="historyBox" style="display:none" class="mt-8">
           <label style="font-size:10.5px;font-weight:600;color:var(--ink-dim);font-family:var(--mono);text-transform:uppercase">Activity</label>
@@ -647,7 +711,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
     </div>
   </div>
 
-  <!-- ══════ UNIT EDIT MODAL (for managing units) ══════ -->
+  <!-- ══════ UNIT EDIT MODAL ══════ -->
   <div id="unitEditModal" class="modal-bg">
     <div class="modal" style="max-width:460px">
       <div class="modal-handle"></div>
@@ -691,7 +755,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
 <script>
 'use strict';
 /* ═══════════════════════════════════════════════════════════════════
-   DATA MODULE — extended with unit management
+   DATA MODULE — same as before (unchanged core logic)
    ═══════════════════════════════════════════════════════════════════ */
 var Data = (function(){
   var STORAGE_KEY = 'FaultConsole_records_v10';
@@ -705,11 +769,10 @@ var Data = (function(){
   var records = [];
   var trash = [];
   var families = [];
-  var units = []; // {id, name, familyId}
+  var units = [];
 
   function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
 
-  /* ── canonical unit name (alias mapping) ── */
   function canonicalUnitName(n){
     if(!n) return '';
     var norm = String(n).replace(/\s+/g,' ').trim();
@@ -732,7 +795,6 @@ var Data = (function(){
     return norm;
   }
 
-  /* ── families ── */
   function defaultFamilies(){
     return [
       {id:'NCU_NCR', label:'NCU / NCR', fields:[
@@ -867,8 +929,6 @@ var Data = (function(){
     saveFamilies();
   }
 
-  /* ── units ── */
-  // Sample units for each family (to seed the catalog)
   var SAMPLE_UNITS = {
     'NCU_NCR': ['NCR48U - 3KW - Nian', 'NCU48U - 2KW - Nian', 'NCR24U - 1.5KW - Nian', 'NCR48U G/01 - 3KW - Nian'],
     'PSU': ['PSU AC 03 - Ericsson', 'PSU AC 01 - Ericsson', 'PSU AC 02 - Ericsson', 'PSU AC 03 - Nian'],
@@ -903,7 +963,6 @@ var Data = (function(){
       else { units = []; }
     }catch(e){ units = []; }
 
-    // Ensure each family has at least its sample units
     for(var fid in SAMPLE_UNITS){
       if(SAMPLE_UNITS.hasOwnProperty(fid)){
         var existing = units.filter(function(u){return u.familyId===fid;});
@@ -947,7 +1006,6 @@ var Data = (function(){
     saveUnits();
   }
 
-  /* ── record normalization ── */
   function normalize(r){
     var sns = Array.isArray(r.serialNumbers) ? r.serialNumbers :
       String(r.serialNumbers||'').split(/[\n,;]+/).map(function(x){return x.trim();}).filter(Boolean);
@@ -995,7 +1053,6 @@ var Data = (function(){
     trash = trash.filter(Boolean).map(normalize);
     loadFamilies();
     loadUnits();
-    // Ensure all record unit names exist in units (if not, add to CUSTOM)
     records.forEach(function(r){
       if(r.unitName && !getUnitByName(r.unitName)){
         addUnit(r.unitName, 'CUSTOM');
@@ -1064,7 +1121,6 @@ var Data = (function(){
     persist();
   }
 
-  /* ── backups ── */
   function backupIndex(){
     try{ return JSON.parse(localStorage.getItem(BACKUP_INDEX_KEY)||'[]'); }catch(e){ return []; }
   }
@@ -1108,7 +1164,6 @@ var Data = (function(){
     UI.renderBackup();
   }
 
-  /* ── export / import ── */
   function download(content, filename, mime){
     var a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([content],{type:mime}));
@@ -1333,20 +1388,22 @@ var Data = (function(){
 })();
 
 /* ═══════════════════════════════════════════════════════════════════
-   UI MODULE — extended with units management
+   UI MODULE — heavily upgraded unit selection
    ═══════════════════════════════════════════════════════════════════ */
 var UI = (function(){
   var chartInstances = {};
   var _debounceTimer = null;
   var selection = {};
   var confirmCb = null;
+  var currentUnitMode = 'search'; // 'search' | 'build'
+  var selectedUnitName = null;
+  var selectedFamilyId = null;
 
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
   function formatDate(s){ if(!s) return '—'; var d=new Date(s+'T00:00:00'); return isNaN(d)?s:d.toLocaleDateString('en-US'); }
   function formatDateTime(iso){ if(!iso) return ''; var d=new Date(iso); return isNaN(d)?iso:d.toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
   function badge(st){ var cls = st==='Approved'?'approved':st==='Rejected'?'rejected':'pending'; return '<span class="badge '+cls+'">'+st+'</span>'; }
 
-  /* ── theme ── */
   function toggleTheme(){
     var isLight = document.body.getAttribute('data-theme')==='light';
     if(isLight){ document.body.removeAttribute('data-theme'); document.getElementById('themeBtn').textContent='🌙'; localStorage.setItem(Data.THEME_KEY,'dark'); }
@@ -1357,7 +1414,6 @@ var UI = (function(){
     if(localStorage.getItem(Data.THEME_KEY)==='light'){ document.body.setAttribute('data-theme','light'); document.getElementById('themeBtn').textContent='☀️'; }
   }
 
-  /* ── toast ── */
   function toast(msg, actionLabel, actionFn){
     var el = document.getElementById('toast');
     el.innerHTML = esc(msg) + (actionLabel ? ' <button type="button" id="toastAction">'+esc(actionLabel)+'</button>' : '');
@@ -1367,7 +1423,6 @@ var UI = (function(){
     window._tt = setTimeout(function(){ el.classList.remove('show'); }, actionLabel?4200:2600);
   }
 
-  /* ── confirm ── */
   function confirm(title, msg, okLabel, cb){
     document.getElementById('confirmTitle').textContent = title;
     document.getElementById('confirmMsg').textContent = msg;
@@ -1379,7 +1434,6 @@ var UI = (function(){
   function confirmOk(){ document.getElementById('confirmbg').classList.remove('on'); if(confirmCb) confirmCb(); confirmCb=null; }
   function confirmCancel(){ document.getElementById('confirmbg').classList.remove('on'); confirmCb=null; }
 
-  /* ── SC select ── */
   function toggleScCustom(){
     var sel = document.getElementById('scSelect'), custom = document.getElementById('scCustom');
     if(sel.value==='custom'){ custom.style.display='block'; custom.focus(); } else { custom.style.display='none'; custom.value=''; }
@@ -1396,6 +1450,164 @@ var UI = (function(){
     else { sel.value='custom'; custom.style.display='block'; custom.value=val||''; }
   }
 
+  /* ── NEW: Unit mode switcher ── */
+  function setUnitMode(mode){
+    currentUnitMode = mode;
+    document.getElementById('modeSearch').classList.toggle('active', mode==='search');
+    document.getElementById('modeBuild').classList.toggle('active', mode==='build');
+    document.getElementById('unitSearchMode').style.display = mode==='search' ? 'block' : 'none';
+    document.getElementById('unitBuildMode').style.display = mode==='build' ? 'block' : 'none';
+    if(mode==='build'){
+      populateFamilySelect();
+      onFamilyChange();
+    }
+    updatePreview();
+  }
+
+  /* ── NEW: Smart unit search ── */
+  function onUnitSearch(){
+    var q = (document.getElementById('unitSearchInput').value||'').trim().toLowerCase();
+    var box = document.getElementById('unitSearchResults');
+    if(!q){ box.classList.remove('on'); box.innerHTML=''; return; }
+
+    var all = Data.getUnits();
+    var matches = all.filter(function(u){
+      return u.name.toLowerCase().indexOf(q) !== -1;
+    }).slice(0, 18);
+
+    if(!matches.length){
+      box.innerHTML = '<div class="unit-result-item" style="color:var(--ink-faint)">No matching units. Switch to “Build from family” to create one.</div>';
+      box.classList.add('on');
+      return;
+    }
+
+    box.innerHTML = matches.map(function(u){
+      var fam = Data.getFamily(u.familyId);
+      var famLabel = fam ? fam.label : 'Unknown';
+      return '<div class="unit-result-item" onclick="UI.selectUnitFromSearch(\''+esc(u.name).replace(/'/g,"\\'")+'\',\''+u.familyId+'\')">'+
+        '<div class="name">'+esc(u.name)+'</div>'+
+        '<div class="meta">'+esc(famLabel)+'</div></div>';
+    }).join('');
+    box.classList.add('on');
+  }
+
+  function unitSearchKey(e){
+    if(e.key === 'Escape'){
+      document.getElementById('unitSearchResults').classList.remove('on');
+    }
+  }
+
+  function selectUnitFromSearch(name, familyId){
+    selectedUnitName = name;
+    selectedFamilyId = familyId;
+    document.getElementById('unitSearchInput').value = name;
+    document.getElementById('unitSearchResults').classList.remove('on');
+
+    var banner = document.getElementById('unitSelectedBanner');
+    document.getElementById('unitSelectedName').textContent = name;
+    var fam = Data.getFamily(familyId);
+    document.getElementById('unitSelectedFamily').textContent = fam ? fam.label : 'Custom';
+    banner.classList.add('on');
+
+    // Also prepare build mode in background so user can tweak
+    document.getElementById('unitFamily').value = familyId || '';
+    onFamilyChange();
+    tryFillFieldsFromName(name, familyId);
+
+    updatePreview();
+    updateOutputText();
+  }
+
+  function clearSelectedUnit(){
+    selectedUnitName = null;
+    selectedFamilyId = null;
+    document.getElementById('unitSearchInput').value = '';
+    document.getElementById('unitSelectedBanner').classList.remove('on');
+    document.getElementById('unitPreview').textContent = 'Select or build a unit';
+    updateOutputText();
+  }
+
+  /* ── Improved field filling from unit name ── */
+  function tryFillFieldsFromName(name, famId){
+    if(!name || !famId) return;
+    var fam = Data.getFamily(famId);
+    if(!fam) return;
+
+    // CUSTOM
+    if(famId === 'CUSTOM' || (fam.fields && fam.fields.some(function(f){return f.id==='customName';}))){
+      var el = document.getElementById('customName');
+      if(el) el.value = name;
+      return;
+    }
+
+    // DC_AC
+    if(famId === 'DC_AC'){
+      var m = name.match(/^NAC(\d+)D\s*-\s*Nian/i);
+      if(m){
+        var brandEl = document.getElementById('dcacBrand');
+        var powerEl = document.getElementById('dcacPower');
+        if(brandEl) brandEl.value = 'Nian';
+        if(powerEl) powerEl.value = m[1];
+        return;
+      }
+      if(/Envicool/i.test(name)){
+        var b = document.getElementById('dcacBrand'); if(b) b.value = 'Envicool';
+      } else if(/ITMC/i.test(name)){
+        var b2 = document.getElementById('dcacBrand'); if(b2) b2.value = 'ITMC';
+      } else if(/Porsoo/i.test(name)){
+        var b3 = document.getElementById('dcacBrand'); if(b3) b3.value = 'Porsoo';
+      }
+      return;
+    }
+
+    // NCU / NCR
+    if(famId === 'NCU_NCR'){
+      var m2 = name.match(/^(NCU|NCR)(\d+)([A-Z]?)(?:\s+([A-Z0-9\/]+))?(?:\s*-\s*(\d+(?:\.\d+)?KW))?/i);
+      if(m2){
+        var p = document.getElementById('ncuPrefix'); if(p) p.value = m2[1].toUpperCase();
+        var v = document.getElementById('ncuVoltage'); if(v) v.value = m2[2]||'48';
+        var ver = document.getElementById('ncuVersion'); if(ver) ver.value = m2[3]||'U';
+        var sub = document.getElementById('ncuSubtype'); if(sub) sub.value = m2[4]||'';
+        var pw = document.getElementById('ncuPower'); if(pw && m2[5]) pw.value = m2[5].toUpperCase();
+      }
+      return;
+    }
+
+    // PSU
+    if(famId === 'PSU'){
+      if(/AC\s*01/i.test(name)) { var s=document.getElementById('psuVersion'); if(s) s.value='AC 01 (1KW)'; }
+      else if(/AC\s*02/i.test(name)) { var s2=document.getElementById('psuVersion'); if(s2) s2.value='AC 02 (2KW)'; }
+      else if(/AC\s*03/i.test(name)) { var s3=document.getElementById('psuVersion'); if(s3) s3.value='AC 03 (3KW)'; }
+      var suf = document.getElementById('psuSuffix');
+      if(suf){
+        var rest = name.replace(/^PSU\s+AC\s*\d+\s*/i,'').trim();
+        suf.value = rest || '';
+      }
+      return;
+    }
+
+    // CLU
+    if(famId === 'CLU'){
+      if(/BBU6102/i.test(name)){
+        var t = document.getElementById('cluType'); if(t) t.value = 'BBU6102 CLU';
+      } else {
+        var t2 = document.getElementById('cluType'); if(t2) t2.value = 'CLU';
+      }
+      var suf2 = document.getElementById('cluSuffix');
+      if(suf2){
+        var rest2 = name.replace(/^(CLU|BBU6102 CLU)\s*/i,'').trim();
+        suf2.value = rest2 || '';
+      }
+      return;
+    }
+
+    // Generic: if only one text field, fill it
+    if(fam.fields && fam.fields.length === 1 && fam.fields[0].type === 'text'){
+      var only = document.getElementById(fam.fields[0].id);
+      if(only) only.value = name;
+    }
+  }
+
   /* ── family dropdown ── */
   function populateFamilySelect(){
     var sel = document.getElementById('unitFamily');
@@ -1407,15 +1619,21 @@ var UI = (function(){
     });
     if(current && Data.getFamily(current)) sel.value = current;
     if(!sel.value && families.length) sel.value = families[0].id;
-    onFamilyChange();
   }
 
-  /* ── unit family form ── */
   function onFamilyChange(){
     var famId = document.getElementById('unitFamily').value;
     var f = Data.getFamily(famId);
     var container = document.getElementById('familyFields');
-    if(!f){ container.innerHTML=''; document.getElementById('unitSuggestions').innerHTML=''; updatePreview(); return; }
+    var filterEl = document.getElementById('unitSuggestionFilter');
+    if(!f){ 
+      container.innerHTML=''; 
+      document.getElementById('unitSuggestions').innerHTML=''; 
+      filterEl.style.display='none';
+      updatePreview(); 
+      return; 
+    }
+
     var html = '<div class="fg full"><label>'+esc(f.label)+' — fields</label><div class="unit-structure">';
     (f.fields||[]).forEach(function(fld){
       var id=fld.id,label=fld.label||'',val=fld.default||'',ph=fld.placeholder||'',req=fld.required?' required':'';
@@ -1431,61 +1649,56 @@ var UI = (function(){
     });
     html += '</div></div>';
     container.innerHTML = html;
-    // Show unit suggestions for this family
+
+    // Suggestions
     var suggestions = Data.getUnitsByFamily(famId);
-    var sugContainer = document.getElementById('unitSuggestions');
-    if(suggestions.length){
-      sugContainer.innerHTML = suggestions.map(function(u){
-        return '<span class="unit-suggestion" onclick="UI.applyUnitSuggestion(\''+u.name.replace(/'/g,"\\'")+'\', \''+famId+'\')">'+esc(u.name)+'</span>';
-      }).join('');
-    } else {
-      sugContainer.innerHTML = '';
-    }
+    filterEl.style.display = suggestions.length > 6 ? 'block' : 'none';
+    filterEl.value = '';
+    renderSuggestionChips(suggestions);
     updatePreview();
   }
 
-  function applyUnitSuggestion(name, famId){
-    var unitObj = Data.getUnitByName(name);
-    if(!unitObj) return;
-    var fam = Data.getFamily(famId);
-    if(!fam) return;
-    // Try to fill fields if possible
-    var customField = fam.fields.find(function(ff){ return ff.id==='customName'; });
-    if(customField){
-      var el = document.getElementById('customName');
-      if(el){ el.value = name; updatePreview(); }
-    } else {
-      // For DC_AC, try to parse brand and power
-      if(famId === 'DC_AC'){
-        var match = name.match(/^NAC(\d+)D - Nian DC Air Conditioner/);
-        if(match){
-          var pwr = match[1];
-          var brandEl = document.getElementById('dcacBrand');
-          var powerEl = document.getElementById('dcacPower');
-          if(brandEl) brandEl.value = 'Nian';
-          if(powerEl) powerEl.value = pwr;
-          updatePreview();
-        } else if(name.indexOf('Envicool') !== -1){
-          var brandEl2 = document.getElementById('dcacBrand');
-          if(brandEl2) brandEl2.value = 'Envicool';
-          updatePreview();
-        } else if(name.indexOf('ITMC') !== -1){
-          var brandEl3 = document.getElementById('dcacBrand');
-          if(brandEl3) brandEl3.value = 'ITMC';
-          updatePreview();
-        } else if(name.indexOf('Porsoo') !== -1){
-          var brandEl4 = document.getElementById('dcacBrand');
-          if(brandEl4) brandEl4.value = 'Porsoo';
-          updatePreview();
-        }
-      }
+  function renderSuggestionChips(list){
+    var sugContainer = document.getElementById('unitSuggestions');
+    if(!list.length){
+      sugContainer.innerHTML = '<span style="font-size:11px;color:var(--ink-faint)">No units in this family yet</span>';
+      return;
     }
-    document.getElementById('unitSuggestions').innerHTML='';
+    sugContainer.innerHTML = list.map(function(u){
+      var isActive = selectedUnitName === u.name ? ' active' : '';
+      return '<span class="unit-suggestion'+isActive+'" onclick="UI.applyUnitSuggestion(\''+u.name.replace(/'/g,"\\'")+'\', \''+u.familyId+'\')">'+esc(u.name)+'</span>';
+    }).join('');
+  }
+
+  function filterUnitSuggestions(){
+    var q = (document.getElementById('unitSuggestionFilter').value||'').toLowerCase().trim();
+    var famId = document.getElementById('unitFamily').value;
+    var all = Data.getUnitsByFamily(famId);
+    var filtered = q ? all.filter(function(u){ return u.name.toLowerCase().indexOf(q)!==-1; }) : all;
+    renderSuggestionChips(filtered);
+  }
+
+  function applyUnitSuggestion(name, famId){
+    selectedUnitName = name;
+    selectedFamilyId = famId;
+    tryFillFieldsFromName(name, famId);
+    updatePreview();
+
+    // Also update search mode banner for consistency
+    document.getElementById('unitSearchInput').value = name;
+    var banner = document.getElementById('unitSelectedBanner');
+    document.getElementById('unitSelectedName').textContent = name;
+    var fam = Data.getFamily(famId);
+    document.getElementById('unitSelectedFamily').textContent = fam ? fam.label : 'Custom';
+    banner.classList.add('on');
+
+    // Refresh chips to show active state
+    filterUnitSuggestions();
   }
 
   function updatePreview(){
     var name = buildUnitName();
-    document.getElementById('unitPreview').textContent = name || 'Select a family and fill in the fields';
+    document.getElementById('unitPreview').textContent = name || 'Select or build a unit';
     updateOutputText();
   }
 
@@ -1499,14 +1712,18 @@ var UI = (function(){
   }
 
   function buildUnitName(){
+    // Priority: if user selected from search and hasn't changed family fields much, keep selected name
+    if(currentUnitMode === 'search' && selectedUnitName){
+      return selectedUnitName;
+    }
     var famId = document.getElementById('unitFamily').value;
     var f = Data.getFamily(famId);
-    if(!f) return '';
+    if(!f) return selectedUnitName || '';
     var vals = getFamilyValues();
     try {
       var name = f.build(vals);
-      return Data.canonicalUnitName(name);
-    } catch(e){ return ''; }
+      return Data.canonicalUnitName(name) || selectedUnitName || '';
+    } catch(e){ return selectedUnitName || ''; }
   }
 
   function getCurrentRecord(){
@@ -1573,7 +1790,7 @@ var UI = (function(){
     document.body.removeChild(ta);
   }
 
-  /* ── charts ── */
+  /* ── charts (unchanged) ── */
   function destroyChart(id){ if(chartInstances[id]){ chartInstances[id].destroy(); delete chartInstances[id]; } }
   function getChartColors(){
     var isLight = document.body.getAttribute('data-theme')==='light';
@@ -1620,7 +1837,6 @@ var UI = (function(){
         plugins:{legend:{position:'bottom',labels:{color:cc.text,font:{size:10.5},padding:10}}},cutout:'62%'}});
   }
 
-  /* ── stats + dashboard ── */
   function stats(){
     var q=0,sites=new Set(),types=new Set(),a=0,p=0,rej=0;
     Data.records.forEach(function(r){
@@ -1681,7 +1897,6 @@ var UI = (function(){
       : '<div class="list-item" style="color:var(--ok)">✓ All clear</div>';
   }
 
-  /* ── records ── */
   function filtered(){
     var q=(document.getElementById('q')?.value||'').toLowerCase().trim();
     var site=(document.getElementById('fs')?.value||'').toLowerCase().trim();
@@ -1755,7 +1970,6 @@ var UI = (function(){
     });
   }
 
-  /* ── approvals ── */
   function renderApprovals(){
     var list = Data.records.filter(function(r){return r.status==='Pending';}).sort(function(a,b){return b.date.localeCompare(a.date);});
     var el = document.getElementById('approvalsList'), cnt=document.getElementById('pendingCount');
@@ -1773,7 +1987,6 @@ var UI = (function(){
     }).join('');
   }
 
-  /* ── sites ── */
   function renderSites(){
     var q = (document.getElementById('siteSearch')?.value||'').toLowerCase().trim();
     var map={};
@@ -1798,7 +2011,6 @@ var UI = (function(){
   }
   function siteFilter(s){ showView('records'); document.getElementById('fs').value=s; renderRecords(); }
 
-  /* ── quality ── */
   function renderQuality(){
     var dup = duplicateSN();
     var dupEl = document.getElementById('dupSN');
@@ -1833,7 +2045,6 @@ var UI = (function(){
     if(catList.length>40) catalogEl.innerHTML += '<div class="text-muted text-center" style="padding:6px;font-size:11px">… and '+(catList.length-40)+' more</div>';
   }
 
-  /* ── reports ── */
   function renderReport(){
     var x = stats();
     var html = '<div class="stats" style="grid-template-columns:repeat(3,1fr);margin-bottom:12px">'+
@@ -1861,7 +2072,6 @@ var UI = (function(){
     document.getElementById('reportContent').innerHTML = html;
   }
 
-  /* ── backup ── */
   function renderBackup(){
     var backups = Data.backupIndex();
     var el = document.getElementById('backupList'), cnt=document.getElementById('backupCount');
@@ -1877,7 +2087,6 @@ var UI = (function(){
     confirm('Restore this backup?','This replaces all current records and trash with the saved snapshot.','Restore',function(){ Data.restoreSnapshot(id); });
   }
 
-  /* ── trash ── */
   function renderTrash(){
     var el = document.getElementById('trashList'), cnt=document.getElementById('trashCount');
     if(cnt) cnt.textContent = Data.trash.length;
@@ -1903,6 +2112,8 @@ var UI = (function(){
   var editId = null;
   function openAdd(){
     editId=null;
+    selectedUnitName = null;
+    selectedFamilyId = null;
     document.getElementById('form').reset();
     document.getElementById('eid').value='';
     document.getElementById('date').value=new Date().toISOString().slice(0,10);
@@ -1910,10 +2121,10 @@ var UI = (function(){
     document.getElementById('fault').value='Faulty';
     document.getElementById('status').value='Pending';
     document.getElementById('qty').value=1;
-    populateFamilySelect();
-    document.getElementById('familyFields').innerHTML='';
-    document.getElementById('unitSuggestions').innerHTML='';
-    document.getElementById('unitPreview').textContent='Select a family and fill in the fields';
+    document.getElementById('unitSearchInput').value='';
+    document.getElementById('unitSelectedBanner').classList.remove('on');
+    document.getElementById('unitSearchResults').classList.remove('on');
+    setUnitMode('search');
     document.getElementById('mtitle').textContent='New fault record';
     document.getElementById('historyBox').style.display='none';
     document.getElementById('siteErr').style.display='none';
@@ -1927,6 +2138,10 @@ var UI = (function(){
     var r = Data.records.find(function(x){return x.id===id;});
     if(!r) return;
     editId=id;
+    selectedUnitName = r.unitName;
+    var unitObj = Data.getUnitByName(r.unitName);
+    selectedFamilyId = unitObj ? unitObj.familyId : 'CUSTOM';
+
     document.getElementById('eid').value=id;
     document.getElementById('date').value=r.date||'';
     setScValue(r.sc||'Porsoo');
@@ -1937,46 +2152,23 @@ var UI = (function(){
     document.getElementById('status').value=r.status||'Pending';
     document.getElementById('approver').value=r.approvedBy||'';
     document.getElementById('notes').value=r.notes||'';
-    var unitObj = Data.getUnitByName(r.unitName);
-    var famId = unitObj ? unitObj.familyId : 'CUSTOM';
-    var fam = Data.getFamily(famId);
-    if(fam){
-      document.getElementById('unitFamily').value = famId;
+
+    // Prefill search mode
+    document.getElementById('unitSearchInput').value = r.unitName || '';
+    var banner = document.getElementById('unitSelectedBanner');
+    document.getElementById('unitSelectedName').textContent = r.unitName || '';
+    var fam = Data.getFamily(selectedFamilyId);
+    document.getElementById('unitSelectedFamily').textContent = fam ? fam.label : 'Custom';
+    banner.classList.add('on');
+
+    setUnitMode('search');
+    // Also prepare build side
+    if(selectedFamilyId){
+      document.getElementById('unitFamily').value = selectedFamilyId;
       onFamilyChange();
-      // Try to fill fields based on unit name
-      if(famId === 'DC_AC'){
-        var match = r.unitName.match(/^NAC(\d+)D - Nian DC Air Conditioner/);
-        if(match){
-          var pwr = match[1];
-          var brandEl = document.getElementById('dcacBrand');
-          var powerEl = document.getElementById('dcacPower');
-          if(brandEl) brandEl.value = 'Nian';
-          if(powerEl) powerEl.value = pwr;
-        } else if(r.unitName.indexOf('Envicool') !== -1){
-          var brandEl2 = document.getElementById('dcacBrand');
-          if(brandEl2) brandEl2.value = 'Envicool';
-        } else if(r.unitName.indexOf('ITMC') !== -1){
-          var brandEl3 = document.getElementById('dcacBrand');
-          if(brandEl3) brandEl3.value = 'ITMC';
-        } else if(r.unitName.indexOf('Porsoo') !== -1){
-          var brandEl4 = document.getElementById('dcacBrand');
-          if(brandEl4) brandEl4.value = 'Porsoo';
-        }
-        updatePreview();
-      } else {
-        var customField = fam.fields.find(function(ff){ return ff.id==='customName'; });
-        if(customField){
-          var cn = document.getElementById('customName');
-          if(cn) cn.value = r.unitName;
-        }
-        updatePreview();
-      }
-    } else {
-      if(Data.families.length) {
-        document.getElementById('unitFamily').value = Data.families[0].id;
-        onFamilyChange();
-      }
+      tryFillFieldsFromName(r.unitName, selectedFamilyId);
     }
+
     document.getElementById('mtitle').textContent='Edit fault record';
     var hbox = document.getElementById('historyBox'), hlist=document.getElementById('historyList');
     if(r.history && r.history.length){
@@ -1994,6 +2186,7 @@ var UI = (function(){
   function closeModal(){
     document.getElementById('modalbg').classList.remove('on');
     document.body.style.overflow='';
+    document.getElementById('unitSearchResults').classList.remove('on');
     document.getElementById('unitSuggestions').innerHTML='';
   }
 
@@ -2001,7 +2194,7 @@ var UI = (function(){
     e.preventDefault();
     var unitName = buildUnitName();
     var rec0 = getCurrentRecord(); rec0.unit = unitName;
-    if(!unitName){ toast('Select a unit family and fill in the fields.'); return; }
+    if(!unitName){ toast('Please select or build a unit.'); return; }
     if(!validateForm(rec0, true)) { toast('Fix the highlighted fields.'); return; }
 
     var qty = parseInt(document.getElementById('qty').value)||1;
@@ -2025,8 +2218,7 @@ var UI = (function(){
     if(record.status==='Approved') record.approvedAt=new Date().toISOString();
 
     var wasUpdate = Data.upsert(record, id ? 'Edited' : 'Created');
-    // Add the unit to catalog if not exists, with the current family
-    var currentFamId = document.getElementById('unitFamily').value;
+    var currentFamId = selectedFamilyId || document.getElementById('unitFamily').value || 'CUSTOM';
     if(currentFamId && !Data.getUnitByName(unitName)){
       Data.addUnit(unitName, currentFamId);
     }
@@ -2047,7 +2239,7 @@ var UI = (function(){
     renderRecords();
   }
 
-  /* ── Units Management View ── */
+  /* ── Units Management View (unchanged) ── */
   function renderUnitsView(){
     var families = Data.families;
     var fl = document.getElementById('familyList');
@@ -2113,7 +2305,6 @@ var UI = (function(){
     if(catList.length>50) ucl.innerHTML += '<div class="text-muted text-center" style="padding:6px;font-size:11px">… and '+(catList.length-50)+' more</div>';
   }
 
-  /* ── Family management ── */
   function openAddFamily(){
     document.getElementById('familyEditId').value='';
     document.getElementById('familyModalTitle').textContent='Add Unit Family';
@@ -2175,7 +2366,6 @@ var UI = (function(){
     });
   }
 
-  /* ── Unit management ── */
   function openAddUnitForFamily(){
     var famId = document.getElementById('unitMgmtFamily').value;
     if(!famId){ toast('Select a family first'); return; }
@@ -2239,7 +2429,6 @@ var UI = (function(){
     });
   }
 
-  /* ── view switching ── */
   function showView(id, btn){
     document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
     var view=document.getElementById(id); if(view) view.classList.add('active');
@@ -2264,17 +2453,29 @@ var UI = (function(){
     w.document.close(); w.print();
   }
 
-  /* ── keyboard shortcuts ── */
   function initKeys(){
     document.addEventListener('keydown', function(e){
       var tag = (e.target.tagName||'').toLowerCase();
       var typing = tag==='input'||tag==='textarea'||tag==='select';
-      if(e.key==='Escape'){ closeModal(); closeMore(); confirmCancel(); closeFamilyModal(); closeUnitEditModal(); return; }
+      if(e.key==='Escape'){ 
+        closeModal(); closeMore(); confirmCancel(); closeFamilyModal(); closeUnitEditModal(); 
+        document.getElementById('unitSearchResults').classList.remove('on');
+        return; 
+      }
       if(typing) return;
       if(e.key==='/'){ e.preventDefault(); showView('records'); setTimeout(function(){document.getElementById('q').focus();},60); }
       else if(e.key==='n'||e.key==='N'){ openAdd(); }
     });
   }
+
+  // Close search results when clicking outside
+  document.addEventListener('click', function(e){
+    var box = document.getElementById('unitSearchResults');
+    var input = document.getElementById('unitSearchInput');
+    if(box && input && !box.contains(e.target) && e.target !== input){
+      box.classList.remove('on');
+    }
+  });
 
   return {
     esc:esc, toast:toast, toggleTheme:toggleTheme, loadTheme:loadTheme,
@@ -2292,7 +2493,11 @@ var UI = (function(){
     saveFamily:saveFamily, confirmDeleteFamily:confirmDeleteFamily,
     openAddUnitForFamily:openAddUnitForFamily, openEditUnit:openEditUnit, closeUnitEditModal:closeUnitEditModal,
     saveUnitEdit:saveUnitEdit, confirmDeleteUnit:confirmDeleteUnit,
-    populateFamilySelect:populateFamilySelect
+    populateFamilySelect:populateFamilySelect,
+    // New unit selector APIs
+    setUnitMode:setUnitMode, onUnitSearch:onUnitSearch, unitSearchKey:unitSearchKey,
+    selectUnitFromSearch:selectUnitFromSearch, clearSelectedUnit:clearSelectedUnit,
+    filterUnitSuggestions:filterUnitSuggestions
   };
 })();
 
@@ -2312,4 +2517,4 @@ UI.populateFamilySelect();
 UI.renderAll();
 </script>
 </body>
-</html>
+  </html>
