@@ -13,11 +13,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 /* ═══════════════════════════════════════════════════════════════════
-   FAULT CONSOLE — design tokens
-   Palette: near-black slate base, amber/copper signal accent (hazard-
-   tape association, not the generic SaaS blue), semantic status hues
-   left untouched because they encode meaning (approve/pending/reject).
-   Type: IBM Plex Mono for data/labels/numbers, IBM Plex Sans for prose.
+   FAULT CONSOLE — design tokens (unchanged)
    ═══════════════════════════════════════════════════════════════════ */
 :root{
   --bg-0:#0a0d12; --bg-1:#10141c; --bg-2:#161c27; --bg-3:#1c2431;
@@ -329,6 +325,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
     <button data-view="quality" onclick="UI.showView('quality',this)">Quality</button>
     <button data-view="reports" onclick="UI.showView('reports',this)">Reports</button>
     <button data-view="backup" onclick="UI.showView('backup',this)">Backup</button>
+    <button data-view="units" onclick="UI.showView('units',this)">Units</button>
     <button data-view="trash" onclick="UI.showView('trash',this)">Trash</button>
   </nav>
 
@@ -474,6 +471,27 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
     </div>
   </section>
 
+  <!-- ══════ UNITS MANAGEMENT ══════ -->
+  <section id="units" class="view">
+    <div class="panel">
+      <div class="panel-title">Unit Families (Models)</div>
+      <p class="text-muted" style="font-size:11.5px;margin-bottom:10px">Manage unit families/models. Adding a new family will appear in the record form.</p>
+      <div class="btn-row mb-8">
+        <button class="btn btn-primary btn-sm" onclick="UI.openAddFamily()">➕ Add Family</button>
+      </div>
+      <div id="familyList" class="card-list"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Unit Catalog <span class="count" id="unitCatalogCount">0</span></div>
+      <p class="text-muted" style="font-size:11.5px;margin-bottom:6px">All unit names that have been used or added manually.</p>
+      <div class="btn-row mb-8">
+        <button class="btn btn-primary btn-sm" onclick="UI.openAddUnit()">➕ Add Unit</button>
+      </div>
+      <input class="field mb-8" id="unitCatalogSearch" placeholder="Search unit catalog…" oninput="UI.renderUnitsView()">
+      <div id="unitCatalogList" class="card-list"></div>
+    </div>
+  </section>
+
   <!-- ══════ TRASH ══════ -->
   <section id="trash" class="view">
     <div class="panel">
@@ -503,6 +521,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
     <button class="nav-item" data-view="records" onclick="UI.showView('records',this)"><span class="icon">☰</span><span>Records</span></button>
     <button class="nav-item" data-view="approval" onclick="UI.showView('approval',this)"><span class="icon">✓</span><span>Approval</span><span class="dot" id="mobDot" style="display:none"></span></button>
     <button class="nav-item" data-view="sites" onclick="UI.showView('sites',this)"><span class="icon">◈</span><span>Sites</span></button>
+    <button class="nav-item" data-view="units" onclick="UI.showView('units',this)"><span class="icon">⚙</span><span>Units</span></button>
     <button class="nav-item" data-view="more" onclick="UI.showMoreMenu()"><span class="icon">⋯</span><span>More</span></button>
   </nav>
 
@@ -517,6 +536,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
         <button class="btn" onclick="UI.showView('reports');UI.closeMore()">▤ Reports</button>
         <button class="btn" onclick="UI.showView('backup');UI.closeMore()">⭳ Backup &amp; restore</button>
         <button class="btn" onclick="UI.showView('importview');UI.closeMore()">⬒ Import from text</button>
+        <button class="btn" onclick="UI.showView('units');UI.closeMore()">⚙ Manage Units</button>
         <button class="btn" onclick="UI.showView('trash');UI.closeMore()">🗑 Trash</button>
       </div>
     </div>
@@ -552,16 +572,12 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
 
           <div class="fg full">
             <label>Unit family</label>
-            <select class="field" id="unitFamily" onchange="UI.onFamilyChange()">
-              <option value="">-- Select family --</option>
-              <option value="NCU_NCR">NCU / NCR</option><option value="PSU">PSU AC</option>
-              <option value="CLU">CLU / BBU</option><option value="CCU">CCU / Climate</option>
-              <option value="DC_AC">DC Air Conditioner</option><option value="RECTIFIER">Rectifier</option>
-              <option value="DCC">DCC</option><option value="PDU">PDU</option>
-              <option value="AIRCOND">Air Conditioner - ITMC</option><option value="CONTROLLER">Controller Unit</option>
-              <option value="SMARTPACK">Smartpack</option><option value="SCU">SCU</option>
-              <option value="CUSTOM">Custom</option>
-            </select>
+            <div style="display:flex;gap:6px;align-items:center">
+              <select class="field" id="unitFamily" onchange="UI.onFamilyChange()" style="flex:1">
+                <option value="">-- Select family --</option>
+              </select>
+              <button type="button" class="btn btn-sm btn-primary" onclick="UI.openAddFamily()" title="Add new family">＋</button>
+            </div>
             <div class="unit-suggestions" id="unitSuggestions"></div>
           </div>
 
@@ -597,6 +613,32 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
     </div>
   </div>
 
+  <!-- ══════ FAMILY / UNIT MODAL ══════ -->
+  <div id="familyModal" class="modal-bg">
+    <div class="modal" style="max-width:460px">
+      <div class="modal-handle"></div>
+      <h2 id="familyModalTitle">Add Unit Family</h2>
+      <div class="sub" id="familyModalSub">Enter a name for the new family. It will appear in the family dropdown.</div>
+      <form id="familyForm" onsubmit="UI.saveFamily(event)">
+        <input type="hidden" id="familyEditId">
+        <div class="fg full">
+          <label>Family name</label>
+          <input class="field" id="familyName" placeholder="e.g. My Custom Unit" required>
+        </div>
+        <div class="fg full" style="margin-top:6px">
+          <label style="font-size:10.5px;font-weight:600;color:var(--ink-dim);font-family:var(--mono);text-transform:uppercase;letter-spacing:.3px">Custom unit name pattern (optional)</label>
+          <p style="font-size:11px;color:var(--ink-faint);margin-bottom:4px">If left empty, the family will act like "Custom" – you type the full unit name.</p>
+          <input class="field" id="familyPattern" placeholder="e.g. MYUNIT-{voltage}V" value="">
+          <div style="font-size:10px;color:var(--ink-faint);margin-top:3px">Use <code>{fieldName}</code> to reference fields. Fields will be added automatically.</div>
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn btn-outline" onclick="UI.closeFamilyModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- ══════ CONFIRM MODAL ══════ -->
   <div id="confirmbg" class="modal-bg center">
     <div class="confirm-box">
@@ -615,78 +657,13 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
 <script>
 'use strict';
 /* ═══════════════════════════════════════════════════════════════════
-   UNIT FAMILY CONFIG
-   ═══════════════════════════════════════════════════════════════════ */
-var FAMILY_CONFIG = {
-  NCU_NCR:{label:'NCU / NCR',fields:[
-    {id:'ncuPrefix',type:'select',label:'Type',options:['NCU','NCR'],default:'NCR'},
-    {id:'ncuVoltage',type:'text',label:'Voltage',default:'48',placeholder:'48'},
-    {id:'ncuVersion',type:'text',label:'Version',default:'U',placeholder:'U'},
-    {id:'ncuSubtype',type:'text',label:'Subtype (e.g. C/11)',placeholder:'C/11'},
-    {id:'ncuPower',type:'select',label:'Power',options:['3KW','2KW','1.5KW','N/A'],default:'3KW'}],
-    build:function(v){var p=v.ncuPrefix||'NCR',vol=v.ncuVoltage||'48',ver=v.ncuVersion||'U';
-      var sub=v.ncuSubtype?' '+v.ncuSubtype.trim():'';var pw=(v.ncuPower&&v.ncuPower!=='N/A')?' - '+v.ncuPower:'';
-      return p+vol+ver+sub+pw;}},
-  PSU:{label:'PSU AC',fields:[
-    {id:'psuVersion',type:'select',label:'Version',options:['AC 01 (1KW)','AC 02 (2KW)','AC 03 (3KW)'],default:'AC 03 (3KW)'},
-    {id:'psuSuffix',type:'text',label:'Suffix',placeholder:'- Ericsson (optional)'}],
-    build:function(v){var base=v.psuVersion?v.psuVersion.split('(')[0].trim():'PSU AC 03';
-      return 'PSU '+base+(v.psuSuffix?' '+v.psuSuffix.trim():'');}},
-  CLU:{label:'CLU / BBU',fields:[
-    {id:'cluType',type:'select',label:'Type',options:['CLU','BBU6102 CLU'],default:'CLU'},
-    {id:'cluSuffix',type:'text',label:'Suffix',placeholder:'- Ericsson (or empty)'}],
-    build:function(v){var base=v.cluType||'CLU',suff=v.cluSuffix?' '+v.cluSuffix.trim():'';
-      if(base==='CLU'&&!suff)suff=' - Ericsson';return base+suff;}},
-  CCU:{label:'CCU / Climate control',fields:[
-    {id:'ccuType',type:'select',label:'Type',options:['CCU - Climate Control Board','CCU - Thermo Electric Co','Climate Control Board - CCU','Climat Control Board'],default:'CCU - Climate Control Board'},
-    {id:'ccuSuffix',type:'text',label:'Extra',placeholder:'- Ericsson etc.'}],
-    build:function(v){return (v.ccuType||'CCU - Climate Control Board')+(v.ccuSuffix?' '+v.ccuSuffix.trim():'');}},
-  DC_AC:{label:'DC air conditioner',fields:[
-    {id:'dcacModel',type:'select',label:'Model',options:['DC Cabinet Air Conditioner - Envicool','DC Cabinet Air Conditioner - ITMC','NAC550D - DC Air Conditioner - Nian','NAC650D - DC Air Conditioner - Nian','NAC1250D - DC Air Conditioner - Nian','NAC2400D - DC Air Conditioner - Nian','NAC3000D - DC Air Conditioner - Nian','NAC3500D - DC Air Conditioner - Nian'],default:'DC Cabinet Air Conditioner - Envicool'},
-    {id:'dcacSuffix',type:'text',label:'Suffix',placeholder:'e.g. - Cooler, - Compressor'}],
-    build:function(v){return (v.dcacModel||'DC Cabinet Air Conditioner - Envicool')+(v.dcacSuffix?' '+v.dcacSuffix.trim():'');}},
-  RECTIFIER:{label:'Rectifier',fields:[
-    {id:'recType',type:'select',label:'Type',options:['RECTIFIER 48VDC3000 - ITMC','Rectifier - Flatpack2 2000W 48V BF','PEC-4860 - Rectifier Equipment_Confirmation'],default:'RECTIFIER 48VDC3000 - ITMC'},
-    {id:'recSuffix',type:'text',label:'Suffix',placeholder:''}],
-    build:function(v){return (v.recType||'RECTIFIER 48VDC3000 - ITMC')+(v.recSuffix?' '+v.recSuffix.trim():'');}},
-  DCC:{label:'DCC',fields:[
-    {id:'dccType',type:'select',label:'Type',options:['DCC - Equipment_Confirmation Electronic','DCC - Equipment_Confirmation Electronic - Cabinet Conditioner'],default:'DCC - Equipment_Confirmation Electronic'}],
-    build:function(v){return v.dccType||'DCC - Equipment_Confirmation Electronic';}},
-  PDU:{label:'PDU',fields:[{id:'pduType',type:'text',label:'PDU type',default:'PDU 01 01',placeholder:'PDU 01 01'}],
-    build:function(v){return v.pduType||'PDU 01 01';}},
-  AIRCOND:{label:'Air conditioner - ITMC',fields:[{id:'airType',type:'text',label:'Model',default:'Air Conditioner - ITMC',placeholder:'Air Conditioner - ITMC'}],
-    build:function(v){return v.airType||'Air Conditioner - ITMC';}},
-  CONTROLLER:{label:'Controller unit',fields:[{id:'ctrlType',type:'text',label:'Model',default:'Controller Unit - ITMC',placeholder:'Controller Unit - ITMC'}],
-    build:function(v){return v.ctrlType||'Controller Unit - ITMC';}},
-  SMARTPACK:{label:'Smartpack',fields:[{id:'smartType',type:'text',label:'Model',default:'Smartpack Extended - ELTEK',placeholder:'Smartpack Extended - ELTEK'}],
-    build:function(v){return v.smartType||'Smartpack Extended - ELTEK';}},
-  SCU:{label:'SCU',fields:[{id:'scuType',type:'text',label:'Model',default:'SCU 01 01 - Ericsson',placeholder:'SCU 01 01 - Ericsson'}],
-    build:function(v){return v.scuType||'SCU 01 01 - Ericsson';}},
-  CUSTOM:{label:'Custom',fields:[{id:'customName',type:'text',label:'Full unit name',placeholder:'Enter exact unit name',required:true}],
-    build:function(v){return v.customName||'';}}
-};
-
-var ALIAS_MAP = {
-  "BBU CLU":"BBU6102 CLU - Ericsson","BBU6102 CLU":"BBU6102 CLU - Ericsson","BBU6102 CLU - ERICSSON":"BBU6102 CLU - Ericsson",
-  "CLU":"CLU - Ericsson","CLU - ERICSSON":"CLU - Ericsson","CLU - BBUB102 CLU - Ericsson":"CLU - Ericsson",
-  "Climat Control Board":"CCU - Climate Control Board","Climat Control Board - Ericsson":"CCU - Climate Control Board",
-  "Climate Control Board - CCU":"CCU - Climate Control Board","CCU - Climate Control Board":"CCU - Climate Control Board",
-  "Thermo Electric Co - CCU":"CCU - Thermo Electric Co",
-  "DC cabinet air conditioner - Envicool":"DC Cabinet Air Conditioner - Envicool","DC Cabinet Air Conditioner - Envicool":"DC Cabinet Air Conditioner - Envicool",
-  "DCC-Equipment_Confirmation ELECTRONIC":"DCC - Equipment_Confirmation Electronic",
-  "DCC-Equipment_Confirmation ELECTRONIC - Cabinet Conditioner":"DCC - Equipment_Confirmation Electronic - Cabinet Conditioner",
-  "PSU AC 03":"PSU AC 03 - Ericsson","PEC- 4860 - Rectifier Equipment_Confirmation":"PEC-4860 - Rectifier Equipment_Confirmation",
-  "PECSU - 2020 - Equipment_Confirmation":"PECSU-2020 - Equipment_Confirmation",
-  "NCR48U - Nian":"NCR48U - 3KW - Nian","NCR48U - NIAN":"NCR48U - 3KW - Nian","NCR48U 3KW":"NCR48U - 3KW - Nian","NCR48U - 3KW":"NCR48U - 3KW - Nian"
-};
-
-/* ═══════════════════════════════════════════════════════════════════
-   DATA MODULE — storage, migration, CRUD, import/export, backup
+   DATA MODULE — extended with family & catalog management
    ═══════════════════════════════════════════════════════════════════ */
 var Data = (function(){
   var STORAGE_KEY = 'FaultConsole_records_v10';
   var TRASH_KEY = 'FaultConsole_trash_v10';
   var CATALOG_KEY = 'FaultConsole_catalog_v10';
+  var FAMILY_KEY = 'FaultConsole_families_v10';
   var BACKUP_INDEX_KEY = 'FaultConsole_backupIndex_v10';
   var BACKUP_BLOB_PREFIX = 'FaultConsole_backupBlob_v10_';
   var THEME_KEY = 'FaultConsole_theme_v10';
@@ -694,12 +671,27 @@ var Data = (function(){
   var records = [];
   var trash = [];
   var catalog = [];
+  var families = [];
 
   function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
 
   function canonicalUnitName(n){
     if(!n) return '';
     var norm = String(n).replace(/\s+/g,' ').trim();
+    // built-in alias map
+    var ALIAS_MAP = {
+      "BBU CLU":"BBU6102 CLU - Ericsson","BBU6102 CLU":"BBU6102 CLU - Ericsson","BBU6102 CLU - ERICSSON":"BBU6102 CLU - Ericsson",
+      "CLU":"CLU - Ericsson","CLU - ERICSSON":"CLU - Ericsson","CLU - BBUB102 CLU - Ericsson":"CLU - Ericsson",
+      "Climat Control Board":"CCU - Climate Control Board","Climat Control Board - Ericsson":"CCU - Climate Control Board",
+      "Climate Control Board - CCU":"CCU - Climate Control Board","CCU - Climate Control Board":"CCU - Climate Control Board",
+      "Thermo Electric Co - CCU":"CCU - Thermo Electric Co",
+      "DC cabinet air conditioner - Envicool":"DC Cabinet Air Conditioner - Envicool","DC Cabinet Air Conditioner - Envicool":"DC Cabinet Air Conditioner - Envicool",
+      "DCC-Equipment_Confirmation ELECTRONIC":"DCC - Equipment_Confirmation Electronic",
+      "DCC-Equipment_Confirmation ELECTRONIC - Cabinet Conditioner":"DCC - Equipment_Confirmation Electronic - Cabinet Conditioner",
+      "PSU AC 03":"PSU AC 03 - Ericsson","PEC- 4860 - Rectifier Equipment_Confirmation":"PEC-4860 - Rectifier Equipment_Confirmation",
+      "PECSU - 2020 - Equipment_Confirmation":"PECSU-2020 - Equipment_Confirmation",
+      "NCR48U - Nian":"NCR48U - 3KW - Nian","NCR48U - NIAN":"NCR48U - 3KW - Nian","NCR48U 3KW":"NCR48U - 3KW - Nian","NCR48U - 3KW":"NCR48U - 3KW - Nian"
+    };
     if(ALIAS_MAP[norm]) return ALIAS_MAP[norm];
     var low = norm.toLowerCase();
     for(var k in ALIAS_MAP){ if(k.toLowerCase()===low) return ALIAS_MAP[k]; }
@@ -728,6 +720,131 @@ var Data = (function(){
     }catch(e){ catalog=[]; }
   }
 
+  /* ── families ── */
+  function defaultFamilies(){
+    return [
+      {id:'NCU_NCR', label:'NCU / NCR', fields:[
+        {id:'ncuPrefix',type:'select',label:'Type',options:['NCU','NCR'],default:'NCR'},
+        {id:'ncuVoltage',type:'text',label:'Voltage',default:'48',placeholder:'48'},
+        {id:'ncuVersion',type:'text',label:'Version',default:'U',placeholder:'U'},
+        {id:'ncuSubtype',type:'text',label:'Subtype (e.g. C/11)',placeholder:'C/11'},
+        {id:'ncuPower',type:'select',label:'Power',options:['3KW','2KW','1.5KW','N/A'],default:'3KW'}
+      ], build:function(v){ var p=v.ncuPrefix||'NCR',vol=v.ncuVoltage||'48',ver=v.ncuVersion||'U';
+        var sub=v.ncuSubtype?' '+v.ncuSubtype.trim():'';var pw=(v.ncuPower&&v.ncuPower!=='N/A')?' - '+v.ncuPower:'';
+        return p+vol+ver+sub+pw; }},
+      {id:'PSU', label:'PSU AC', fields:[
+        {id:'psuVersion',type:'select',label:'Version',options:['AC 01 (1KW)','AC 02 (2KW)','AC 03 (3KW)'],default:'AC 03 (3KW)'},
+        {id:'psuSuffix',type:'text',label:'Suffix',placeholder:'- Ericsson (optional)'}
+      ], build:function(v){ var base=v.psuVersion?v.psuVersion.split('(')[0].trim():'PSU AC 03';return 'PSU '+base+(v.psuSuffix?' '+v.psuSuffix.trim():'');}},
+      {id:'CLU', label:'CLU / BBU', fields:[
+        {id:'cluType',type:'select',label:'Type',options:['CLU','BBU6102 CLU'],default:'CLU'},
+        {id:'cluSuffix',type:'text',label:'Suffix',placeholder:'- Ericsson (or empty)'}
+      ], build:function(v){ var base=v.cluType||'CLU',suff=v.cluSuffix?' '+v.cluSuffix.trim():'';if(base==='CLU'&&!suff)suff=' - Ericsson';return base+suff;}},
+      {id:'CCU', label:'CCU / Climate control', fields:[
+        {id:'ccuType',type:'select',label:'Type',options:['CCU - Climate Control Board','CCU - Thermo Electric Co','Climate Control Board - CCU','Climat Control Board'],default:'CCU - Climate Control Board'},
+        {id:'ccuSuffix',type:'text',label:'Extra',placeholder:'- Ericsson etc.'}
+      ], build:function(v){return (v.ccuType||'CCU - Climate Control Board')+(v.ccuSuffix?' '+v.ccuSuffix.trim():'');}},
+      {id:'DC_AC', label:'DC air conditioner', fields:[
+        {id:'dcacModel',type:'select',label:'Model',options:['DC Cabinet Air Conditioner - Envicool','DC Cabinet Air Conditioner - ITMC','NAC550D - DC Air Conditioner - Nian','NAC650D - DC Air Conditioner - Nian','NAC1250D - DC Air Conditioner - Nian','NAC2400D - DC Air Conditioner - Nian','NAC3000D - DC Air Conditioner - Nian','NAC3500D - DC Air Conditioner - Nian'],default:'DC Cabinet Air Conditioner - Envicool'},
+        {id:'dcacSuffix',type:'text',label:'Suffix',placeholder:'e.g. - Cooler, - Compressor'}
+      ], build:function(v){return (v.dcacModel||'DC Cabinet Air Conditioner - Envicool')+(v.dcacSuffix?' '+v.dcacSuffix.trim():'');}},
+      {id:'RECTIFIER', label:'Rectifier', fields:[
+        {id:'recType',type:'select',label:'Type',options:['RECTIFIER 48VDC3000 - ITMC','Rectifier - Flatpack2 2000W 48V BF','PEC-4860 - Rectifier Equipment_Confirmation'],default:'RECTIFIER 48VDC3000 - ITMC'},
+        {id:'recSuffix',type:'text',label:'Suffix',placeholder:''}
+      ], build:function(v){return (v.recType||'RECTIFIER 48VDC3000 - ITMC')+(v.recSuffix?' '+v.recSuffix.trim():'');}},
+      {id:'DCC', label:'DCC', fields:[
+        {id:'dccType',type:'select',label:'Type',options:['DCC - Equipment_Confirmation Electronic','DCC - Equipment_Confirmation Electronic - Cabinet Conditioner'],default:'DCC - Equipment_Confirmation Electronic'}
+      ], build:function(v){return v.dccType||'DCC - Equipment_Confirmation Electronic';}},
+      {id:'PDU', label:'PDU', fields:[{id:'pduType',type:'text',label:'PDU type',default:'PDU 01 01',placeholder:'PDU 01 01'}], build:function(v){return v.pduType||'PDU 01 01';}},
+      {id:'AIRCOND', label:'Air conditioner - ITMC', fields:[{id:'airType',type:'text',label:'Model',default:'Air Conditioner - ITMC',placeholder:'Air Conditioner - ITMC'}], build:function(v){return v.airType||'Air Conditioner - ITMC';}},
+      {id:'CONTROLLER', label:'Controller unit', fields:[{id:'ctrlType',type:'text',label:'Model',default:'Controller Unit - ITMC',placeholder:'Controller Unit - ITMC'}], build:function(v){return v.ctrlType||'Controller Unit - ITMC';}},
+      {id:'SMARTPACK', label:'Smartpack', fields:[{id:'smartType',type:'text',label:'Model',default:'Smartpack Extended - ELTEK',placeholder:'Smartpack Extended - ELTEK'}], build:function(v){return v.smartType||'Smartpack Extended - ELTEK';}},
+      {id:'SCU', label:'SCU', fields:[{id:'scuType',type:'text',label:'Model',default:'SCU 01 01 - Ericsson',placeholder:'SCU 01 01 - Ericsson'}], build:function(v){return v.scuType||'SCU 01 01 - Ericsson';}},
+      {id:'CUSTOM', label:'Custom (free text)', fields:[{id:'customName',type:'text',label:'Full unit name',placeholder:'Enter exact unit name',required:true}], build:function(v){return v.customName||'';}}
+    ];
+  }
+
+  function loadFamilies(){
+    try{
+      var raw = localStorage.getItem(FAMILY_KEY);
+      if(raw){ families = JSON.parse(raw); }
+      else { families = defaultFamilies(); saveFamilies(); }
+    }catch(e){ families = defaultFamilies(); saveFamilies(); }
+  }
+  function saveFamilies(){ try{ localStorage.setItem(FAMILY_KEY, JSON.stringify(families)); }catch(e){} }
+  function getFamily(id){ return families.find(function(f){return f.id===id;}); }
+  function addFamily(name, pattern){
+    var id = uid();
+    var f = {
+      id:id,
+      label:name,
+      fields: [],
+      build: function(v){ return v.customName || ''; } // default: just use customName field
+    };
+    if(pattern && pattern.trim()){
+      // if pattern contains placeholders, we add fields based on placeholders
+      var matches = pattern.match(/\{([^}]+)\}/g);
+      if(matches){
+        var seen = {};
+        matches.forEach(function(m){
+          var key = m.slice(1,-1);
+          if(!seen[key]){
+            f.fields.push({id:key, type:'text', label:key, default:'', placeholder:key});
+            seen[key]=true;
+          }
+        });
+        var buildFn = new Function('v', 'return "'+pattern.replace(/\{([^}]+)\}/g, '" + (v["$1"]||"") + "') + '";');
+        f.build = buildFn;
+      } else {
+        // no placeholders, treat as literal
+        f.fields.push({id:'customName', type:'text', label:'Full unit name', placeholder:'Enter exact unit name', required:true});
+        f.build = function(v){ return pattern; };
+      }
+    } else {
+      f.fields.push({id:'customName', type:'text', label:'Full unit name', placeholder:'Enter exact unit name', required:true});
+      f.build = function(v){ return v.customName || ''; };
+    }
+    families.push(f);
+    saveFamilies();
+    return f;
+  }
+  function editFamily(id, name, pattern){
+    var f = getFamily(id);
+    if(!f) return;
+    f.label = name;
+    // rebuild fields & build function based on pattern
+    if(pattern && pattern.trim()){
+      var matches = pattern.match(/\{([^}]+)\}/g);
+      var newFields = [];
+      var seen = {};
+      if(matches){
+        matches.forEach(function(m){
+          var key = m.slice(1,-1);
+          if(!seen[key]){
+            newFields.push({id:key, type:'text', label:key, default:'', placeholder:key});
+            seen[key]=true;
+          }
+        });
+        var buildFn = new Function('v', 'return "'+pattern.replace(/\{([^}]+)\}/g, '" + (v["$1"]||"") + "') + '";');
+        f.build = buildFn;
+      } else {
+        newFields.push({id:'customName', type:'text', label:'Full unit name', placeholder:'Enter exact unit name', required:true});
+        f.build = function(v){ return pattern; };
+      }
+      f.fields = newFields;
+    } else {
+      f.fields = [{id:'customName', type:'text', label:'Full unit name', placeholder:'Enter exact unit name', required:true}];
+      f.build = function(v){ return v.customName || ''; };
+    }
+    saveFamilies();
+  }
+  function deleteFamily(id){
+    // prevent deleting built-in families? we allow all
+    families = families.filter(function(f){ return f.id!==id; });
+    saveFamilies();
+  }
+
+  /* ── record normalization ── */
   function normalize(r){
     var sns = Array.isArray(r.serialNumbers) ? r.serialNumbers :
       String(r.serialNumbers||'').split(/[\n,;]+/).map(function(x){return x.trim();}).filter(Boolean);
@@ -749,7 +866,6 @@ var Data = (function(){
   }
 
   function migrateLegacy(){
-    // pull forward data from older single-array storage keys used by prior versions
     var legacyKeys = ['Equipment_ConfirmationFaultManager_v9','Equipment_ConfirmationFaultManager_v8'];
     if(localStorage.getItem(STORAGE_KEY)) return;
     for(var i=0;i<legacyKeys.length;i++){
@@ -775,6 +891,7 @@ var Data = (function(){
     try{ trash = JSON.parse(localStorage.getItem(TRASH_KEY)||'[]'); }catch(e){ trash=[]; }
     trash = trash.filter(Boolean).map(normalize);
     loadCatalog();
+    loadFamilies();
     records.forEach(function(r){ learnUnitName(r.unitName); });
     persist(true);
   }
@@ -840,7 +957,7 @@ var Data = (function(){
     persist();
   }
 
-  /* ── backups (real snapshot storage so restore works) ── */
+  /* ── backups ── */
   function backupIndex(){
     try{ return JSON.parse(localStorage.getItem(BACKUP_INDEX_KEY)||'[]'); }catch(e){ return []; }
   }
@@ -853,7 +970,6 @@ var Data = (function(){
     try{
       localStorage.setItem(BACKUP_BLOB_PREFIX+id, blob);
       idx.unshift({id:id, name:name, date:new Date().toISOString(), count:records.length});
-      // keep last 20 snapshots to avoid unbounded localStorage growth
       while(idx.length>20){
         var old = idx.pop();
         localStorage.removeItem(BACKUP_BLOB_PREFIX+old.id);
@@ -1077,23 +1193,25 @@ var Data = (function(){
 
   return {
     get records(){ return records; }, get trash(){ return trash; }, get catalog(){ return catalog; },
+    get families(){ return families; },
     uid: uid, canonicalUnitName: canonicalUnitName, learnUnitName: learnUnitName,
     load: load, persist: persist, upsert: upsert, softDelete: softDelete,
     restoreFromTrash: restoreFromTrash, purgeTrash: purgeTrash, decision: decision,
     backupIndex: backupIndex, snapshot: snapshot, restoreSnapshot: restoreSnapshot, deleteSnapshot: deleteSnapshot,
     exportJSON: exportJSON, exportCSV: exportCSV, exportFullCSV: exportFullCSV,
     importJSON: importJSON, importCSV: importCSV, importFromText: importFromText,
+    addFamily: addFamily, editFamily: editFamily, deleteFamily: deleteFamily, getFamily: getFamily, saveFamilies: saveFamilies,
     THEME_KEY: THEME_KEY
   };
 })();
 
 /* ═══════════════════════════════════════════════════════════════════
-   UI MODULE — rendering, views, forms, charts
+   UI MODULE — extended with units management
    ═══════════════════════════════════════════════════════════════════ */
 var UI = (function(){
   var chartInstances = {};
   var _debounceTimer = null;
-  var selection = {}; // id -> true, for bulk actions in Records view
+  var selection = {};
   var confirmCb = null;
 
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
@@ -1122,7 +1240,7 @@ var UI = (function(){
     window._tt = setTimeout(function(){ el.classList.remove('show'); }, actionLabel?4200:2600);
   }
 
-  /* ── confirm modal (replaces window.confirm) ── */
+  /* ── confirm ── */
   function confirm(title, msg, okLabel, cb){
     document.getElementById('confirmTitle').textContent = title;
     document.getElementById('confirmMsg').textContent = msg;
@@ -1151,19 +1269,36 @@ var UI = (function(){
     else { sel.value='custom'; custom.style.display='block'; custom.value=val||''; }
   }
 
+  /* ── family dropdown ── */
+  function populateFamilySelect(){
+    var sel = document.getElementById('unitFamily');
+    var current = sel.value;
+    var families = Data.families;
+    sel.innerHTML = '<option value="">-- Select family --</option>';
+    families.forEach(function(f){
+      sel.innerHTML += '<option value="'+f.id+'">'+esc(f.label)+'</option>';
+    });
+    // if current is still valid, select it
+    if(current && Data.getFamily(current)) sel.value = current;
+    // if no current, set to first non-empty
+    if(!sel.value && families.length) sel.value = families[0].id;
+    // trigger family change to render fields
+    onFamilyChange();
+  }
+
   /* ── unit family form ── */
   function onFamilyChange(){
-    var fam = document.getElementById('unitFamily').value;
-    var cfg = FAMILY_CONFIG[fam];
+    var famId = document.getElementById('unitFamily').value;
+    var f = Data.getFamily(famId);
     var container = document.getElementById('familyFields');
-    if(!cfg){ container.innerHTML=''; document.getElementById('unitSuggestions').innerHTML=''; updatePreview(); return; }
-    var html = '<div class="fg full"><label>'+cfg.label+' — fields</label><div class="unit-structure">';
-    cfg.fields.forEach(function(f){
-      var id=f.id,label=f.label||'',val=f.default||'',ph=f.placeholder||'',req=f.required?' required':'';
+    if(!f){ container.innerHTML=''; document.getElementById('unitSuggestions').innerHTML=''; updatePreview(); return; }
+    var html = '<div class="fg full"><label>'+esc(f.label)+' — fields</label><div class="unit-structure">';
+    (f.fields||[]).forEach(function(fld){
+      var id=fld.id,label=fld.label||'',val=fld.default||'',ph=fld.placeholder||'',req=fld.required?' required':'';
       var input='';
-      if(f.type==='select'){
+      if(fld.type==='select'){
         input='<select class="field" id="'+id+'" onchange="UI.updatePreview()">';
-        (f.options||[]).forEach(function(o){ input+='<option value="'+o+'"'+(o===val?' selected':'')+'>'+o+'</option>'; });
+        (fld.options||[]).forEach(function(o){ input+='<option value="'+o+'"'+(o===val?' selected':'')+'>'+o+'</option>'; });
         input+='</select>';
       } else {
         input='<input class="field" id="'+id+'" type="text" value="'+val+'" placeholder="'+ph+'" oninput="UI.updatePreview(); UI.checkCustomSuggestion()"'+req+'>';
@@ -1172,35 +1307,45 @@ var UI = (function(){
     });
     html += '</div></div>';
     container.innerHTML = html;
-
-    if(fam==='CUSTOM'){
+    // if family is "CUSTOM" or has a 'customName' field, we show suggestions
+    var hasCustomName = (f.fields||[]).some(function(fld){ return fld.id==='customName'; });
+    if(hasCustomName){
       setTimeout(function(){
         var cn = document.getElementById('customName');
         if(cn){ cn.addEventListener('input', function(){ renderUnitSuggestions(this.value); }); renderUnitSuggestions(cn.value); }
       },50);
-    } else { document.getElementById('unitSuggestions').innerHTML=''; }
+    } else {
+      document.getElementById('unitSuggestions').innerHTML='';
+    }
     updatePreview();
   }
 
   function checkCustomSuggestion(){
-    if(document.getElementById('unitFamily').value==='CUSTOM'){
+    var famId = document.getElementById('unitFamily').value;
+    var f = Data.getFamily(famId);
+    if(f && (f.fields||[]).some(function(fld){ return fld.id==='customName'; })){
       var cn=document.getElementById('customName'); if(cn) renderUnitSuggestions(cn.value);
     }
   }
 
   function getFamilyValues(){
-    var fam = document.getElementById('unitFamily').value, cfg=FAMILY_CONFIG[fam];
-    if(!cfg) return {};
+    var famId = document.getElementById('unitFamily').value;
+    var f = Data.getFamily(famId);
+    if(!f) return {};
     var vals={};
-    cfg.fields.forEach(function(f){ var el=document.getElementById(f.id); if(el) vals[f.id]=el.value; });
+    (f.fields||[]).forEach(function(fld){ var el=document.getElementById(fld.id); if(el) vals[fld.id]=el.value; });
     return vals;
   }
 
   function buildUnitName(){
-    var fam = document.getElementById('unitFamily').value, cfg=FAMILY_CONFIG[fam];
-    if(!cfg) return '';
-    var name = cfg.build(getFamilyValues());
-    return Data.canonicalUnitName(name);
+    var famId = document.getElementById('unitFamily').value;
+    var f = Data.getFamily(famId);
+    if(!f) return '';
+    var vals = getFamilyValues();
+    try {
+      var name = f.build(vals);
+      return Data.canonicalUnitName(name);
+    } catch(e){ return ''; }
   }
 
   function suggestUnits(input){
@@ -1217,10 +1362,18 @@ var UI = (function(){
     }).join('');
   }
   function applyUnitSuggestion(name){
-    document.getElementById('unitFamily').value='CUSTOM'; onFamilyChange();
-    document.getElementById('customName').value=name; updatePreview();
-    document.getElementById('unitSuggestions').innerHTML='';
-    toast('Unit applied: '+name);
+    // set family to CUSTOM (or first with customName)
+    var customFamily = Data.families.find(function(f){ return (f.fields||[]).some(function(ff){return ff.id==='customName';}); });
+    if(customFamily){
+      document.getElementById('unitFamily').value = customFamily.id;
+      onFamilyChange();
+      var cn = document.getElementById('customName');
+      if(cn){ cn.value = name; updatePreview(); }
+      document.getElementById('unitSuggestions').innerHTML='';
+      toast('Unit applied: '+name);
+    } else {
+      toast('No family with custom name field found');
+    }
   }
 
   function updatePreview(){
@@ -1371,6 +1524,7 @@ var UI = (function(){
 
     renderCharts(); renderDashboardLists(); renderRecords(); renderApprovals();
     renderSites(); renderQuality(); renderReport(); renderBackup(); renderTrash();
+    renderUnitsView();
   }
 
   function debounceRender(){ clearTimeout(_debounceTimer); _debounceTimer=setTimeout(renderRecords,160); }
@@ -1400,7 +1554,7 @@ var UI = (function(){
       : '<div class="list-item" style="color:var(--ok)">✓ All clear</div>';
   }
 
-  /* ── records / filtering ── */
+  /* ── records ── */
   function filtered(){
     var q=(document.getElementById('q')?.value||'').toLowerCase().trim();
     var site=(document.getElementById('fs')?.value||'').toLowerCase().trim();
@@ -1432,7 +1586,6 @@ var UI = (function(){
     var list = filtered();
     var el = document.getElementById('recordsList'), cnt=document.getElementById('recordsCount');
     if(cnt) cnt.textContent=list.length;
-    // prune selection of ids no longer present
     Object.keys(selection).forEach(function(id){ if(!Data.records.find(function(r){return r.id===id;})) delete selection[id]; });
     updateBulkBar();
     if(!list.length){ el.innerHTML='<div class="empty-state"><div class="icon">▤</div>No records found</div>'; return; }
@@ -1627,7 +1780,7 @@ var UI = (function(){
     document.getElementById('fault').value='Faulty';
     document.getElementById('status').value='Pending';
     document.getElementById('qty').value=1;
-    document.getElementById('unitFamily').value='';
+    populateFamilySelect();
     document.getElementById('familyFields').innerHTML='';
     document.getElementById('unitSuggestions').innerHTML='';
     document.getElementById('unitPreview').textContent='Select a family and fill in the fields';
@@ -1654,11 +1807,21 @@ var UI = (function(){
     document.getElementById('status').value=r.status||'Pending';
     document.getElementById('approver').value=r.approvedBy||'';
     document.getElementById('notes').value=r.notes||'';
-    document.getElementById('unitFamily').value='CUSTOM';
-    document.getElementById('familyFields').innerHTML =
-      '<div class="fg full"><label>Custom unit</label><input class="field" id="customName" value="'+esc(r.unitName)+
-      '" placeholder="Enter exact unit name" oninput="UI.updatePreview(); UI.renderUnitSuggestions(this.value)"></div>';
-    updatePreview();
+    // find a family that can produce this unit name (or use CUSTOM)
+    var customFamily = Data.families.find(function(f){ return (f.fields||[]).some(function(ff){return ff.id==='customName';}); });
+    if(customFamily){
+      document.getElementById('unitFamily').value = customFamily.id;
+      onFamilyChange();
+      var cn = document.getElementById('customName');
+      if(cn) cn.value = r.unitName;
+      updatePreview();
+    } else {
+      // fallback: set first family
+      if(Data.families.length) {
+        document.getElementById('unitFamily').value = Data.families[0].id;
+        onFamilyChange();
+      }
+    }
     document.getElementById('mtitle').textContent='Edit fault record';
     var hbox = document.getElementById('historyBox'), hlist=document.getElementById('historyList');
     if(r.history && r.history.length){
@@ -1671,7 +1834,7 @@ var UI = (function(){
     document.getElementById('snErr').style.display='none';
     document.getElementById('modalbg').classList.add('on');
     document.body.style.overflow='hidden';
-    setTimeout(function(){ var cn=document.getElementById('customName'); if(cn) renderUnitSuggestions(cn.value); },100);
+    setTimeout(function(){ var cn2=document.getElementById('customName'); if(cn2) renderUnitSuggestions(cn2.value); },100);
   }
 
   function closeModal(){
@@ -1725,13 +1888,165 @@ var UI = (function(){
     renderRecords();
   }
 
+  /* ── Units Management View ── */
+  function renderUnitsView(){
+    // Families
+    var families = Data.families;
+    var fl = document.getElementById('familyList');
+    if(!fl) return;
+    if(!families.length) fl.innerHTML='<div class="empty-state">No families defined</div>';
+    else fl.innerHTML = families.map(function(f){
+      return '<div class="card">'+
+        '<div class="card-top"><span class="card-site">'+esc(f.label)+'</span>'+
+        '<span class="badge info" style="font-size:9px">'+ (f.fields||[]).length + ' fields</span></div>'+
+        '<div class="card-actions">'+
+        '<button class="btn btn-sm" onclick="UI.openEditFamily(\''+f.id+'\')">Edit</button>'+
+        '<button class="btn btn-sm btn-outline" onclick="UI.confirmDeleteFamily(\''+f.id+'\')">Delete</button>'+
+        '</div></div>';
+    }).join('');
+
+    // Unit catalog
+    var qUnit = (document.getElementById('unitCatalogSearch')?.value||'').toLowerCase().trim();
+    var catList = Data.catalog.filter(function(u){return !qUnit||u.toLowerCase().indexOf(qUnit)!==-1;});
+    var ucl = document.getElementById('unitCatalogList'), ucc=document.getElementById('unitCatalogCount');
+    if(ucc) ucc.textContent = Data.catalog.length;
+    if(!catList.length){ ucl.innerHTML='<div class="empty-state"><div class="icon">▥</div>No units in catalog</div>'; return; }
+    ucl.innerHTML = catList.slice(0,50).map(function(u){
+      var count = Data.records.filter(function(r){return r.unitName===u;}).length;
+      return '<div class="card">'+
+        '<div class="card-top"><span class="card-unit" style="font-weight:600;color:var(--ink)">'+esc(u)+'</span>'+
+        '<span class="badge info" style="font-size:9px">'+count+' records</span></div>'+
+        '<div class="card-actions">'+
+        '<button class="btn btn-sm" onclick="UI.editUnitCatalog(\''+u.replace(/'/g,"\\'")+'\')">Edit</button>'+
+        '<button class="btn btn-sm btn-outline" onclick="UI.confirmDeleteUnit(\''+u.replace(/'/g,"\\'")+'\')">Delete</button>'+
+        '</div></div>';
+    }).join('');
+    if(catList.length>50) ucl.innerHTML += '<div class="text-muted text-center" style="padding:6px;font-size:11px">… and '+(catList.length-50)+' more</div>';
+  }
+
+  /* ── Family management ── */
+  function openAddFamily(){
+    document.getElementById('familyEditId').value='';
+    document.getElementById('familyModalTitle').textContent='Add Unit Family';
+    document.getElementById('familyModalSub').textContent='Enter a name for the new family. It will appear in the family dropdown.';
+    document.getElementById('familyName').value='';
+    document.getElementById('familyPattern').value='';
+    document.getElementById('familyModal').classList.add('on');
+    document.body.style.overflow='hidden';
+  }
+
+  function openEditFamily(id){
+    var f = Data.getFamily(id);
+    if(!f) return;
+    document.getElementById('familyEditId').value=id;
+    document.getElementById('familyModalTitle').textContent='Edit Unit Family';
+    document.getElementById('familyModalSub').textContent='Update family name and pattern.';
+    document.getElementById('familyName').value=f.label;
+    // try to reconstruct pattern from fields
+    var pattern = '';
+    if(f.fields && f.fields.length){
+      var placeholders = f.fields.map(function(fld){ return '{'+fld.id+'}'; }).join('');
+      pattern = placeholders || '';
+    }
+    document.getElementById('familyPattern').value=pattern;
+    document.getElementById('familyModal').classList.add('on');
+    document.body.style.overflow='hidden';
+  }
+
+  function closeFamilyModal(){
+    document.getElementById('familyModal').classList.remove('on');
+    document.body.style.overflow='';
+  }
+
+  function saveFamily(e){
+    e.preventDefault();
+    var id = document.getElementById('familyEditId').value;
+    var name = document.getElementById('familyName').value.trim();
+    var pattern = document.getElementById('familyPattern').value.trim();
+    if(!name){ toast('Family name is required'); return; }
+    if(id){
+      Data.editFamily(id, name, pattern);
+      toast('Family updated');
+    } else {
+      Data.addFamily(name, pattern);
+      toast('Family added');
+    }
+    closeFamilyModal();
+    populateFamilySelect();
+    renderUnitsView();
+  }
+
+  function confirmDeleteFamily(id){
+    var f = Data.getFamily(id);
+    if(!f) return;
+    confirm('Delete family "'+f.label+'"?','This will remove the family from the dropdown. Existing records using this family will not be deleted but the family will no longer be available.','Delete',function(){
+      Data.deleteFamily(id);
+      populateFamilySelect();
+      renderUnitsView();
+      toast('Family deleted');
+    });
+  }
+
+  /* ── Unit catalog management ── */
+  function openAddUnit(){
+    var name = prompt('Enter new unit name:');
+    if(name && name.trim()){
+      var trimmed = name.trim();
+      if(Data.catalog.indexOf(trimmed)===-1){
+        Data.catalog.push(trimmed);
+        Data.catalog.sort();
+        Data.saveCatalog();
+        renderUnitsView();
+        toast('Unit added to catalog');
+      } else {
+        toast('Unit already exists');
+      }
+    }
+  }
+
+  function editUnitCatalog(oldName){
+    var newName = prompt('Edit unit name:', oldName);
+    if(newName && newName.trim() && newName.trim()!==oldName){
+      var trimmed = newName.trim();
+      var idx = Data.catalog.indexOf(oldName);
+      if(idx!==-1){
+        if(Data.catalog.indexOf(trimmed)===-1){
+          Data.catalog[idx] = trimmed;
+          Data.catalog.sort();
+          Data.saveCatalog();
+          // update records that use this unit name
+          Data.records.forEach(function(r){
+            if(r.unitName===oldName) r.unitName=trimmed;
+          });
+          Data.persist();
+          renderUnitsView();
+          toast('Unit updated');
+        } else {
+          toast('Name already exists');
+        }
+      }
+    }
+  }
+
+  function confirmDeleteUnit(name){
+    confirm('Delete unit "'+name+'"?','This will remove it from the catalog. Existing records with this unit name will not be affected.','Delete',function(){
+      var idx = Data.catalog.indexOf(name);
+      if(idx!==-1){
+        Data.catalog.splice(idx,1);
+        Data.saveCatalog();
+        renderUnitsView();
+        toast('Unit removed from catalog');
+      }
+    });
+  }
+
   /* ── view switching ── */
   function showView(id, btn){
     document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
     var view=document.getElementById(id); if(view) view.classList.add('active');
     document.querySelectorAll('.bottom-nav .nav-item').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-view')===id); });
     document.querySelectorAll('.desktop-nav button').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-view')===id); });
-    if(['quality','reports','backup','trash','importview'].indexOf(id)>=0){
+    if(['quality','reports','backup','trash','importview','units'].indexOf(id)>=0){
       document.querySelectorAll('.bottom-nav .nav-item').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-view')==='more'); });
     }
     window.scrollTo({top:0,behavior:'smooth'});
@@ -1755,7 +2070,7 @@ var UI = (function(){
     document.addEventListener('keydown', function(e){
       var tag = (e.target.tagName||'').toLowerCase();
       var typing = tag==='input'||tag==='textarea'||tag==='select';
-      if(e.key==='Escape'){ closeModal(); closeMore(); confirmCancel(); return; }
+      if(e.key==='Escape'){ closeModal(); closeMore(); confirmCancel(); closeFamilyModal(); return; }
       if(typing) return;
       if(e.key==='/'){ e.preventDefault(); showView('records'); setTimeout(function(){document.getElementById('q').focus();},60); }
       else if(e.key==='n'||e.key==='N'){ openAdd(); }
@@ -1768,12 +2083,17 @@ var UI = (function(){
     applyUnitSuggestion:applyUnitSuggestion, renderUnitSuggestions:renderUnitSuggestions, updatePreview:updatePreview,
     updateOutputText:updateOutputText, copyOutput:copyOutput,
     renderAll:renderAll, debounceRender:debounceRender, renderRecords:renderRecords, renderSites:renderSites,
-    renderQuality:renderQuality, renderBackup:renderBackup, renderTrash:renderTrash,
+    renderQuality:renderQuality, renderBackup:renderBackup, renderTrash:renderTrash, renderUnitsView:renderUnitsView,
     toggleSelect:toggleSelect, clearSelection:clearSelection, bulkDecision:bulkDecision, bulkDelete:bulkDelete,
     siteFilter:siteFilter, confirmRestoreSnapshot:confirmRestoreSnapshot, confirmPurge:confirmPurge, emptyTrash:emptyTrash,
     openAdd:openAdd, editRecord:editRecord, closeModal:closeModal, saveRecord:saveRecord, delRecord:delRecord,
     clearFilters:clearFilters, showView:showView, showMoreMenu:showMoreMenu, closeMore:closeMore, printReport:printReport,
-    confirm:confirm, confirmOk:confirmOk, confirmCancel:confirmCancel, initKeys:initKeys
+    confirm:confirm, confirmOk:confirmOk, confirmCancel:confirmCancel, initKeys:initKeys,
+    // Family & Unit management
+    openAddFamily:openAddFamily, openEditFamily:openEditFamily, closeFamilyModal:closeFamilyModal,
+    saveFamily:saveFamily, confirmDeleteFamily:confirmDeleteFamily,
+    openAddUnit:openAddUnit, editUnitCatalog:editUnitCatalog, confirmDeleteUnit:confirmDeleteUnit,
+    populateFamilySelect:populateFamilySelect
   };
 })();
 
@@ -1782,12 +2102,14 @@ var UI = (function(){
    ═══════════════════════════════════════════════════════════════════ */
 document.getElementById('modalbg').addEventListener('click', function(e){ if(e.target.id==='modalbg') UI.closeModal(); });
 document.getElementById('confirmbg').addEventListener('click', function(e){ if(e.target.id==='confirmbg') UI.confirmCancel(); });
+document.getElementById('familyModal').addEventListener('click', function(e){ if(e.target.id==='familyModal') UI.closeFamilyModal(); });
 document.addEventListener('touchend', function(){}, {passive:true});
 
 UI.loadTheme();
 Data.load();
 UI.initKeys();
+UI.populateFamilySelect();
 UI.renderAll();
 </script>
 </body>
-</html>
+   </html>
