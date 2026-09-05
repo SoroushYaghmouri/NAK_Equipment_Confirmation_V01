@@ -733,76 +733,171 @@ var Data = (function(){
 
   function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
 
-  /* ── Expanded canonical name + family detection ── */
+  /* ── Canonical name mapping (updated per user table) ── */
   function canonicalUnitName(n){
     if(!n) return '';
     var norm = String(n).replace(/\s+/g,' ').trim();
+
     var ALIAS_MAP = {
-      // CLU / BBU
-      "BBU CLU":"BBU6102 CLU - Ericsson",
-      "BBU6102 CLU":"BBU6102 CLU - Ericsson",
-      "BBU6102 CLU - ERICSSON":"BBU6102 CLU - Ericsson",
-      "BBU6102":"BBU6102 CLU - Ericsson",
-      "CLU":"CLU - Ericsson",
-      "CLU - ERICSSON":"CLU - Ericsson",
-      "CLU ERICSSON":"CLU - Ericsson",
-      "CLU - BBUB102 CLU - Ericsson":"CLU - Ericsson",
-      "CLU - BBUB102":"CLU - Ericsson",
-      "CLU BBUB102":"CLU - Ericsson",
-      // CCU
-      "Climat Control Board":"CCU - Climate Control Board",
-      "Climat Control Board - Ericsson":"CCU - Climate Control Board",
-      "Climate Control Board":"CCU - Climate Control Board",
-      "Climate Control Board - CCU":"CCU - Climate Control Board",
-      "CCU - Climate Control Board":"CCU - Climate Control Board",
-      "CCU Climate Control Board":"CCU - Climate Control Board",
-      "Thermo Electric Co - CCU":"CCU - Thermo Electric Co",
-      "CCU - Thermo Electric Co":"CCU - Thermo Electric Co",
-      "Thermo Electric":"CCU - Thermo Electric Co",
-      // DC Air Conditioner
-      "DC cabinet air conditioner - Envicool":"DC Cabinet Air Conditioner - Envicool",
-      "DC Cabinet Air Conditioner - Envicool":"DC Cabinet Air Conditioner - Envicool",
-      "DC Cabinet Air Conditioner Envicool":"DC Cabinet Air Conditioner - Envicool",
-      "Envicool":"DC Cabinet Air Conditioner - Envicool",
-      "DC Cabinet Air Conditioner - ITMC":"DC Cabinet Air Conditioner - ITMC",
-      "DC Air Conditioner - Porsoo":"DC Air Conditioner - Porsoo",
-      "NAC550D - Nian DC Air Conditioner":"NAC550D - Nian DC Air Conditioner",
-      "NAC650D - Nian DC Air Conditioner":"NAC650D - Nian DC Air Conditioner",
-      "NAC1250D - Nian DC Air Conditioner":"NAC1250D - Nian DC Air Conditioner",
-      "NAC2000D - Nian DC Air Conditioner":"NAC2000D - Nian DC Air Conditioner",
-      "NAC2400D - Nian DC Air Conditioner":"NAC2400D - Nian DC Air Conditioner",
-      "NAC3000D - Nian DC Air Conditioner":"NAC3000D - Nian DC Air Conditioner",
-      "NAC3300D - Nian DC Air Conditioner":"NAC3300D - Nian DC Air Conditioner",
-      "NAC3500D - Nian DC Air Conditioner":"NAC3500D - Nian DC Air Conditioner",
-      // DCC
-      "DCC-Equipment_Confirmation ELECTRONIC":"DCC - Equipment_Confirmation Electronic",
-      "DCC-Equipment_Confirmation ELECTRONIC - Cabinet Conditioner":"DCC - Equipment_Confirmation Electronic - Cabinet Conditioner",
-      "DCC Equipment Confirmation Electronic":"DCC - Equipment_Confirmation Electronic",
-      // PSU
-      "PSU AC 03":"PSU AC 03 - Ericsson",
-      "PSU AC03":"PSU AC 03 - Ericsson",
-      "PSU AC 03 Ericsson":"PSU AC 03 - Ericsson",
-      "PSU AC 01":"PSU AC 01 - Ericsson",
-      "PSU AC 02":"PSU AC 02 - Ericsson",
-      // Rectifier
-      "PEC- 4860 - Rectifier Equipment_Confirmation":"PEC-4860 - Rectifier Equipment_Confirmation",
-      "PEC 4860":"PEC-4860 - Rectifier Equipment_Confirmation",
-      "PECSU - 2020 - Equipment_Confirmation":"PECSU-2020 - Equipment_Confirmation",
-      // NCR / NCU
-      "NCR48U - Nian":"NCR48U - 3KW - Nian",
-      "NCR48U - NIAN":"NCR48U - 3KW - Nian",
-      "NCR48U 3KW":"NCR48U - 3KW - Nian",
-      "NCR48U - 3KW":"NCR48U - 3KW - Nian",
-      "NCR48U G/01- 3KW - Nian":"NCR48U G/01 - 3KW - Nian",
-      "NCR48U G/01-3KW - Nian":"NCR48U G/01 - 3KW - Nian",
-      "NCR48U G/01 - 3KW - Nian":"NCR48U G/01 - 3KW - Nian",
-      "NCU48U - 2KW - Nian":"NCU48U - 2KW - Nian",
-      "NCR24U - 1.5KW - Nian":"NCR24U - 1.5KW - Nian"
+      // NCR → NCR48U 3KW (Family: NCR, Nian)
+      "NCR48U - 3KW":"NCR48U 3KW",
+      "NCR48U - 3KW - Nian":"NCR48U 3KW",
+      "NCR48U - Nian":"NCR48U 3KW",
+      "NCR48U - NIAN":"NCR48U 3KW",
+      "NCR48U 3KW":"NCR48U 3KW",
+      "NCR48U - 3KW":"NCR48U 3KW",
+      "NCR48U G/01- 3KW - Nian":"NCR48U 3KW",
+      "NCR48U G/01-3KW - Nian":"NCR48U 3KW",
+      "NCR48U G/01 - 3KW - Nian":"NCR48U 3KW",
+      "NCR48U G/01 - 3KW":"NCR48U 3KW",
+      "NCR48U":"NCR48U 3KW",
+      "NCR48U G/01":"NCR48U 3KW",
+
+      // NCU → NCU48 (Family: NCU, Nian)
+      "NCU48U - 2KW - Nian":"NCU48",
+      "NCU48U":"NCU48",
+      "NCU48S":"NCU48",
+      "NCU48U - 2KW":"NCU48",
+      "NCU48":"NCU48",
+
+      // CLU / BBU → BBU6102 CLU (Family: CLU, Ericsson)
+      "BBU CLU":"BBU6102 CLU",
+      "BBU6102 CLU":"BBU6102 CLU",
+      "BBU6102 CLU - Ericsson":"BBU6102 CLU",
+      "BBU6102 CLU - ERICSSON":"BBU6102 CLU",
+      "BBU6102":"BBU6102 CLU",
+      "CLU":"BBU6102 CLU",
+      "CLU - ERICSSON":"BBU6102 CLU",
+      "CLU ERICSSON":"BBU6102 CLU",
+      "CLU - Ericsson":"BBU6102 CLU",
+      "CLU - BBUB102 CLU - Ericsson":"BBU6102 CLU",
+      "CLU - BBUB102":"BBU6102 CLU",
+      "CLU BBUB102":"BBU6102 CLU",
+
+      // CCU → CCU Climate Control (Family: CCU)
+      "Climat Control Board":"CCU Climate Control",
+      "Climat Control Board - Ericsson":"CCU Climate Control",
+      "Climate Control Board":"CCU Climate Control",
+      "Climate Control Board - CCU":"CCU Climate Control",
+      "CCU - Climate Control Board":"CCU Climate Control",
+      "CCU Climate Control Board":"CCU Climate Control",
+      "CCU - Climate Control Board":"CCU Climate Control",
+      "Thermo Electric Co - CCU":"CCU Climate Control",
+      "CCU - Thermo Electric Co":"CCU Climate Control",
+      "Thermo Electric":"CCU Climate Control",
+      "CCU Climate Control":"CCU Climate Control",
+
+      // PSU → PSU AC 03 (Family: PSU, Ericsson)
+      "PSU AC 03":"PSU AC 03",
+      "PSU AC03":"PSU AC 03",
+      "PSU AC 03 Ericsson":"PSU AC 03",
+      "PSU AC 03 - Ericsson":"PSU AC 03",
+      "PSU AC 01":"PSU AC 01",
+      "PSU AC 02":"PSU AC 02",
+      "PSU AC 01 - Ericsson":"PSU AC 01",
+      "PSU AC 02 - Ericsson":"PSU AC 02",
+
+      // Envicool → DC Cabinet AC Envicool (Family: AC)
+      "DC cabinet air conditioner - Envicool":"DC Cabinet AC Envicool",
+      "DC Cabinet Air Conditioner - Envicool":"DC Cabinet AC Envicool",
+      "DC Cabinet Air Conditioner Envicool":"DC Cabinet AC Envicool",
+      "Envicool":"DC Cabinet AC Envicool",
+      "DC Cabinet AC Envicool":"DC Cabinet AC Envicool",
+
+      // ITMC Air Conditioner → Air Conditioner ITMC (Family: AC)
+      "Air Conditioner - ITMC":"Air Conditioner ITMC",
+      "DC Cabinet Air Conditioner - ITMC":"Air Conditioner ITMC",
+      "Air Conditioner ITMC":"Air Conditioner ITMC",
+
+      // DCC Porsoo → DCC Porsoo (Family: DCC)
+      "DCC-PORSOO ELECTRONIC":"DCC Porsoo",
+      "DCC-PORSOO ELECTRONIC - Cabinet Conditioner":"DCC Porsoo",
+      "DCC-Equipment_Confirmation ELECTRONIC":"DCC Porsoo",
+      "DCC-Equipment_Confirmation ELECTRONIC - Cabinet Conditioner":"DCC Porsoo",
+      "DCC Equipment Confirmation Electronic":"DCC Porsoo",
+      "DCC Porsoo":"DCC Porsoo",
+      "DCC - Equipment_Confirmation Electronic":"DCC Porsoo",
+      "DCC - Equipment_Confirmation Electronic - Cabinet Conditioner":"DCC Porsoo",
+
+      // NAC*D series → NAC DC Air Conditioner (Family: NAC, Nian)
+      "NAC550D - Nian DC Air Conditioner":"NAC DC Air Conditioner",
+      "NAC650D - Nian DC Air Conditioner":"NAC DC Air Conditioner",
+      "NAC1250D - Nian DC Air Conditioner":"NAC DC Air Conditioner",
+      "NAC2000D - Nian DC Air Conditioner":"NAC DC Air Conditioner",
+      "NAC2400D - Nian DC Air Conditioner":"NAC DC Air Conditioner",
+      "NAC3000D - Nian DC Air Conditioner":"NAC DC Air Conditioner",
+      "NAC3300D - Nian DC Air Conditioner":"NAC DC Air Conditioner",
+      "NAC3500D - Nian DC Air Conditioner":"NAC DC Air Conditioner",
+      "NAC550D":"NAC DC Air Conditioner",
+      "NAC650D":"NAC DC Air Conditioner",
+      "NAC1250D":"NAC DC Air Conditioner",
+      "NAC2000D":"NAC DC Air Conditioner",
+      "NAC2400D":"NAC DC Air Conditioner",
+      "NAC3000D":"NAC DC Air Conditioner",
+      "NAC3300D":"NAC DC Air Conditioner",
+      "NAC3500D":"NAC DC Air Conditioner",
+      "NAC DC Air Conditioner":"NAC DC Air Conditioner",
+
+      // Rectifier ITMC → Rectifier 48V 3000W ITMC (Family: Rectifier)
+      "RECTIFIER 48VDC3000 - ITMC":"Rectifier 48V 3000W ITMC",
+      "RECTIFIER 48VDC3000":"Rectifier 48V 3000W ITMC",
+      "Rectifier 48V 3000W ITMC":"Rectifier 48V 3000W ITMC",
+
+      // PEC / PECSU Porsoo → PEC Rectifier Porsoo (Family: Rectifier)
+      "PEC- 4860 - Rectifier Equipment_Confirmation":"PEC Rectifier Porsoo",
+      "PEC 4860":"PEC Rectifier Porsoo",
+      "PEC-4860":"PEC Rectifier Porsoo",
+      "PEC-4860 - Rectifier Equipment_Confirmation":"PEC Rectifier Porsoo",
+      "PECSU - 2020 - Equipment_Confirmation":"PEC Rectifier Porsoo",
+      "PECSU-2020":"PEC Rectifier Porsoo",
+      "PEC Rectifier Porsoo":"PEC Rectifier Porsoo",
+
+      // Flatpack2 / Smartpack → Flatpack2 / Smartpack (Family: Rectifier, Eltek)
+      "Rectifier - Flatpack2 2000W 48V BF":"Flatpack2 / Smartpack",
+      "Flatpack2":"Flatpack2 / Smartpack",
+      "Smartpack Extended - ELTEK":"Flatpack2 / Smartpack",
+      "Smartpack Extended":"Flatpack2 / Smartpack",
+      "Flatpack2 / Smartpack":"Flatpack2 / Smartpack",
+
+      // SCU → SCU Ericsson (Family: SCU)
+      "SCU 01 01 - Ericsson":"SCU Ericsson",
+      "SCU 01 01":"SCU Ericsson",
+      "SCU Ericsson":"SCU Ericsson",
+
+      // Controller → Controller Unit ITMC (Family: Controller)
+      "Controller Unit - ITMC":"Controller Unit ITMC",
+      "Controller Unit ITMC":"Controller Unit ITMC",
+
+      // PDU → PDU (Family: PDU)
+      "PDU 01 01":"PDU",
+      "PDU 02 01":"PDU",
+      "PDU":"PDU"
     };
+
     if(ALIAS_MAP[norm]) return ALIAS_MAP[norm];
     var low = norm.toLowerCase();
     for(var k in ALIAS_MAP){ if(k.toLowerCase()===low) return ALIAS_MAP[k]; }
-    // Light fuzzy clean
+
+    // Fuzzy patterns
+    if(/^NCR48U/i.test(norm)) return "NCR48U 3KW";
+    if(/^NCU48/i.test(norm)) return "NCU48";
+    if(/BBU6102|^\s*CLU\b/i.test(norm)) return "BBU6102 CLU";
+    if(/Climate Control|Climat Control|Thermo Electric|^\s*CCU\b/i.test(norm)) return "CCU Climate Control";
+    if(/^PSU\s*AC\s*03/i.test(norm)) return "PSU AC 03";
+    if(/^PSU\s*AC\s*01/i.test(norm)) return "PSU AC 01";
+    if(/^PSU\s*AC\s*02/i.test(norm)) return "PSU AC 02";
+    if(/Envicool/i.test(norm)) return "DC Cabinet AC Envicool";
+    if(/Air Conditioner.*ITMC|DC Cabinet Air Conditioner.*ITMC/i.test(norm)) return "Air Conditioner ITMC";
+    if(/DCC.*PORSOO|DCC.*Equipment_Confirmation/i.test(norm)) return "DCC Porsoo";
+    if(/^NAC\d+D/i.test(norm)) return "NAC DC Air Conditioner";
+    if(/RECTIFIER\s*48VDC3000|48VDC3000.*ITMC/i.test(norm)) return "Rectifier 48V 3000W ITMC";
+    if(/PEC[-\s]*4860|PECSU/i.test(norm)) return "PEC Rectifier Porsoo";
+    if(/Flatpack2|Smartpack/i.test(norm)) return "Flatpack2 / Smartpack";
+    if(/^SCU\s*01/i.test(norm)) return "SCU Ericsson";
+    if(/Controller Unit.*ITMC/i.test(norm)) return "Controller Unit ITMC";
+    if(/^PDU\s*\d+/i.test(norm)) return "PDU";
+
+    // Light clean
     norm = norm.replace(/\s*-\s*/g,' - ').replace(/\s+/g,' ').trim();
     return norm;
   }
@@ -810,71 +905,62 @@ var Data = (function(){
   function detectFamily(name){
     if(!name) return 'CUSTOM';
     var n = name.toUpperCase();
-    if(/^(NCU|NCR)\d/.test(n) || n.indexOf('NCR')===0 || n.indexOf('NCU')===0) return 'NCU_NCR';
+    if(n.indexOf('NCR48U')!==-1 || n.indexOf('NCR ')===0) return 'NCR';
+    if(n.indexOf('NCU48')!==-1 || n.indexOf('NCU ')===0) return 'NCU';
+    if(n.indexOf('BBU6102')!==-1 || n.indexOf('CLU')!==-1) return 'CLU';
+    if(n.indexOf('CCU')!==-1 || n.indexOf('CLIMATE')!==-1) return 'CCU';
     if(n.indexOf('PSU')===0) return 'PSU';
-    if(n.indexOf('CLU')!==-1 || n.indexOf('BBU')!==-1) return 'CLU';
-    if(n.indexOf('CCU')!==-1 || n.indexOf('CLIMATE')!==-1 || n.indexOf('THERMO ELECTRIC')!==-1) return 'CCU';
-    if(n.indexOf('NAC')===0 || n.indexOf('DC CABINET')!==-1 || n.indexOf('DC AIR')!==-1 || n.indexOf('ENVICOOL')!==-1) return 'DC_AC';
-    if(n.indexOf('RECTIFIER')!==-1 || n.indexOf('PEC-')!==-1 || n.indexOf('FLATPACK')!==-1) return 'RECTIFIER';
-    if(n.indexOf('DCC')===0) return 'DCC';
-    if(n.indexOf('PDU')===0) return 'PDU';
-    if(n.indexOf('AIR CONDITIONER')!==-1 && n.indexOf('DC')===-1) return 'AIRCOND';
-    if(n.indexOf('CONTROLLER')!==-1) return 'CONTROLLER';
-    if(n.indexOf('SMARTPACK')!==-1) return 'SMARTPACK';
+    if(n.indexOf('NAC')===0 || n.indexOf('NAC DC')!==-1) return 'NAC';
+    if(n.indexOf('DC CABINET AC ENVICOOL')!==-1 || n.indexOf('AIR CONDITIONER ITMC')!==-1 || n.indexOf('ENVICOOL')!==-1) return 'AC';
+    if(n.indexOf('DCC')===0 || n.indexOf('DCC PORSOO')!==-1) return 'DCC';
+    if(n.indexOf('RECTIFIER')!==-1 || n.indexOf('PEC ')!==-1 || n.indexOf('FLATPACK')!==-1 || n.indexOf('SMARTPACK')!==-1) return 'RECTIFIER';
     if(n.indexOf('SCU')===0) return 'SCU';
+    if(n.indexOf('CONTROLLER')!==-1) return 'CONTROLLER';
+    if(n.indexOf('PDU')===0) return 'PDU';
     return 'CUSTOM';
   }
 
   function defaultFamilies(){
     return [
-      {id:'NCU_NCR', label:'NCU / NCR', fields:[
-        {id:'ncuPrefix',type:'select',label:'Type',options:['NCU','NCR'],default:'NCR'},
-        {id:'ncuVoltage',type:'text',label:'Voltage',default:'48',placeholder:'48'},
-        {id:'ncuVersion',type:'text',label:'Version',default:'U',placeholder:'U'},
-        {id:'ncuSubtype',type:'text',label:'Subtype (e.g. C/11)',placeholder:'C/11'},
-        {id:'ncuPower',type:'select',label:'Power',options:['3KW','2KW','1.5KW','N/A'],default:'3KW'}
-      ], build:function(v){ var p=v.ncuPrefix||'NCR',vol=v.ncuVoltage||'48',ver=v.ncuVersion||'U';
-        var sub=v.ncuSubtype?' '+v.ncuSubtype.trim():'';var pw=(v.ncuPower&&v.ncuPower!=='N/A')?' - '+v.ncuPower:'';
-        return p+vol+ver+sub+pw; }},
-      {id:'PSU', label:'PSU AC', fields:[
-        {id:'psuVersion',type:'select',label:'Version',options:['AC 01 (1KW)','AC 02 (2KW)','AC 03 (3KW)'],default:'AC 03 (3KW)'},
-        {id:'psuSuffix',type:'text',label:'Suffix',placeholder:'- Ericsson (optional)'}
-      ], build:function(v){ var base=v.psuVersion?v.psuVersion.split('(')[0].trim():'PSU AC 03';return 'PSU '+base+(v.psuSuffix?' '+v.psuSuffix.trim():'');}},
-      {id:'CLU', label:'CLU / BBU', fields:[
-        {id:'cluType',type:'select',label:'Type',options:['CLU','BBU6102 CLU'],default:'CLU'},
-        {id:'cluSuffix',type:'text',label:'Suffix',placeholder:'- Ericsson (or empty)'}
-      ], build:function(v){ var base=v.cluType||'CLU',suff=v.cluSuffix?' '+v.cluSuffix.trim():'';if(base==='CLU'&&!suff)suff=' - Ericsson';return base+suff;}},
-      {id:'CCU', label:'CCU / Climate control', fields:[
-        {id:'ccuType',type:'select',label:'Type',options:['CCU - Climate Control Board','CCU - Thermo Electric Co','Climate Control Board - CCU','Climat Control Board'],default:'CCU - Climate Control Board'},
-        {id:'ccuSuffix',type:'text',label:'Extra',placeholder:'- Ericsson etc.'}
-      ], build:function(v){return (v.ccuType||'CCU - Climate Control Board')+(v.ccuSuffix?' '+v.ccuSuffix.trim():'');}},
-      {id:'DC_AC', label:'DC Air Conditioner', fields:[
-        {id:'dcacBrand', type:'select', label:'Brand', options:['Nian','Envicool','ITMC','Porsoo'], default:'Nian'},
-        {id:'dcacPower', type:'select', label:'Power (W)', options:['550','650','1250','2000','2400','3000','3300','3500'], default:'2400'},
-        {id:'dcacSuffix', type:'text', label:'Suffix (optional)', placeholder:'e.g. - Cooler, - Compressor'}
-      ], build:function(v){
-        var brand = v.dcacBrand || 'Nian';
-        var power = v.dcacPower || '2400';
-        var suffix = v.dcacSuffix ? ' ' + v.dcacSuffix.trim() : '';
-        if(brand === 'Nian') return 'NAC' + power + 'D - Nian DC Air Conditioner' + suffix;
-        if(brand === 'Envicool') return 'DC Cabinet Air Conditioner - Envicool' + suffix;
-        if(brand === 'ITMC') return 'DC Cabinet Air Conditioner - ITMC' + suffix;
-        if(brand === 'Porsoo') return 'DC Air Conditioner - Porsoo' + suffix;
-        return 'DC Air Conditioner - ' + brand + suffix;
-      }},
+      {id:'NCR', label:'NCR (Nian)', fields:[
+        {id:'ncrModel',type:'text',label:'Model',default:'NCR48U 3KW',placeholder:'NCR48U 3KW'}
+      ], build:function(v){ return v.ncrModel || 'NCR48U 3KW'; }},
+      {id:'NCU', label:'NCU (Nian)', fields:[
+        {id:'ncuModel',type:'text',label:'Model',default:'NCU48',placeholder:'NCU48'}
+      ], build:function(v){ return v.ncuModel || 'NCU48'; }},
+      {id:'CLU', label:'CLU / BBU (Ericsson)', fields:[
+        {id:'cluModel',type:'text',label:'Model',default:'BBU6102 CLU',placeholder:'BBU6102 CLU'}
+      ], build:function(v){ return v.cluModel || 'BBU6102 CLU'; }},
+      {id:'CCU', label:'CCU / Climate Control', fields:[
+        {id:'ccuModel',type:'text',label:'Model',default:'CCU Climate Control',placeholder:'CCU Climate Control'}
+      ], build:function(v){ return v.ccuModel || 'CCU Climate Control'; }},
+      {id:'PSU', label:'PSU AC (Ericsson)', fields:[
+        {id:'psuVersion',type:'select',label:'Version',options:['PSU AC 03','PSU AC 01','PSU AC 02'],default:'PSU AC 03'}
+      ], build:function(v){ return v.psuVersion || 'PSU AC 03'; }},
+      {id:'NAC', label:'NAC DC Air Conditioner (Nian)', fields:[
+        {id:'nacModel',type:'text',label:'Model',default:'NAC DC Air Conditioner',placeholder:'NAC DC Air Conditioner'}
+      ], build:function(v){ return v.nacModel || 'NAC DC Air Conditioner'; }},
+      {id:'AC', label:'Air Conditioner (Envicool / ITMC)', fields:[
+        {id:'acModel',type:'select',label:'Model',options:['DC Cabinet AC Envicool','Air Conditioner ITMC'],default:'DC Cabinet AC Envicool'}
+      ], build:function(v){ return v.acModel || 'DC Cabinet AC Envicool'; }},
+      {id:'DCC', label:'DCC (Porsoo)', fields:[
+        {id:'dccModel',type:'text',label:'Model',default:'DCC Porsoo',placeholder:'DCC Porsoo'}
+      ], build:function(v){ return v.dccModel || 'DCC Porsoo'; }},
       {id:'RECTIFIER', label:'Rectifier', fields:[
-        {id:'recType',type:'select',label:'Type',options:['RECTIFIER 48VDC3000 - ITMC','Rectifier - Flatpack2 2000W 48V BF','PEC-4860 - Rectifier Equipment_Confirmation'],default:'RECTIFIER 48VDC3000 - ITMC'},
-        {id:'recSuffix',type:'text',label:'Suffix',placeholder:''}
-      ], build:function(v){return (v.recType||'RECTIFIER 48VDC3000 - ITMC')+(v.recSuffix?' '+v.recSuffix.trim():'');}},
-      {id:'DCC', label:'DCC', fields:[
-        {id:'dccType',type:'select',label:'Type',options:['DCC - Equipment_Confirmation Electronic','DCC - Equipment_Confirmation Electronic - Cabinet Conditioner'],default:'DCC - Equipment_Confirmation Electronic'}
-      ], build:function(v){return v.dccType||'DCC - Equipment_Confirmation Electronic';}},
-      {id:'PDU', label:'PDU', fields:[{id:'pduType',type:'text',label:'PDU type',default:'PDU 01 01',placeholder:'PDU 01 01'}], build:function(v){return v.pduType||'PDU 01 01';}},
-      {id:'AIRCOND', label:'Air conditioner - ITMC', fields:[{id:'airType',type:'text',label:'Model',default:'Air Conditioner - ITMC',placeholder:'Air Conditioner - ITMC'}], build:function(v){return v.airType||'Air Conditioner - ITMC';}},
-      {id:'CONTROLLER', label:'Controller unit', fields:[{id:'ctrlType',type:'text',label:'Model',default:'Controller Unit - ITMC',placeholder:'Controller Unit - ITMC'}], build:function(v){return v.ctrlType||'Controller Unit - ITMC';}},
-      {id:'SMARTPACK', label:'Smartpack', fields:[{id:'smartType',type:'text',label:'Model',default:'Smartpack Extended - ELTEK',placeholder:'Smartpack Extended - ELTEK'}], build:function(v){return v.smartType||'Smartpack Extended - ELTEK';}},
-      {id:'SCU', label:'SCU', fields:[{id:'scuType',type:'text',label:'Model',default:'SCU 01 01 - Ericsson',placeholder:'SCU 01 01 - Ericsson'}], build:function(v){return v.scuType||'SCU 01 01 - Ericsson';}},
-      {id:'CUSTOM', label:'Custom (free text)', fields:[{id:'customName',type:'text',label:'Full unit name',placeholder:'Enter exact unit name',required:true}], build:function(v){return v.customName||'';}}
+        {id:'recModel',type:'select',label:'Model',options:['Rectifier 48V 3000W ITMC','PEC Rectifier Porsoo','Flatpack2 / Smartpack'],default:'Rectifier 48V 3000W ITMC'}
+      ], build:function(v){ return v.recModel || 'Rectifier 48V 3000W ITMC'; }},
+      {id:'SCU', label:'SCU (Ericsson)', fields:[
+        {id:'scuModel',type:'text',label:'Model',default:'SCU Ericsson',placeholder:'SCU Ericsson'}
+      ], build:function(v){ return v.scuModel || 'SCU Ericsson'; }},
+      {id:'CONTROLLER', label:'Controller (ITMC)', fields:[
+        {id:'ctrlModel',type:'text',label:'Model',default:'Controller Unit ITMC',placeholder:'Controller Unit ITMC'}
+      ], build:function(v){ return v.ctrlModel || 'Controller Unit ITMC'; }},
+      {id:'PDU', label:'PDU', fields:[
+        {id:'pduModel',type:'text',label:'Model',default:'PDU',placeholder:'PDU'}
+      ], build:function(v){ return v.pduModel || 'PDU'; }},
+      {id:'CUSTOM', label:'Custom (free text)', fields:[
+        {id:'customName',type:'text',label:'Full unit name',placeholder:'Enter exact unit name',required:true}
+      ], build:function(v){ return v.customName || ''; }}
     ];
   }
 
@@ -944,23 +1030,18 @@ var Data = (function(){
   }
 
   var SAMPLE_UNITS = {
-    'NCU_NCR': ['NCR48U - 3KW - Nian', 'NCU48U - 2KW - Nian', 'NCR24U - 1.5KW - Nian', 'NCR48U G/01 - 3KW - Nian'],
-    'PSU': ['PSU AC 03 - Ericsson', 'PSU AC 01 - Ericsson', 'PSU AC 02 - Ericsson', 'PSU AC 03 - Nian'],
-    'CLU': ['CLU - Ericsson', 'BBU6102 CLU - Ericsson'],
-    'CCU': ['CCU - Climate Control Board', 'CCU - Thermo Electric Co'],
-    'DC_AC': [
-      'NAC550D - Nian DC Air Conditioner','NAC650D - Nian DC Air Conditioner','NAC1250D - Nian DC Air Conditioner',
-      'NAC2000D - Nian DC Air Conditioner','NAC2400D - Nian DC Air Conditioner','NAC3000D - Nian DC Air Conditioner',
-      'NAC3300D - Nian DC Air Conditioner','NAC3500D - Nian DC Air Conditioner',
-      'DC Cabinet Air Conditioner - Envicool','DC Cabinet Air Conditioner - ITMC','DC Air Conditioner - Porsoo'
-    ],
-    'RECTIFIER': ['RECTIFIER 48VDC3000 - ITMC', 'Rectifier - Flatpack2 2000W 48V BF', 'PEC-4860 - Rectifier Equipment_Confirmation'],
-    'DCC': ['DCC - Equipment_Confirmation Electronic', 'DCC - Equipment_Confirmation Electronic - Cabinet Conditioner'],
-    'PDU': ['PDU 01 01', 'PDU 02 01'],
-    'AIRCOND': ['Air Conditioner - ITMC'],
-    'CONTROLLER': ['Controller Unit - ITMC'],
-    'SMARTPACK': ['Smartpack Extended - ELTEK'],
-    'SCU': ['SCU 01 01 - Ericsson']
+    'NCR': ['NCR48U 3KW'],
+    'NCU': ['NCU48'],
+    'CLU': ['BBU6102 CLU'],
+    'CCU': ['CCU Climate Control'],
+    'PSU': ['PSU AC 03', 'PSU AC 01', 'PSU AC 02'],
+    'NAC': ['NAC DC Air Conditioner'],
+    'AC': ['DC Cabinet AC Envicool', 'Air Conditioner ITMC'],
+    'DCC': ['DCC Porsoo'],
+    'RECTIFIER': ['Rectifier 48V 3000W ITMC', 'PEC Rectifier Porsoo', 'Flatpack2 / Smartpack'],
+    'SCU': ['SCU Ericsson'],
+    'CONTROLLER': ['Controller Unit ITMC'],
+    'PDU': ['PDU']
   };
 
   function loadUnits(){
@@ -1437,7 +1518,7 @@ var Data = (function(){
   };
 })();
 
-/* ── UI module (same as previous upgraded version) ── */
+/* ── UI module ── */
 var UI = (function(){
   var chartInstances = {};
   var _debounceTimer = null;
@@ -1583,62 +1664,40 @@ var UI = (function(){
       return;
     }
 
-    if(famId === 'DC_AC'){
-      var m = name.match(/^NAC(\d+)D\s*-\s*Nian/i);
-      if(m){
-        var brandEl = document.getElementById('dcacBrand');
-        var powerEl = document.getElementById('dcacPower');
-        if(brandEl) brandEl.value = 'Nian';
-        if(powerEl) powerEl.value = m[1];
-        return;
-      }
-      if(/Envicool/i.test(name)){ var b = document.getElementById('dcacBrand'); if(b) b.value = 'Envicool'; }
-      else if(/ITMC/i.test(name)){ var b2 = document.getElementById('dcacBrand'); if(b2) b2.value = 'ITMC'; }
-      else if(/Porsoo/i.test(name)){ var b3 = document.getElementById('dcacBrand'); if(b3) b3.value = 'Porsoo'; }
-      return;
-    }
-
-    if(famId === 'NCU_NCR'){
-      var m2 = name.match(/^(NCU|NCR)(\d+)([A-Z]?)(?:\s+([A-Z0-9\/]+))?(?:\s*-\s*(\d+(?:\.\d+)?KW))?/i);
-      if(m2){
-        var p = document.getElementById('ncuPrefix'); if(p) p.value = m2[1].toUpperCase();
-        var v = document.getElementById('ncuVoltage'); if(v) v.value = m2[2]||'48';
-        var ver = document.getElementById('ncuVersion'); if(ver) ver.value = m2[3]||'U';
-        var sub = document.getElementById('ncuSubtype'); if(sub) sub.value = m2[4]||'';
-        var pw = document.getElementById('ncuPower'); if(pw && m2[5]) pw.value = m2[5].toUpperCase();
-      }
+    // Simple families with single text field
+    if(fam.fields && fam.fields.length === 1 && fam.fields[0].type === 'text'){
+      var only = document.getElementById(fam.fields[0].id);
+      if(only) only.value = name;
       return;
     }
 
     if(famId === 'PSU'){
-      if(/AC\s*01/i.test(name)) { var s=document.getElementById('psuVersion'); if(s) s.value='AC 01 (1KW)'; }
-      else if(/AC\s*02/i.test(name)) { var s2=document.getElementById('psuVersion'); if(s2) s2.value='AC 02 (2KW)'; }
-      else if(/AC\s*03/i.test(name)) { var s3=document.getElementById('psuVersion'); if(s3) s3.value='AC 03 (3KW)'; }
-      var suf = document.getElementById('psuSuffix');
-      if(suf){
-        var rest = name.replace(/^PSU\s+AC\s*\d+\s*/i,'').trim();
-        suf.value = rest || '';
+      var sel = document.getElementById('psuVersion');
+      if(sel){
+        if(/AC\s*01/i.test(name)) sel.value = 'PSU AC 01';
+        else if(/AC\s*02/i.test(name)) sel.value = 'PSU AC 02';
+        else sel.value = 'PSU AC 03';
       }
       return;
     }
 
-    if(famId === 'CLU'){
-      if(/BBU6102/i.test(name)){
-        var t = document.getElementById('cluType'); if(t) t.value = 'BBU6102 CLU';
-      } else {
-        var t2 = document.getElementById('cluType'); if(t2) t2.value = 'CLU';
-      }
-      var suf2 = document.getElementById('cluSuffix');
-      if(suf2){
-        var rest2 = name.replace(/^(CLU|BBU6102 CLU)\s*/i,'').trim();
-        suf2.value = rest2 || '';
+    if(famId === 'AC'){
+      var acSel = document.getElementById('acModel');
+      if(acSel){
+        if(/Envicool/i.test(name)) acSel.value = 'DC Cabinet AC Envicool';
+        else acSel.value = 'Air Conditioner ITMC';
       }
       return;
     }
 
-    if(fam.fields && fam.fields.length === 1 && fam.fields[0].type === 'text'){
-      var only = document.getElementById(fam.fields[0].id);
-      if(only) only.value = name;
+    if(famId === 'RECTIFIER'){
+      var recSel = document.getElementById('recModel');
+      if(recSel){
+        if(/PEC/i.test(name)) recSel.value = 'PEC Rectifier Porsoo';
+        else if(/Flatpack|Smartpack/i.test(name)) recSel.value = 'Flatpack2 / Smartpack';
+        else recSel.value = 'Rectifier 48V 3000W ITMC';
+      }
+      return;
     }
   }
 
@@ -2536,4 +2595,4 @@ UI.populateFamilySelect();
 UI.renderAll();
 </script>
 </body>
-  </html>
+</html>
