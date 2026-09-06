@@ -1,7 +1,3 @@
-
-
-
-Fault console · HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,7 +12,7 @@ Fault console · HTML
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
-/* ─── styles (unchanged) ─── */
+/* ─── styles ─── */
 :root{
   --bg-0:#0a0d12; --bg-1:#10141c; --bg-2:#161c27; --bg-3:#1c2431;
   --line:#26303f; --line-soft:#1c2531;
@@ -155,11 +151,7 @@ select.field{
 .sn-tag{background:var(--bg-3);border:1px solid var(--line);color:var(--ink-dim)}
 .check{width:18px;height:18px;flex-shrink:0;border-radius:5px;border:1.5px solid var(--line-soft);accent-color:var(--signal)}
  
-/* ─── option chips (shared base for every "choice"-style element:
-     status badges, SN tags, unit suggestions, count/pill badges) ───
-     Keeping one base rule means every option-like element in the app
-     — no matter which panel it's rendered in — has the same shape,
-     padding, radius and typography; only the color changes with meaning. */
+/* ─── option chips ─── */
 .chip,.badge,.sn-tag,.unit-suggestion,.panel-title .count,.panel-title .badge-pill{
   display:inline-flex;align-items:center;justify-content:center;gap:4px;
   padding:3px 9px;border-radius:10px;font-weight:600;font-size:10.5px;
@@ -303,6 +295,366 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
  
 .backup-item{display:flex;justify-content:space-between;align-items:center;padding:9px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:5px;background:var(--bg-2)}
 .backup-item .info{font-size:12px} .backup-item .info small{color:var(--ink-faint);font-family:var(--mono)}
+ 
+/* ═══════════════════════════════════════════════════════════════
+   UPGRADED UNIT SELECTOR — fully redesigned
+   ═══════════════════════════════════════════════════════════════ */
+.unit-picker{
+  background:var(--bg-2);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  overflow:hidden;
+  margin-top:2px;
+}
+.unit-picker-header{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 12px;
+  background:var(--bg-3);
+  border-bottom:1px solid var(--line);
+}
+.unit-picker-header .search-wrap{
+  flex:1;
+  position:relative;
+}
+.unit-picker-header .search-wrap input{
+  width:100%;
+  padding:9px 12px 9px 36px;
+  border:1px solid var(--line);
+  border-radius:9px;
+  background:var(--bg-1);
+  color:var(--ink);
+  font-size:13.5px;
+  outline:none;
+  transition:border var(--tr), box-shadow var(--tr);
+}
+.unit-picker-header .search-wrap input:focus{
+  border-color:var(--signal);
+  box-shadow:0 0 0 3px var(--signal-dim);
+}
+.unit-picker-header .search-wrap .search-icon{
+  position:absolute;
+  left:11px;
+  top:50%;
+  transform:translateY(-50%);
+  color:var(--ink-faint);
+  font-size:15px;
+  pointer-events:none;
+}
+.unit-picker-header .mode-toggle{
+  display:flex;
+  background:var(--bg-1);
+  border:1px solid var(--line);
+  border-radius:9px;
+  overflow:hidden;
+  flex-shrink:0;
+}
+.unit-picker-header .mode-toggle button{
+  border:0;
+  background:transparent;
+  color:var(--ink-faint);
+  padding:8px 12px;
+  font-size:11.5px;
+  font-weight:600;
+  font-family:var(--mono);
+  cursor:pointer;
+  transition:all var(--tr);
+}
+.unit-picker-header .mode-toggle button.active{
+  background:var(--signal);
+  color:#161207;
+}
+.unit-picker-body{
+  max-height:280px;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.unit-family-group{
+  border-bottom:1px solid var(--line-soft);
+}
+.unit-family-group:last-child{border-bottom:0}
+.unit-family-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:8px 12px;
+  background:var(--bg-3);
+  cursor:pointer;
+  user-select:none;
+  position:sticky;
+  top:0;
+  z-index:2;
+  transition:background var(--tr);
+}
+.unit-family-header:hover{background:var(--bg-2)}
+.unit-family-header .fam-name{
+  font-weight:600;
+  font-size:12px;
+  color:var(--ink);
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.unit-family-header .fam-name .chevron{
+  font-size:10px;
+  color:var(--ink-faint);
+  transition:transform var(--tr);
+}
+.unit-family-header.collapsed .fam-name .chevron{
+  transform:rotate(-90deg);
+}
+.unit-family-header .fam-count{
+  font-size:10px;
+  font-family:var(--mono);
+  color:var(--ink-faint);
+  background:var(--bg-1);
+  padding:2px 7px;
+  border-radius:8px;
+  border:1px solid var(--line);
+}
+.unit-family-items{
+  display:flex;
+  flex-direction:column;
+  padding:4px 0;
+}
+.unit-family-header.collapsed + .unit-family-items{
+  display:none;
+}
+.unit-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:9px 12px 9px 14px;
+  cursor:pointer;
+  transition:background var(--tr), border-color var(--tr);
+  border-left:3px solid transparent;
+  position:relative;
+}
+.unit-item:hover{
+  background:var(--bg-3);
+}
+.unit-item.selected{
+  background:var(--signal-dim);
+  border-left-color:var(--signal);
+}
+.unit-item .unit-radio{
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  border:2px solid var(--line);
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:all var(--tr);
+  background:var(--bg-1);
+}
+.unit-item.selected .unit-radio{
+  border-color:var(--signal);
+  background:var(--signal);
+}
+.unit-item.selected .unit-radio::after{
+  content:'';
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#161207;
+}
+.unit-item .unit-info{
+  flex:1;
+  min-width:0;
+}
+.unit-item .unit-name{
+  font-size:13px;
+  font-weight:500;
+  color:var(--ink);
+  line-height:1.3;
+  word-break:break-word;
+}
+.unit-item.selected .unit-name{
+  color:var(--signal-hi);
+  font-weight:600;
+}
+.unit-item .unit-meta{
+  font-size:10.5px;
+  color:var(--ink-faint);
+  font-family:var(--mono);
+  margin-top:2px;
+}
+.unit-item .unit-check{
+  font-size:14px;
+  color:var(--signal);
+  opacity:0;
+  transition:opacity var(--tr);
+  flex-shrink:0;
+}
+.unit-item.selected .unit-check{
+  opacity:1;
+}
+.unit-picker-empty{
+  padding:28px 16px;
+  text-align:center;
+  color:var(--ink-faint);
+  font-size:12.5px;
+}
+.unit-picker-empty .icon{
+  font-size:28px;
+  margin-bottom:8px;
+  opacity:.5;
+}
+.unit-picker-footer{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:8px 12px;
+  background:var(--bg-3);
+  border-top:1px solid var(--line);
+  font-size:11px;
+  color:var(--ink-faint);
+}
+.unit-picker-footer .selected-label{
+  font-family:var(--mono);
+  color:var(--signal);
+  font-weight:600;
+  max-width:70%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.unit-picker-footer .clear-btn{
+  border:0;
+  background:transparent;
+  color:var(--ink-dim);
+  font-size:11px;
+  font-weight:600;
+  cursor:pointer;
+  padding:4px 8px;
+  border-radius:6px;
+  transition:background var(--tr), color var(--tr);
+}
+.unit-picker-footer .clear-btn:hover{
+  background:var(--bg-2);
+  color:var(--bad);
+}
+/* Build mode (manual fields) */
+.unit-build-panel{
+  padding:12px;
+  border-top:1px solid var(--line);
+  background:var(--bg-2);
+}
+.unit-build-panel .build-title{
+  font-size:11px;
+  font-weight:600;
+  color:var(--ink-dim);
+  font-family:var(--mono);
+  text-transform:uppercase;
+  letter-spacing:.3px;
+  margin-bottom:8px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.unit-build-panel .build-title .hint{
+  font-weight:400;
+  text-transform:none;
+  color:var(--ink-faint);
+  letter-spacing:0;
+}
+/* Family pills for quick filter */
+.unit-family-pills{
+  display:flex;
+  flex-wrap:nowrap;
+  gap:6px;
+  padding:8px 12px;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  border-bottom:1px solid var(--line-soft);
+  scrollbar-width:none;
+}
+.unit-family-pills::-webkit-scrollbar{display:none}
+.unit-family-pill{
+  flex-shrink:0;
+  padding:5px 11px;
+  border-radius:20px;
+  border:1px solid var(--line);
+  background:var(--bg-1);
+  color:var(--ink-dim);
+  font-size:11px;
+  font-weight:600;
+  font-family:var(--mono);
+  cursor:pointer;
+  transition:all var(--tr);
+  white-space:nowrap;
+}
+.unit-family-pill:hover{
+  border-color:var(--signal);
+  color:var(--ink);
+}
+.unit-family-pill.active{
+  background:var(--signal);
+  border-color:var(--signal);
+  color:#161207;
+}
+.unit-family-pill .pill-count{
+  opacity:.7;
+  margin-left:3px;
+}
+/* Selected unit banner */
+.unit-selected-banner{
+  display:none;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  background:var(--signal-dim);
+  border:1px solid var(--signal);
+  border-radius:var(--radius-sm);
+  margin-bottom:8px;
+}
+.unit-selected-banner.on{display:flex}
+.unit-selected-banner .banner-icon{
+  width:32px;
+  height:32px;
+  border-radius:8px;
+  background:var(--signal);
+  color:#161207;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:15px;
+  flex-shrink:0;
+}
+.unit-selected-banner .banner-text{
+  flex:1;
+  min-width:0;
+}
+.unit-selected-banner .banner-label{
+  font-size:10px;
+  color:var(--ink-faint);
+  font-family:var(--mono);
+  text-transform:uppercase;
+  letter-spacing:.3px;
+}
+.unit-selected-banner .banner-name{
+  font-size:13px;
+  font-weight:600;
+  color:var(--signal-hi);
+  word-break:break-word;
+  line-height:1.3;
+}
+.unit-selected-banner .banner-clear{
+  border:0;
+  background:transparent;
+  color:var(--ink-dim);
+  font-size:18px;
+  cursor:pointer;
+  padding:4px;
+  line-height:1;
+  border-radius:6px;
+  transition:color var(--tr);
+}
+.unit-selected-banner .banner-clear:hover{color:var(--bad)}
  
 @media print{
   .header,.bottom-nav,.desktop-nav,.btn-row{display:none !important}
@@ -524,7 +876,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
     </div>
   </section>
  
-  <!-- ══════ IMPORT (accessible from Backup > More) ══════ -->
+  <!-- ══════ IMPORT ══════ -->
   <section id="importview" class="view">
     <div class="panel">
       <div class="panel-title">Import from text</div>
@@ -590,18 +942,66 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
             <div class="err-msg" id="siteErr" style="display:none"></div>
           </div>
  
+          <!-- ══════ UPGRADED UNIT SELECTOR ══════ -->
           <div class="fg full">
-            <label>Unit family</label>
-            <div style="display:flex;gap:6px;align-items:center">
-              <select class="field" id="unitFamily" onchange="UI.onFamilyChange()" style="flex:1">
-                <option value="">-- Select family --</option>
-              </select>
-              <button type="button" class="btn btn-sm btn-primary" onclick="UI.openAddFamily()" title="Add new family">＋</button>
-            </div>
-            <div class="unit-suggestions" id="unitSuggestions"></div>
-          </div>
+            <label>Unit selection</label>
  
-          <div class="fg full" id="familyFields"></div>
+            <!-- Selected unit banner -->
+            <div class="unit-selected-banner" id="unitSelectedBanner">
+              <div class="banner-icon">✓</div>
+              <div class="banner-text">
+                <div class="banner-label">Selected unit</div>
+                <div class="banner-name" id="unitBannerName">—</div>
+              </div>
+              <button type="button" class="banner-clear" onclick="UI.clearUnitSelection()" title="Clear selection">✕</button>
+            </div>
+ 
+            <div class="unit-picker" id="unitPicker">
+              <div class="unit-picker-header">
+                <div class="search-wrap">
+                  <span class="search-icon">⌕</span>
+                  <input type="text" id="unitSearchInput" placeholder="Search units or families…" autocomplete="off"
+                    oninput="UI.onUnitSearch()" onkeydown="UI.onUnitSearchKey(event)">
+                </div>
+                <div class="mode-toggle">
+                  <button type="button" id="modeBrowse" class="active" onclick="UI.setUnitMode('browse')">Browse</button>
+                  <button type="button" id="modeBuild" onclick="UI.setUnitMode('build')">Build</button>
+                </div>
+              </div>
+ 
+              <!-- Family filter pills -->
+              <div class="unit-family-pills" id="unitFamilyPills"></div>
+ 
+              <!-- Browse mode: list of units -->
+              <div class="unit-picker-body" id="unitPickerBody">
+                <!-- populated by JS -->
+              </div>
+ 
+              <!-- Build mode: family + fields -->
+              <div class="unit-build-panel" id="unitBuildPanel" style="display:none">
+                <div class="build-title">
+                  Build custom unit
+                  <span class="hint">— choose family & fill fields</span>
+                </div>
+                <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px">
+                  <select class="field" id="unitFamily" onchange="UI.onFamilyChange()" style="flex:1">
+                    <option value="">-- Select family --</option>
+                  </select>
+                  <button type="button" class="btn btn-sm btn-primary" onclick="UI.openAddFamily()" title="Add new family">＋</button>
+                </div>
+                <div id="familyFields"></div>
+              </div>
+ 
+              <div class="unit-picker-footer">
+                <span class="selected-label" id="unitFooterLabel">No unit selected</span>
+                <button type="button" class="clear-btn" onclick="UI.clearUnitSelection()">Clear</button>
+              </div>
+            </div>
+ 
+            <!-- Hidden field that holds the final unit name for form submit -->
+            <input type="hidden" id="selectedUnitName" value="">
+            <input type="hidden" id="selectedUnitFamilyId" value="">
+          </div>
  
           <div class="fg"><label>Fault affect</label><input class="field" id="fault" value="Faulty" oninput="UI.updateOutputText()"></div>
           <div class="fg"><label>QTY</label><input class="field" id="qty" type="number" min="1" value="1" required oninput="UI.updateOutputText()"></div>
@@ -618,7 +1018,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
           <div class="fg full"><label>Notes</label><textarea class="field" id="notes" rows="2" oninput="UI.updateOutputText()"></textarea></div>
         </div>
  
-        <div class="unit-preview" id="unitPreview">Select a family and fill in the fields</div>
+        <div class="unit-preview" id="unitPreview">Select a unit above</div>
         <div class="copy-area" id="copyArea">Output will appear here<button type="button" class="copy-btn" onclick="UI.copyOutput()">Copy</button></div>
         <div id="historyBox" style="display:none" class="mt-8">
           <label style="font-size:10.5px;font-weight:600;color:var(--ink-dim);font-family:var(--mono);text-transform:uppercase">Activity</label>
@@ -659,7 +1059,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
     </div>
   </div>
  
-  <!-- ══════ UNIT EDIT MODAL (for managing units) ══════ -->
+  <!-- ══════ UNIT EDIT MODAL ══════ -->
   <div id="unitEditModal" class="modal-bg">
     <div class="modal" style="max-width:460px">
       <div class="modal-handle"></div>
@@ -788,7 +1188,6 @@ var Data = (function(){
     ];
   }
  
-  /* ── rebuild a `build()` function from a stored pattern string ── */
   function buildFnFromPattern(pattern){
     var matches = pattern.match(/\{([^}]+)\}/g);
     if(matches){
@@ -797,12 +1196,6 @@ var Data = (function(){
     return function(){ return pattern; };
   }
  
-  /* ── reattach `build()` functions lost during JSON (de)serialization ──
-     localStorage can only hold JSON, and JSON.stringify silently drops
-     function properties. Every time families are loaded back from
-     localStorage they arrive WITHOUT their `build` method, which is what
-     turns the selected family + fields into the final unit name. This
-     restores it, for both built-in and user-created families. */
   function reviveFamilies(list){
     var defaults = defaultFamilies();
     var defaultsById = {};
@@ -811,8 +1204,6 @@ var Data = (function(){
       if(!f) return f;
       if(typeof f.build === 'function') return f;
       if(defaultsById[f.id]){
-        // built-in family: reuse its original generator, keep any other
-        // saved data (e.g. a renamed label) as-is
         f.build = defaultsById[f.id].build;
         if(!f.fields || !f.fields.length) f.fields = defaultsById[f.id].fields;
         return f;
@@ -821,7 +1212,6 @@ var Data = (function(){
         f.build = buildFnFromPattern(f.pattern);
         return f;
       }
-      // fallback: plain free-text family
       if(!f.fields || !f.fields.length){
         f.fields = [{id:'customName', type:'text', label:'Full unit name', placeholder:'Enter exact unit name', required:true}];
       }
@@ -907,7 +1297,6 @@ var Data = (function(){
   }
  
   /* ── units ── */
-  // Sample units for each family (to seed the catalog)
   var SAMPLE_UNITS = {
     'NCU_NCR': ['NCR48U - 3KW - Nian', 'NCU48U - 2KW - Nian', 'NCR24U - 1.5KW - Nian', 'NCR48U G/01 - 3KW - Nian'],
     'PSU': ['PSU AC 03 - Ericsson', 'PSU AC 01 - Ericsson', 'PSU AC 02 - Ericsson', 'PSU AC 03 - Nian'],
@@ -939,7 +1328,6 @@ var Data = (function(){
       else { units = []; }
     }catch(e){ units = []; }
  
-    // Ensure each family has at least its sample units
     for(var fid in SAMPLE_UNITS){
       if(SAMPLE_UNITS.hasOwnProperty(fid)){
         var existing = units.filter(function(u){return u.familyId===fid;});
@@ -1031,11 +1419,8 @@ var Data = (function(){
     trash = trash.filter(Boolean).map(normalize);
     loadFamilies();
     loadUnits();
-    // Ensure all record unit names exist in units (if not, add to CUSTOM)
     records.forEach(function(r){
       if(r.unitName && !getUnitByName(r.unitName)){
-        // try to find a matching family by checking if any family's build can produce this name? hard.
-        // we'll assign to CUSTOM
         addUnit(r.unitName, 'CUSTOM');
       }
     });
@@ -1371,13 +1756,20 @@ var Data = (function(){
 })();
  
 /* ═══════════════════════════════════════════════════════════════════
-   UI MODULE — extended with units management
+   UI MODULE — with upgraded unit picker
    ═══════════════════════════════════════════════════════════════════ */
 var UI = (function(){
   var chartInstances = {};
   var _debounceTimer = null;
   var selection = {};
   var confirmCb = null;
+ 
+  // Unit picker state
+  var unitMode = 'browse'; // 'browse' | 'build'
+  var activeFamilyFilter = ''; // empty = all
+  var selectedUnitName = '';
+  var selectedUnitFamilyId = '';
+  var collapsedFamilies = {};
  
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
   function formatDate(s){ if(!s) return '—'; var d=new Date(s+'T00:00:00'); return isNaN(d)?s:d.toLocaleDateString('en-US'); }
@@ -1434,9 +1826,160 @@ var UI = (function(){
     else { sel.value='custom'; custom.style.display='block'; custom.value=val||''; }
   }
  
-  /* ── family dropdown ── */
+  /* ═══════════════════════════════════════════════════════════════
+     UPGRADED UNIT PICKER
+     ═══════════════════════════════════════════════════════════════ */
+  function setUnitMode(mode){
+    unitMode = mode;
+    document.getElementById('modeBrowse').classList.toggle('active', mode==='browse');
+    document.getElementById('modeBuild').classList.toggle('active', mode==='build');
+    document.getElementById('unitPickerBody').style.display = mode==='browse' ? 'block' : 'none';
+    document.getElementById('unitFamilyPills').style.display = mode==='browse' ? 'flex' : 'none';
+    document.getElementById('unitBuildPanel').style.display = mode==='build' ? 'block' : 'none';
+    if(mode==='browse') renderUnitPicker();
+    if(mode==='build') {
+      populateFamilySelect();
+      onFamilyChange();
+    }
+  }
+ 
+  function onUnitSearch(){
+    renderUnitPicker();
+  }
+ 
+  function onUnitSearchKey(e){
+    if(e.key==='Escape'){
+      document.getElementById('unitSearchInput').value = '';
+      renderUnitPicker();
+    }
+  }
+ 
+  function setFamilyFilter(fid){
+    activeFamilyFilter = (activeFamilyFilter === fid) ? '' : fid;
+    renderUnitPicker();
+  }
+ 
+  function toggleFamilyCollapse(fid){
+    collapsedFamilies[fid] = !collapsedFamilies[fid];
+    renderUnitPicker();
+  }
+ 
+  function selectUnit(name, familyId){
+    selectedUnitName = name;
+    selectedUnitFamilyId = familyId || '';
+    document.getElementById('selectedUnitName').value = name;
+    document.getElementById('selectedUnitFamilyId').value = familyId || '';
+    updateUnitBanner();
+    renderUnitPicker();
+    updatePreview();
+  }
+ 
+  function clearUnitSelection(){
+    selectedUnitName = '';
+    selectedUnitFamilyId = '';
+    document.getElementById('selectedUnitName').value = '';
+    document.getElementById('selectedUnitFamilyId').value = '';
+    // also clear build fields
+    var famSel = document.getElementById('unitFamily');
+    if(famSel) famSel.value = '';
+    document.getElementById('familyFields').innerHTML = '';
+    updateUnitBanner();
+    renderUnitPicker();
+    updatePreview();
+  }
+ 
+  function updateUnitBanner(){
+    var banner = document.getElementById('unitSelectedBanner');
+    var nameEl = document.getElementById('unitBannerName');
+    var footer = document.getElementById('unitFooterLabel');
+    if(selectedUnitName){
+      banner.classList.add('on');
+      nameEl.textContent = selectedUnitName;
+      footer.textContent = selectedUnitName;
+    } else {
+      banner.classList.remove('on');
+      nameEl.textContent = '—';
+      footer.textContent = 'No unit selected';
+    }
+  }
+ 
+  function renderUnitPicker(){
+    var body = document.getElementById('unitPickerBody');
+    var pills = document.getElementById('unitFamilyPills');
+    if(!body || !pills) return;
+ 
+    var q = (document.getElementById('unitSearchInput')?.value || '').toLowerCase().trim();
+    var allUnits = Data.getUnits();
+    var families = Data.families;
+ 
+    // Build family pills
+    var pillHtml = '<button type="button" class="unit-family-pill'+(activeFamilyFilter===''?' active':'')+'" onclick="UI.setFamilyFilter(\'\')">All <span class="pill-count">'+allUnits.length+'</span></button>';
+    families.forEach(function(f){
+      var count = Data.getUnitsByFamily(f.id).length;
+      if(count === 0 && !q) return; // skip empty families unless searching
+      pillHtml += '<button type="button" class="unit-family-pill'+(activeFamilyFilter===f.id?' active':'')+'" onclick="UI.setFamilyFilter(\''+f.id+'\')">'+esc(f.label)+' <span class="pill-count">'+count+'</span></button>';
+    });
+    pills.innerHTML = pillHtml;
+ 
+    // Group units by family
+    var groups = {};
+    families.forEach(function(f){ groups[f.id] = {fam:f, units:[]}; });
+    groups['__other'] = {fam:{id:'__other', label:'Other'}, units:[]};
+ 
+    allUnits.forEach(function(u){
+      if(activeFamilyFilter && u.familyId !== activeFamilyFilter) return;
+      if(q){
+        var hay = (u.name + ' ' + (Data.getFamily(u.familyId)?.label || '')).toLowerCase();
+        if(hay.indexOf(q) === -1) return;
+      }
+      if(groups[u.familyId]) groups[u.familyId].units.push(u);
+      else groups['__other'].units.push(u);
+    });
+ 
+    // Render groups
+    var html = '';
+    var totalShown = 0;
+    var order = families.map(function(f){return f.id;}).concat(['__other']);
+    order.forEach(function(fid){
+      var g = groups[fid];
+      if(!g || !g.units.length) return;
+      totalShown += g.units.length;
+      var collapsed = !!collapsedFamilies[fid];
+      // sort units alphabetically
+      g.units.sort(function(a,b){ return a.name.localeCompare(b.name); });
+ 
+      html += '<div class="unit-family-group">';
+      html += '<div class="unit-family-header'+(collapsed?' collapsed':'')+'" onclick="UI.toggleFamilyCollapse(\''+fid+'\')">';
+      html += '<span class="fam-name"><span class="chevron">▼</span> '+esc(g.fam.label)+'</span>';
+      html += '<span class="fam-count">'+g.units.length+'</span>';
+      html += '</div>';
+      html += '<div class="unit-family-items">';
+      g.units.forEach(function(u){
+        var isSel = selectedUnitName === u.name;
+        html += '<div class="unit-item'+(isSel?' selected':'')+'" onclick="UI.selectUnit(\''+esc(u.name).replace(/'/g,"\\'")+'\',\''+u.familyId+'\')">';
+        html += '<div class="unit-radio"></div>';
+        html += '<div class="unit-info"><div class="unit-name">'+esc(u.name)+'</div>';
+        var recCount = Data.records.filter(function(r){return r.unitName===u.name;}).length;
+        if(recCount) html += '<div class="unit-meta">'+recCount+' record'+(recCount>1?'s':'')+'</div>';
+        html += '</div>';
+        html += '<span class="unit-check">✓</span>';
+        html += '</div>';
+      });
+      html += '</div></div>';
+    });
+ 
+    if(!totalShown){
+      html = '<div class="unit-picker-empty"><div class="icon">⌕</div>'+
+        (q ? 'No units match "'+esc(q)+'"' : 'No units available')+
+        '<br><span style="font-size:11px;margin-top:6px;display:inline-block">Try Build mode or add units in Units tab</span></div>';
+    }
+    body.innerHTML = html;
+  }
+ 
+  /* ── family dropdown (build mode) ── */
   function populateFamilySelect(){
     var sel = document.getElementById('unitFamily');
+    if(!sel) return;
     var current = sel.value;
     var families = Data.families;
     sel.innerHTML = '<option value="">-- Select family --</option>';
@@ -1444,63 +1987,41 @@ var UI = (function(){
       sel.innerHTML += '<option value="'+f.id+'">'+esc(f.label)+'</option>';
     });
     if(current && Data.getFamily(current)) sel.value = current;
-    if(!sel.value && families.length) sel.value = families[0].id;
-    onFamilyChange();
   }
  
-  /* ── unit family form ── */
   function onFamilyChange(){
     var famId = document.getElementById('unitFamily').value;
     var f = Data.getFamily(famId);
     var container = document.getElementById('familyFields');
-    if(!f){ container.innerHTML=''; document.getElementById('unitSuggestions').innerHTML=''; updatePreview(); return; }
-    var html = '<div class="fg full"><label>'+esc(f.label)+' — fields</label><div class="unit-structure">';
+    if(!f){ container.innerHTML=''; updatePreview(); return; }
+    var html = '<div class="unit-structure">';
     (f.fields||[]).forEach(function(fld){
       var id=fld.id,label=fld.label||'',val=fld.default||'',ph=fld.placeholder||'',req=fld.required?' required':'';
       var input='';
       if(fld.type==='select'){
-        input='<select class="field" id="'+id+'" onchange="UI.updatePreview()">';
+        input='<select class="field" id="'+id+'" onchange="UI.onBuildFieldChange()">';
         (fld.options||[]).forEach(function(o){ input+='<option value="'+o+'"'+(o===val?' selected':'')+'>'+o+'</option>'; });
         input+='</select>';
       } else {
-        input='<input class="field" id="'+id+'" type="text" value="'+val+'" placeholder="'+ph+'" oninput="UI.updatePreview();"'+req+'>';
+        input='<input class="field" id="'+id+'" type="text" value="'+val+'" placeholder="'+ph+'" oninput="UI.onBuildFieldChange()"'+req+'>';
       }
       html += '<div><label style="font-size:10.5px;color:var(--ink-faint)">'+label+'</label>'+input+'</div>';
     });
-    html += '</div></div>';
+    html += '</div>';
     container.innerHTML = html;
-    // Show unit suggestions for this family
-    var suggestions = Data.getUnitsByFamily(famId);
-    var sugContainer = document.getElementById('unitSuggestions');
-    if(suggestions.length){
-      sugContainer.innerHTML = suggestions.map(function(u){
-        return '<span class="unit-suggestion" onclick="UI.applyUnitSuggestion(\''+u.name.replace(/'/g,"\\'")+'\', \''+famId+'\')">'+esc(u.name)+'</span>';
-      }).join('');
-    } else {
-      sugContainer.innerHTML = '';
-    }
-    updatePreview();
+    onBuildFieldChange();
   }
  
-  function applyUnitSuggestion(name, famId){
-    var unitObj = Data.getUnitByName(name);
-    if(!unitObj) return;
-    var fam = Data.getFamily(famId);
-    if(!fam) return;
-    var customField = fam.fields.find(function(ff){ return ff.id==='customName'; });
-    if(customField){
-      var el = document.getElementById('customName');
-      if(el){ el.value = name; updatePreview(); }
-    } else {
-      toast('Unit applied. Please adjust fields if needed.');
-    }
-    document.getElementById('unitSuggestions').innerHTML='';
-  }
- 
-  function updatePreview(){
+  function onBuildFieldChange(){
     var name = buildUnitName();
-    document.getElementById('unitPreview').textContent = name || 'Select a family and fill in the fields';
-    updateOutputText();
+    if(name){
+      selectedUnitName = name;
+      selectedUnitFamilyId = document.getElementById('unitFamily').value || '';
+      document.getElementById('selectedUnitName').value = name;
+      document.getElementById('selectedUnitFamilyId').value = selectedUnitFamilyId;
+    }
+    updateUnitBanner();
+    updatePreview();
   }
  
   function getFamilyValues(){
@@ -1513,14 +2034,23 @@ var UI = (function(){
   }
  
   function buildUnitName(){
+    // Prefer the explicitly selected unit name (from browse mode)
+    if(unitMode === 'browse' && selectedUnitName) return selectedUnitName;
+    // Build mode
     var famId = document.getElementById('unitFamily').value;
     var f = Data.getFamily(famId);
-    if(!f) return '';
+    if(!f) return selectedUnitName || '';
     var vals = getFamilyValues();
     try {
       var name = f.build(vals);
       return Data.canonicalUnitName(name);
-    } catch(e){ return ''; }
+    } catch(e){ return selectedUnitName || ''; }
+  }
+ 
+  function updatePreview(){
+    var name = buildUnitName() || selectedUnitName;
+    document.getElementById('unitPreview').textContent = name || 'Select a unit above';
+    updateOutputText();
   }
  
   function getCurrentRecord(){
@@ -1528,7 +2058,7 @@ var UI = (function(){
     var sns = snsRaw.split(/[\n,;]+/).map(function(s){return s.trim();}).filter(Boolean);
     return {
       sc:getScValue()||'Porsoo', site:document.getElementById('site').value.trim().toUpperCase(),
-      unit:buildUnitName(), fault:document.getElementById('fault').value.trim()||'Faulty',
+      unit:buildUnitName() || selectedUnitName, fault:document.getElementById('fault').value.trim()||'Faulty',
       qty:parseInt(document.getElementById('qty').value)||1, sns:sns,
       status:document.getElementById('status').value, approver:document.getElementById('approver').value.trim(),
       notes:document.getElementById('notes').value.trim()
@@ -1924,10 +2454,18 @@ var UI = (function(){
     document.getElementById('fault').value='Faulty';
     document.getElementById('status').value='Pending';
     document.getElementById('qty').value=1;
-    populateFamilySelect();
-    document.getElementById('familyFields').innerHTML='';
-    document.getElementById('unitSuggestions').innerHTML='';
-    document.getElementById('unitPreview').textContent='Select a family and fill in the fields';
+    // Reset unit picker
+    selectedUnitName = '';
+    selectedUnitFamilyId = '';
+    activeFamilyFilter = '';
+    document.getElementById('selectedUnitName').value = '';
+    document.getElementById('selectedUnitFamilyId').value = '';
+    document.getElementById('unitSearchInput').value = '';
+    document.getElementById('familyFields').innerHTML = '';
+    setUnitMode('browse');
+    updateUnitBanner();
+    renderUnitPicker();
+    document.getElementById('unitPreview').textContent='Select a unit above';
     document.getElementById('mtitle').textContent='New fault record';
     document.getElementById('historyBox').style.display='none';
     document.getElementById('siteErr').style.display='none';
@@ -1951,24 +2489,31 @@ var UI = (function(){
     document.getElementById('status').value=r.status||'Pending';
     document.getElementById('approver').value=r.approvedBy||'';
     document.getElementById('notes').value=r.notes||'';
+ 
+    // Set unit selection
     var unitObj = Data.getUnitByName(r.unitName);
-    var famId = unitObj ? unitObj.familyId : 'CUSTOM';
-    var fam = Data.getFamily(famId);
-    if(fam){
-      document.getElementById('unitFamily').value = famId;
+    selectedUnitName = r.unitName || '';
+    selectedUnitFamilyId = unitObj ? unitObj.familyId : 'CUSTOM';
+    document.getElementById('selectedUnitName').value = selectedUnitName;
+    document.getElementById('selectedUnitFamilyId').value = selectedUnitFamilyId;
+    document.getElementById('unitSearchInput').value = '';
+    activeFamilyFilter = '';
+    setUnitMode('browse');
+    updateUnitBanner();
+    renderUnitPicker();
+ 
+    // Also prepare build mode in case user switches
+    if(selectedUnitFamilyId && Data.getFamily(selectedUnitFamilyId)){
+      document.getElementById('unitFamily').value = selectedUnitFamilyId;
       onFamilyChange();
-      var customField = fam.fields.find(function(ff){ return ff.id==='customName'; });
+      var fam = Data.getFamily(selectedUnitFamilyId);
+      var customField = fam && fam.fields.find(function(ff){ return ff.id==='customName'; });
       if(customField){
         var cn = document.getElementById('customName');
         if(cn) cn.value = r.unitName;
       }
-      updatePreview();
-    } else {
-      if(Data.families.length) {
-        document.getElementById('unitFamily').value = Data.families[0].id;
-        onFamilyChange();
-      }
     }
+ 
     document.getElementById('mtitle').textContent='Edit fault record';
     var hbox = document.getElementById('historyBox'), hlist=document.getElementById('historyList');
     if(r.history && r.history.length){
@@ -1979,6 +2524,7 @@ var UI = (function(){
     } else hbox.style.display='none';
     document.getElementById('siteErr').style.display='none';
     document.getElementById('snErr').style.display='none';
+    updatePreview();
     document.getElementById('modalbg').classList.add('on');
     document.body.style.overflow='hidden';
   }
@@ -1986,14 +2532,13 @@ var UI = (function(){
   function closeModal(){
     document.getElementById('modalbg').classList.remove('on');
     document.body.style.overflow='';
-    document.getElementById('unitSuggestions').innerHTML='';
   }
  
   function saveRecord(e){
     e.preventDefault();
-    var unitName = buildUnitName();
+    var unitName = buildUnitName() || selectedUnitName;
     var rec0 = getCurrentRecord(); rec0.unit = unitName;
-    if(!unitName){ toast('Select a unit family and fill in the fields.'); return; }
+    if(!unitName){ toast('Please select or build a unit.'); return; }
     if(!validateForm(rec0, true)) { toast('Fix the highlighted fields.'); return; }
  
     var qty = parseInt(document.getElementById('qty').value)||1;
@@ -2017,10 +2562,10 @@ var UI = (function(){
     if(record.status==='Approved') record.approvedAt=new Date().toISOString();
  
     var wasUpdate = Data.upsert(record, id ? 'Edited' : 'Created');
-    // Add the unit to catalog if not exists, with the current family
-    var currentFamId = document.getElementById('unitFamily').value;
-    if(currentFamId && !Data.getUnitByName(unitName)){
-      Data.addUnit(unitName, currentFamId);
+    // Add the unit to catalog if not exists
+    var famId = selectedUnitFamilyId || document.getElementById('unitFamily').value || 'CUSTOM';
+    if(famId && !Data.getUnitByName(unitName)){
+      Data.addUnit(unitName, famId);
     }
     closeModal();
     toast(wasUpdate ? 'Updated' : 'Saved');
@@ -2149,6 +2694,7 @@ var UI = (function(){
     closeFamilyModal();
     populateFamilySelect();
     renderUnitsView();
+    if(unitMode === 'browse') renderUnitPicker();
   }
  
   function confirmDeleteFamily(id){
@@ -2158,6 +2704,7 @@ var UI = (function(){
       Data.deleteFamily(id);
       populateFamilySelect();
       renderUnitsView();
+      if(unitMode === 'browse') renderUnitPicker();
       toast('Family deleted');
     });
   }
@@ -2172,7 +2719,7 @@ var UI = (function(){
       var existing = Data.getUnitsByFamily(famId).some(function(u){return u.name===trimmed;});
       if(existing){ toast('Unit already exists in this family'); return; }
       var u = Data.addUnit(trimmed, famId);
-      if(u) { toast('Unit added'); renderUnitsView(); } else toast('Failed to add unit');
+      if(u) { toast('Unit added'); renderUnitsView(); if(unitMode==='browse') renderUnitPicker(); } else toast('Failed to add unit');
     }
   }
  
@@ -2211,6 +2758,7 @@ var UI = (function(){
       toast('Unit updated');
       closeUnitEditModal();
       renderUnitsView();
+      if(unitMode==='browse') renderUnitPicker();
     } else {
       toast('Failed to update unit');
     }
@@ -2222,6 +2770,7 @@ var UI = (function(){
     confirm('Delete unit "'+u.name+'"?','This will remove it from the catalog. Existing records with this unit name will not be affected.','Delete',function(){
       Data.deleteUnit(id);
       renderUnitsView();
+      if(unitMode==='browse') renderUnitPicker();
       toast('Unit removed');
     });
   }
@@ -2266,8 +2815,7 @@ var UI = (function(){
   return {
     esc:esc, toast:toast, toggleTheme:toggleTheme, loadTheme:loadTheme,
     toggleScCustom:toggleScCustom, onFamilyChange:onFamilyChange,
-    applyUnitSuggestion:applyUnitSuggestion, updatePreview:updatePreview,
-    updateOutputText:updateOutputText, copyOutput:copyOutput,
+    updatePreview:updatePreview, updateOutputText:updateOutputText, copyOutput:copyOutput,
     renderAll:renderAll, debounceRender:debounceRender, renderRecords:renderRecords, renderSites:renderSites,
     renderQuality:renderQuality, renderBackup:renderBackup, renderTrash:renderTrash, renderUnitsView:renderUnitsView,
     toggleSelect:toggleSelect, clearSelection:clearSelection, bulkDecision:bulkDecision, bulkDelete:bulkDelete,
@@ -2279,7 +2827,12 @@ var UI = (function(){
     saveFamily:saveFamily, confirmDeleteFamily:confirmDeleteFamily,
     openAddUnitForFamily:openAddUnitForFamily, openEditUnit:openEditUnit, closeUnitEditModal:closeUnitEditModal,
     saveUnitEdit:saveUnitEdit, confirmDeleteUnit:confirmDeleteUnit,
-    populateFamilySelect:populateFamilySelect
+    populateFamilySelect:populateFamilySelect,
+    // New unit picker API
+    setUnitMode:setUnitMode, onUnitSearch:onUnitSearch, onUnitSearchKey:onUnitSearchKey,
+    setFamilyFilter:setFamilyFilter, toggleFamilyCollapse:toggleFamilyCollapse,
+    selectUnit:selectUnit, clearUnitSelection:clearUnitSelection, onBuildFieldChange:onBuildFieldChange,
+    renderUnitPicker:renderUnitPicker
   };
 })();
  
@@ -2300,4 +2853,3 @@ UI.renderAll();
 </script>
 </body>
 </html>
- 
