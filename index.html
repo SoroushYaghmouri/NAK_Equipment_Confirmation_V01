@@ -297,364 +297,178 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
 .backup-item .info{font-size:12px} .backup-item .info small{color:var(--ink-faint);font-family:var(--mono)}
  
 /* ═══════════════════════════════════════════════════════════════
-   UPGRADED UNIT SELECTOR — fully redesigned
+   UNIT SELECTOR — compact, mobile-friendly
    ═══════════════════════════════════════════════════════════════ */
 .unit-picker{
   background:var(--bg-2);
   border:1px solid var(--line);
-  border-radius:var(--radius);
+  border-radius:var(--radius-sm);
   overflow:hidden;
   margin-top:2px;
 }
-.unit-picker-header{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:10px 12px;
+.unit-picker-toolbar{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:6px;
+  padding:8px;
   background:var(--bg-3);
   border-bottom:1px solid var(--line);
 }
-.unit-picker-header .search-wrap{
-  flex:1;
+.unit-picker-toolbar .search-wrap{
   position:relative;
+  grid-column:1 / -1;
 }
-.unit-picker-header .search-wrap input{
+.unit-picker-toolbar .search-wrap input{
   width:100%;
-  padding:9px 12px 9px 36px;
+  padding:7px 10px 7px 30px;
   border:1px solid var(--line);
-  border-radius:9px;
+  border-radius:7px;
   background:var(--bg-1);
   color:var(--ink);
-  font-size:13.5px;
+  font-size:13px;
   outline:none;
-  transition:border var(--tr), box-shadow var(--tr);
+  transition:border var(--tr);
 }
-.unit-picker-header .search-wrap input:focus{
+.unit-picker-toolbar .search-wrap input:focus{
   border-color:var(--signal);
-  box-shadow:0 0 0 3px var(--signal-dim);
+  box-shadow:0 0 0 2px var(--signal-dim);
 }
-.unit-picker-header .search-wrap .search-icon{
+.unit-picker-toolbar .search-wrap .search-icon{
   position:absolute;
-  left:11px;
-  top:50%;
-  transform:translateY(-50%);
-  color:var(--ink-faint);
-  font-size:15px;
-  pointer-events:none;
+  left:9px;top:50%;transform:translateY(-50%);
+  color:var(--ink-faint);font-size:13px;pointer-events:none;
 }
-.unit-picker-header .mode-toggle{
+.unit-picker-toolbar .fam-filter{
+  flex:1;min-width:0;
+  padding:7px 28px 7px 9px;
+  border:1px solid var(--line);
+  border-radius:7px;
+  background:var(--bg-1);
+  color:var(--ink);
+  font-size:12.5px;
+  outline:none;
+  -webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%235c6b81' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 8px center;
+}
+.unit-picker-toolbar .fam-filter:focus{border-color:var(--signal)}
+.unit-picker-toolbar .mode-toggle{
   display:flex;
   background:var(--bg-1);
   border:1px solid var(--line);
-  border-radius:9px;
+  border-radius:7px;
   overflow:hidden;
   flex-shrink:0;
 }
-.unit-picker-header .mode-toggle button{
-  border:0;
-  background:transparent;
-  color:var(--ink-faint);
-  padding:8px 12px;
-  font-size:11.5px;
-  font-weight:600;
-  font-family:var(--mono);
-  cursor:pointer;
-  transition:all var(--tr);
+.unit-picker-toolbar .mode-toggle button{
+  border:0;background:transparent;color:var(--ink-faint);
+  padding:7px 10px;font-size:11px;font-weight:600;
+  font-family:var(--mono);cursor:pointer;transition:all var(--tr);
 }
-.unit-picker-header .mode-toggle button.active{
-  background:var(--signal);
-  color:#161207;
+.unit-picker-toolbar .mode-toggle button.active{
+  background:var(--signal);color:#161207;
 }
 .unit-picker-body{
-  max-height:280px;
+  max-height:220px;
   overflow-y:auto;
   -webkit-overflow-scrolling:touch;
 }
-.unit-family-group{
-  border-bottom:1px solid var(--line-soft);
-}
+.unit-family-group{border-bottom:1px solid var(--line-soft)}
 .unit-family-group:last-child{border-bottom:0}
 .unit-family-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:8px 12px;
-  background:var(--bg-3);
-  cursor:pointer;
-  user-select:none;
-  position:sticky;
-  top:0;
-  z-index:2;
-  transition:background var(--tr);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:6px 10px;background:var(--bg-3);
+  cursor:pointer;user-select:none;position:sticky;top:0;z-index:2;
 }
-.unit-family-header:hover{background:var(--bg-2)}
 .unit-family-header .fam-name{
-  font-weight:600;
-  font-size:12px;
-  color:var(--ink);
-  display:flex;
-  align-items:center;
-  gap:6px;
+  font-weight:600;font-size:11px;color:var(--ink);
+  display:flex;align-items:center;gap:5px;
 }
 .unit-family-header .fam-name .chevron{
-  font-size:10px;
-  color:var(--ink-faint);
-  transition:transform var(--tr);
+  font-size:9px;color:var(--ink-faint);transition:transform var(--tr);
 }
-.unit-family-header.collapsed .fam-name .chevron{
-  transform:rotate(-90deg);
-}
+.unit-family-header.collapsed .fam-name .chevron{transform:rotate(-90deg)}
 .unit-family-header .fam-count{
-  font-size:10px;
-  font-family:var(--mono);
-  color:var(--ink-faint);
-  background:var(--bg-1);
-  padding:2px 7px;
-  border-radius:8px;
-  border:1px solid var(--line);
+  font-size:9.5px;font-family:var(--mono);color:var(--ink-faint);
+  background:var(--bg-1);padding:1px 6px;border-radius:6px;border:1px solid var(--line);
 }
-.unit-family-items{
-  display:flex;
-  flex-direction:column;
-  padding:4px 0;
-}
-.unit-family-header.collapsed + .unit-family-items{
-  display:none;
-}
+.unit-family-items{display:flex;flex-direction:column}
+.unit-family-header.collapsed + .unit-family-items{display:none}
 .unit-item{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:9px 12px 9px 14px;
-  cursor:pointer;
-  transition:background var(--tr), border-color var(--tr);
-  border-left:3px solid transparent;
-  position:relative;
+  display:flex;align-items:center;gap:8px;
+  padding:7px 10px 7px 12px;cursor:pointer;
+  transition:background var(--tr);
+  border-left:2px solid transparent;
 }
-.unit-item:hover{
-  background:var(--bg-3);
-}
-.unit-item.selected{
-  background:var(--signal-dim);
-  border-left-color:var(--signal);
-}
+.unit-item:hover{background:var(--bg-3)}
+.unit-item.selected{background:var(--signal-dim);border-left-color:var(--signal)}
 .unit-item .unit-radio{
-  width:18px;
-  height:18px;
-  border-radius:50%;
-  border:2px solid var(--line);
-  flex-shrink:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  transition:all var(--tr);
-  background:var(--bg-1);
+  width:15px;height:15px;border-radius:50%;border:1.5px solid var(--line);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  transition:all var(--tr);background:var(--bg-1);
 }
-.unit-item.selected .unit-radio{
-  border-color:var(--signal);
-  background:var(--signal);
-}
+.unit-item.selected .unit-radio{border-color:var(--signal);background:var(--signal)}
 .unit-item.selected .unit-radio::after{
-  content:'';
-  width:7px;
-  height:7px;
-  border-radius:50%;
-  background:#161207;
+  content:'';width:5px;height:5px;border-radius:50%;background:#161207;
 }
-.unit-item .unit-info{
-  flex:1;
-  min-width:0;
-}
+.unit-item .unit-info{flex:1;min-width:0}
 .unit-item .unit-name{
-  font-size:13px;
-  font-weight:500;
-  color:var(--ink);
-  line-height:1.3;
-  word-break:break-word;
+  font-size:12.5px;font-weight:500;color:var(--ink);
+  line-height:1.25;word-break:break-word;
 }
-.unit-item.selected .unit-name{
-  color:var(--signal-hi);
-  font-weight:600;
-}
+.unit-item.selected .unit-name{color:var(--signal-hi);font-weight:600}
 .unit-item .unit-meta{
-  font-size:10.5px;
-  color:var(--ink-faint);
-  font-family:var(--mono);
-  margin-top:2px;
-}
-.unit-item .unit-check{
-  font-size:14px;
-  color:var(--signal);
-  opacity:0;
-  transition:opacity var(--tr);
-  flex-shrink:0;
-}
-.unit-item.selected .unit-check{
-  opacity:1;
+  font-size:10px;color:var(--ink-faint);font-family:var(--mono);margin-top:1px;
 }
 .unit-picker-empty{
-  padding:28px 16px;
-  text-align:center;
-  color:var(--ink-faint);
-  font-size:12.5px;
+  padding:20px 12px;text-align:center;color:var(--ink-faint);font-size:12px;
 }
-.unit-picker-empty .icon{
-  font-size:28px;
-  margin-bottom:8px;
-  opacity:.5;
-}
+.unit-picker-empty .icon{font-size:22px;margin-bottom:6px;opacity:.45}
 .unit-picker-footer{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-  padding:8px 12px;
-  background:var(--bg-3);
-  border-top:1px solid var(--line);
-  font-size:11px;
-  color:var(--ink-faint);
+  display:flex;align-items:center;justify-content:space-between;gap:6px;
+  padding:6px 10px;background:var(--bg-3);border-top:1px solid var(--line);
+  font-size:10.5px;color:var(--ink-faint);
 }
 .unit-picker-footer .selected-label{
-  font-family:var(--mono);
-  color:var(--signal);
-  font-weight:600;
-  max-width:70%;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
+  font-family:var(--mono);color:var(--signal);font-weight:600;
+  max-width:75%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 .unit-picker-footer .clear-btn{
-  border:0;
-  background:transparent;
-  color:var(--ink-dim);
-  font-size:11px;
-  font-weight:600;
-  cursor:pointer;
-  padding:4px 8px;
-  border-radius:6px;
-  transition:background var(--tr), color var(--tr);
+  border:0;background:transparent;color:var(--ink-dim);
+  font-size:10.5px;font-weight:600;cursor:pointer;padding:3px 6px;border-radius:5px;
 }
-.unit-picker-footer .clear-btn:hover{
-  background:var(--bg-2);
-  color:var(--bad);
-}
-/* Build mode (manual fields) */
-.unit-build-panel{
-  padding:12px;
-  border-top:1px solid var(--line);
-  background:var(--bg-2);
-}
+.unit-picker-footer .clear-btn:active{color:var(--bad)}
+/* Build mode */
+.unit-build-panel{padding:10px;background:var(--bg-2)}
 .unit-build-panel .build-title{
-  font-size:11px;
-  font-weight:600;
-  color:var(--ink-dim);
-  font-family:var(--mono);
-  text-transform:uppercase;
-  letter-spacing:.3px;
-  margin-bottom:8px;
-  display:flex;
-  align-items:center;
-  gap:6px;
+  font-size:10.5px;font-weight:600;color:var(--ink-dim);font-family:var(--mono);
+  text-transform:uppercase;letter-spacing:.3px;margin-bottom:6px;
 }
-.unit-build-panel .build-title .hint{
-  font-weight:400;
-  text-transform:none;
-  color:var(--ink-faint);
-  letter-spacing:0;
-}
-/* Family pills for quick filter */
-.unit-family-pills{
-  display:flex;
-  flex-wrap:nowrap;
-  gap:6px;
-  padding:8px 12px;
-  overflow-x:auto;
-  -webkit-overflow-scrolling:touch;
-  border-bottom:1px solid var(--line-soft);
-  scrollbar-width:none;
-}
-.unit-family-pills::-webkit-scrollbar{display:none}
-.unit-family-pill{
-  flex-shrink:0;
-  padding:5px 11px;
-  border-radius:20px;
-  border:1px solid var(--line);
-  background:var(--bg-1);
-  color:var(--ink-dim);
-  font-size:11px;
-  font-weight:600;
-  font-family:var(--mono);
-  cursor:pointer;
-  transition:all var(--tr);
-  white-space:nowrap;
-}
-.unit-family-pill:hover{
-  border-color:var(--signal);
-  color:var(--ink);
-}
-.unit-family-pill.active{
-  background:var(--signal);
-  border-color:var(--signal);
-  color:#161207;
-}
-.unit-family-pill .pill-count{
-  opacity:.7;
-  margin-left:3px;
-}
-/* Selected unit banner */
+/* Compact selected banner */
 .unit-selected-banner{
-  display:none;
-  align-items:center;
-  gap:10px;
-  padding:10px 12px;
-  background:var(--signal-dim);
-  border:1px solid var(--signal);
-  border-radius:var(--radius-sm);
-  margin-bottom:8px;
+  display:none;align-items:center;gap:8px;
+  padding:7px 10px;background:var(--signal-dim);
+  border:1px solid var(--signal);border-radius:var(--radius-sm);margin-bottom:6px;
 }
 .unit-selected-banner.on{display:flex}
 .unit-selected-banner .banner-icon{
-  width:32px;
-  height:32px;
-  border-radius:8px;
-  background:var(--signal);
-  color:#161207;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:15px;
-  flex-shrink:0;
+  width:26px;height:26px;border-radius:6px;background:var(--signal);color:#161207;
+  display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;
 }
-.unit-selected-banner .banner-text{
-  flex:1;
-  min-width:0;
-}
+.unit-selected-banner .banner-text{flex:1;min-width:0}
 .unit-selected-banner .banner-label{
-  font-size:10px;
-  color:var(--ink-faint);
-  font-family:var(--mono);
-  text-transform:uppercase;
-  letter-spacing:.3px;
+  font-size:9px;color:var(--ink-faint);font-family:var(--mono);
+  text-transform:uppercase;letter-spacing:.3px;
 }
 .unit-selected-banner .banner-name{
-  font-size:13px;
-  font-weight:600;
-  color:var(--signal-hi);
-  word-break:break-word;
-  line-height:1.3;
+  font-size:12px;font-weight:600;color:var(--signal-hi);
+  word-break:break-word;line-height:1.25;
 }
 .unit-selected-banner .banner-clear{
-  border:0;
-  background:transparent;
-  color:var(--ink-dim);
-  font-size:18px;
-  cursor:pointer;
-  padding:4px;
-  line-height:1;
-  border-radius:6px;
-  transition:color var(--tr);
+  border:0;background:transparent;color:var(--ink-dim);
+  font-size:15px;cursor:pointer;padding:2px 4px;line-height:1;
 }
-.unit-selected-banner .banner-clear:hover{color:var(--bad)}
+.unit-selected-banner .banner-clear:active{color:var(--bad)}
  
 @media print{
   .header,.bottom-nav,.desktop-nav,.btn-row{display:none !important}
@@ -942,52 +756,44 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
             <div class="err-msg" id="siteErr" style="display:none"></div>
           </div>
  
-          <!-- ══════ UPGRADED UNIT SELECTOR ══════ -->
+          <!-- ══════ UNIT SELECTOR (compact) ══════ -->
           <div class="fg full">
             <label>Unit selection</label>
  
-            <!-- Selected unit banner -->
             <div class="unit-selected-banner" id="unitSelectedBanner">
               <div class="banner-icon">✓</div>
               <div class="banner-text">
-                <div class="banner-label">Selected unit</div>
+                <div class="banner-label">Selected</div>
                 <div class="banner-name" id="unitBannerName">—</div>
               </div>
-              <button type="button" class="banner-clear" onclick="UI.clearUnitSelection()" title="Clear selection">✕</button>
+              <button type="button" class="banner-clear" onclick="UI.clearUnitSelection()" title="Clear">✕</button>
             </div>
  
             <div class="unit-picker" id="unitPicker">
-              <div class="unit-picker-header">
+              <div class="unit-picker-toolbar">
                 <div class="search-wrap">
                   <span class="search-icon">⌕</span>
-                  <input type="text" id="unitSearchInput" placeholder="Search units or families…" autocomplete="off"
+                  <input type="text" id="unitSearchInput" placeholder="Search units…" autocomplete="off"
                     oninput="UI.onUnitSearch()" onkeydown="UI.onUnitSearchKey(event)">
                 </div>
+                <select class="fam-filter" id="unitFamilyFilter" onchange="UI.onFamilyFilterChange()">
+                  <option value="">All families</option>
+                </select>
                 <div class="mode-toggle">
-                  <button type="button" id="modeBrowse" class="active" onclick="UI.setUnitMode('browse')">Browse</button>
+                  <button type="button" id="modeBrowse" class="active" onclick="UI.setUnitMode('browse')">List</button>
                   <button type="button" id="modeBuild" onclick="UI.setUnitMode('build')">Build</button>
                 </div>
               </div>
  
-              <!-- Family filter pills -->
-              <div class="unit-family-pills" id="unitFamilyPills"></div>
+              <div class="unit-picker-body" id="unitPickerBody"></div>
  
-              <!-- Browse mode: list of units -->
-              <div class="unit-picker-body" id="unitPickerBody">
-                <!-- populated by JS -->
-              </div>
- 
-              <!-- Build mode: family + fields -->
               <div class="unit-build-panel" id="unitBuildPanel" style="display:none">
-                <div class="build-title">
-                  Build custom unit
-                  <span class="hint">— choose family & fill fields</span>
-                </div>
-                <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px">
+                <div class="build-title">Build unit from family fields</div>
+                <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
                   <select class="field" id="unitFamily" onchange="UI.onFamilyChange()" style="flex:1">
                     <option value="">-- Select family --</option>
                   </select>
-                  <button type="button" class="btn btn-sm btn-primary" onclick="UI.openAddFamily()" title="Add new family">＋</button>
+                  <button type="button" class="btn btn-sm btn-primary" onclick="UI.openAddFamily()" title="Add family">＋</button>
                 </div>
                 <div id="familyFields"></div>
               </div>
@@ -998,7 +804,6 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
               </div>
             </div>
  
-            <!-- Hidden field that holds the final unit name for form submit -->
             <input type="hidden" id="selectedUnitName" value="">
             <input type="hidden" id="selectedUnitFamilyId" value="">
           </div>
@@ -1834,7 +1639,8 @@ var UI = (function(){
     document.getElementById('modeBrowse').classList.toggle('active', mode==='browse');
     document.getElementById('modeBuild').classList.toggle('active', mode==='build');
     document.getElementById('unitPickerBody').style.display = mode==='browse' ? 'block' : 'none';
-    document.getElementById('unitFamilyPills').style.display = mode==='browse' ? 'flex' : 'none';
+    var famFilter = document.getElementById('unitFamilyFilter');
+    if(famFilter) famFilter.style.display = mode==='browse' ? '' : 'none';
     document.getElementById('unitBuildPanel').style.display = mode==='build' ? 'block' : 'none';
     if(mode==='browse') renderUnitPicker();
     if(mode==='build') {
@@ -1854,8 +1660,9 @@ var UI = (function(){
     }
   }
  
-  function setFamilyFilter(fid){
-    activeFamilyFilter = (activeFamilyFilter === fid) ? '' : fid;
+  function onFamilyFilterChange(){
+    var sel = document.getElementById('unitFamilyFilter');
+    activeFamilyFilter = sel ? sel.value : '';
     renderUnitPicker();
   }
  
@@ -1879,7 +1686,6 @@ var UI = (function(){
     selectedUnitFamilyId = '';
     document.getElementById('selectedUnitName').value = '';
     document.getElementById('selectedUnitFamilyId').value = '';
-    // also clear build fields
     var famSel = document.getElementById('unitFamily');
     if(famSel) famSel.value = '';
     document.getElementById('familyFields').innerHTML = '';
@@ -1903,25 +1709,36 @@ var UI = (function(){
     }
   }
  
+  function populateFamilyFilter(){
+    var sel = document.getElementById('unitFamilyFilter');
+    if(!sel) return;
+    var current = activeFamilyFilter;
+    var allUnits = Data.getUnits();
+    var families = Data.families;
+    sel.innerHTML = '<option value="">All families ('+allUnits.length+')</option>';
+    families.forEach(function(f){
+      var count = Data.getUnitsByFamily(f.id).length;
+      if(count === 0) return;
+      sel.innerHTML += '<option value="'+f.id+'"'+(current===f.id?' selected':'')+'>'+esc(f.label)+' ('+count+')</option>';
+    });
+    if(current && !families.some(function(f){return f.id===current;})) {
+      activeFamilyFilter = '';
+      sel.value = '';
+    } else {
+      sel.value = current;
+    }
+  }
+ 
   function renderUnitPicker(){
     var body = document.getElementById('unitPickerBody');
-    var pills = document.getElementById('unitFamilyPills');
-    if(!body || !pills) return;
+    if(!body) return;
+ 
+    populateFamilyFilter();
  
     var q = (document.getElementById('unitSearchInput')?.value || '').toLowerCase().trim();
     var allUnits = Data.getUnits();
     var families = Data.families;
  
-    // Build family pills
-    var pillHtml = '<button type="button" class="unit-family-pill'+(activeFamilyFilter===''?' active':'')+'" onclick="UI.setFamilyFilter(\'\')">All <span class="pill-count">'+allUnits.length+'</span></button>';
-    families.forEach(function(f){
-      var count = Data.getUnitsByFamily(f.id).length;
-      if(count === 0 && !q) return; // skip empty families unless searching
-      pillHtml += '<button type="button" class="unit-family-pill'+(activeFamilyFilter===f.id?' active':'')+'" onclick="UI.setFamilyFilter(\''+f.id+'\')">'+esc(f.label)+' <span class="pill-count">'+count+'</span></button>';
-    });
-    pills.innerHTML = pillHtml;
- 
-    // Group units by family
     var groups = {};
     families.forEach(function(f){ groups[f.id] = {fam:f, units:[]}; });
     groups['__other'] = {fam:{id:'__other', label:'Other'}, units:[]};
@@ -1929,14 +1746,13 @@ var UI = (function(){
     allUnits.forEach(function(u){
       if(activeFamilyFilter && u.familyId !== activeFamilyFilter) return;
       if(q){
-        var hay = (u.name + ' ' + (Data.getFamily(u.familyId)?.label || '')).toLowerCase();
-        if(hay.indexOf(q) === -1) return;
+        // search only on unit model name — not family label
+        if(u.name.toLowerCase().indexOf(q) === -1) return;
       }
       if(groups[u.familyId]) groups[u.familyId].units.push(u);
       else groups['__other'].units.push(u);
     });
  
-    // Render groups
     var html = '';
     var totalShown = 0;
     var order = families.map(function(f){return f.id;}).concat(['__other']);
@@ -1945,7 +1761,6 @@ var UI = (function(){
       if(!g || !g.units.length) return;
       totalShown += g.units.length;
       var collapsed = !!collapsedFamilies[fid];
-      // sort units alphabetically
       g.units.sort(function(a,b){ return a.name.localeCompare(b.name); });
  
       html += '<div class="unit-family-group">';
@@ -1956,22 +1771,21 @@ var UI = (function(){
       html += '<div class="unit-family-items">';
       g.units.forEach(function(u){
         var isSel = selectedUnitName === u.name;
-        html += '<div class="unit-item'+(isSel?' selected':'')+'" onclick="UI.selectUnit(\''+esc(u.name).replace(/'/g,"\\'")+'\',\''+u.familyId+'\')">';
+        var safeName = u.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+        html += '<div class="unit-item'+(isSel?' selected':'')+'" onclick="UI.selectUnit(\''+safeName+'\',\''+u.familyId+'\')">';
         html += '<div class="unit-radio"></div>';
         html += '<div class="unit-info"><div class="unit-name">'+esc(u.name)+'</div>';
         var recCount = Data.records.filter(function(r){return r.unitName===u.name;}).length;
-        if(recCount) html += '<div class="unit-meta">'+recCount+' record'+(recCount>1?'s':'')+'</div>';
-        html += '</div>';
-        html += '<span class="unit-check">✓</span>';
-        html += '</div>';
+        if(recCount) html += '<div class="unit-meta">'+recCount+' rec</div>';
+        html += '</div></div>';
       });
       html += '</div></div>';
     });
  
     if(!totalShown){
       html = '<div class="unit-picker-empty"><div class="icon">⌕</div>'+
-        (q ? 'No units match "'+esc(q)+'"' : 'No units available')+
-        '<br><span style="font-size:11px;margin-top:6px;display:inline-block">Try Build mode or add units in Units tab</span></div>';
+        (q ? 'No match for "'+esc(q)+'"' : 'No units')+
+        '<br><span style="font-size:10.5px">Use Build or add units in Units tab</span></div>';
     }
     body.innerHTML = html;
   }
@@ -2830,7 +2644,7 @@ var UI = (function(){
     populateFamilySelect:populateFamilySelect,
     // New unit picker API
     setUnitMode:setUnitMode, onUnitSearch:onUnitSearch, onUnitSearchKey:onUnitSearchKey,
-    setFamilyFilter:setFamilyFilter, toggleFamilyCollapse:toggleFamilyCollapse,
+    onFamilyFilterChange:onFamilyFilterChange, toggleFamilyCollapse:toggleFamilyCollapse,
     selectUnit:selectUnit, clearUnitSelection:clearUnitSelection, onBuildFieldChange:onBuildFieldChange,
     renderUnitPicker:renderUnitPicker
   };
