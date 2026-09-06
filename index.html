@@ -12,6 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
+/* ─── styles (unchanged) ─── */
 :root{
   --bg-0:#0a0d12; --bg-1:#10141c; --bg-2:#161c27; --bg-3:#1c2431;
   --line:#26303f; --line-soft:#1c2531;
@@ -54,6 +55,7 @@ a{color:inherit;text-decoration:none}
 .mono{font-family:var(--mono)}
 .app{max-width:660px;margin:0 auto;position:relative}
 
+/* ─── header ─── */
 .header{
   position:sticky;top:0;z-index:50;background:var(--bg-1);
   border-bottom:1px solid var(--line);padding:10px 12px;
@@ -78,6 +80,7 @@ a{color:inherit;text-decoration:none}
 .icon-btn:active{transform:scale(.92);background:var(--bg-3)}
 .icon-btn.primary{background:var(--signal);border-color:var(--signal);color:#161207}
 
+/* ─── bottom nav ─── */
 .bottom-nav{
   position:fixed;bottom:0;left:0;right:0;z-index:60;background:var(--bg-1);
   border-top:1px solid var(--line);padding:6px 4px calc(6px + var(--safe-b));
@@ -97,12 +100,14 @@ a{color:inherit;text-decoration:none}
 .view.active{display:block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 
+/* ─── stats ─── */
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
 .stat{background:var(--bg-1);border:1px solid var(--line);border-radius:var(--radius-sm);padding:9px 5px;text-align:center;box-shadow:var(--shadow)}
 .stat small{display:block;font-size:9px;color:var(--ink-faint);font-weight:600;text-transform:uppercase;letter-spacing:.4px;font-family:var(--mono)}
 .stat b{display:block;font-size:17px;font-weight:700;margin-top:3px;font-family:var(--mono)}
 .stat.ok b{color:var(--ok)} .stat.warn b{color:var(--warn)} .stat.bad b{color:var(--bad)} .stat.signal b{color:var(--signal)}
 
+/* ─── panels ─── */
 .panel{background:var(--bg-1);border:1px solid var(--line);border-radius:var(--radius);padding:12px;margin-bottom:10px;box-shadow:var(--shadow)}
 .panel-title{font-size:12.5px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px;color:var(--ink)}
 .panel-title .count{background:var(--bg-3);color:var(--ink-dim);font-size:10.5px;padding:2px 7px;border-radius:20px;font-weight:600;font-family:var(--mono)}
@@ -115,6 +120,7 @@ a{color:inherit;text-decoration:none}
 .chart-grid .chart-wrap{height:135px}
 @media (max-width:480px){.chart-grid{grid-template-columns:1fr}.chart-grid .chart-wrap{height:145px}}
 
+/* ─── filters ─── */
 .filters{display:flex;flex-direction:column;gap:6px}
 .filter-row{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .filter-row.three{grid-template-columns:1fr 1fr 1fr}
@@ -130,6 +136,7 @@ select.field{
   background-repeat:no-repeat;background-position:right 11px center;padding-right:26px;
 }
 
+/* ─── cards ─── */
 .card-list{display:flex;flex-direction:column;gap:8px}
 .card{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:11px;display:flex;flex-direction:column;gap:6px;transition:border-color var(--tr)}
 .card.sel{border-color:var(--signal);background:var(--signal-dim)}
@@ -144,12 +151,14 @@ select.field{
 .sn-tag{background:var(--bg-3);border:1px solid var(--line);border-radius:6px;padding:2px 6px;font-family:var(--mono);font-size:10px}
 .check{width:18px;height:18px;flex-shrink:0;border-radius:5px;border:1.5px solid var(--line-soft);accent-color:var(--signal)}
 
+/* ─── badges ─── */
 .badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-weight:600;font-size:10px;white-space:nowrap;font-family:var(--mono)}
 .badge.approved{background:var(--ok-dim);color:var(--ok)}
 .badge.pending{background:var(--warn-dim);color:var(--warn)}
 .badge.rejected{background:var(--bad-dim);color:var(--bad)}
 .badge.info{background:var(--info-dim);color:var(--info)}
 
+/* ─── buttons ─── */
 .btn{
   border:1px solid var(--line);border-radius:9px;padding:9px 13px;font-weight:600;font-size:12.5px;
   background:var(--bg-2);color:var(--ink);display:inline-flex;align-items:center;justify-content:center;gap:5px;
@@ -169,6 +178,7 @@ select.field{
 .btn-row .btn{flex:1}
 .btn[disabled]{opacity:.4;pointer-events:none}
 
+/* ─── bulk bar ─── */
 .bulk-bar{
   position:sticky;top:calc(var(--safe-t) + 50px);z-index:40;background:var(--bg-3);
   border:1px solid var(--signal);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:10px;
@@ -177,11 +187,13 @@ select.field{
 .bulk-bar.on{display:flex}
 .bulk-bar .cnt{font-weight:700;font-family:var(--mono);color:var(--signal)}
 
+/* ─── empty ─── */
 .empty-state{text-align:center;padding:26px 16px;color:var(--ink-faint);font-size:12.5px}
 .empty-state .icon{font-size:32px;margin-bottom:8px;opacity:.55}
 .list-item{padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--bg-2);display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
 .list-item .muted{font-size:10.5px;color:var(--ink-faint)}
 
+/* ─── modal ─── */
 .modal-bg{
   position:fixed;inset:0;z-index:100;background:rgba(6,8,11,.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
   display:none;align-items:flex-end;justify-content:center;overscroll-behavior:contain;
@@ -211,11 +223,13 @@ select.field{
 .unit-structure{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
 .unit-structure .field{font-size:12.5px;padding:8px 10px}
 
+/* confirm modal */
 .confirm-box{background:var(--bg-1);border:1px solid var(--line);border-radius:var(--radius);max-width:340px;width:92%;padding:18px;box-shadow:var(--shadow)}
 .confirm-box h3{font-size:15px;margin-bottom:6px}
 .confirm-box p{font-size:12.5px;color:var(--ink-dim);margin-bottom:14px;line-height:1.5}
 .modal-bg.center{align-items:center}
 
+/* ─── toast ─── */
 .toast{
   position:fixed;bottom:calc(var(--nav-h) + var(--safe-b) + 16px);left:50%;transform:translateX(-50%) translateY(20px);
   background:var(--bg-3);border:1px solid var(--signal);color:var(--ink);padding:11px 18px;border-radius:11px;
@@ -225,6 +239,7 @@ select.field{
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
 .toast button{background:transparent;border:0;color:var(--signal);font-weight:700;font-size:12px}
 
+/* ─── table ─── */
 .table-box{overflow-x:auto;border:1px solid var(--line);border-radius:9px;-webkit-overflow-scrolling:touch}
 table{width:100%;border-collapse:collapse;font-size:11.5px;min-width:520px}
 th,td{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
@@ -232,6 +247,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
 
 .import-hint{font-size:11.5px;color:var(--ink-faint);margin-bottom:8px;line-height:1.5}
 
+/* ─── desktop ─── */
 @media (min-width:641px){
   body{padding-bottom:20px}
   .bottom-nav{display:none}
@@ -272,45 +288,9 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
 .unit-suggestion{background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:2px 10px;font-size:11px;cursor:pointer;transition:all var(--tr);color:var(--ink-dim);font-family:var(--mono)}
 .unit-suggestion:hover{border-color:var(--signal);color:var(--ink)}
 .unit-suggestion:active{transform:scale(.95)}
-.unit-suggestion.active{background:var(--signal-dim);border-color:var(--signal);color:var(--signal-hi)}
 
 .backup-item{display:flex;justify-content:space-between;align-items:center;padding:9px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:5px;background:var(--bg-2)}
 .backup-item .info{font-size:12px} .backup-item .info small{color:var(--ink-faint);font-family:var(--mono)}
-
-.unit-selector-box{
-  background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius-sm);
-  padding:10px;margin-bottom:8px;
-}
-.unit-search-wrap{position:relative}
-.unit-search-results{
-  position:absolute;left:0;right:0;top:100%;z-index:20;
-  background:var(--bg-1);border:1px solid var(--line);border-radius:9px;
-  max-height:220px;overflow-y:auto;box-shadow:var(--shadow);display:none;margin-top:4px;
-}
-.unit-search-results.on{display:block}
-.unit-result-item{
-  padding:9px 12px;border-bottom:1px solid var(--line-soft);cursor:pointer;
-  display:flex;flex-direction:column;gap:2px;transition:background var(--tr);
-}
-.unit-result-item:last-child{border-bottom:0}
-.unit-result-item:hover,.unit-result-item:active{background:var(--signal-dim)}
-.unit-result-item .name{font-weight:600;font-size:13px;font-family:var(--mono)}
-.unit-result-item .meta{font-size:10.5px;color:var(--ink-faint)}
-.unit-selected-banner{
-  display:none;align-items:center;gap:8px;flex-wrap:wrap;
-  background:var(--ok-dim);border:1px solid var(--ok);border-radius:8px;
-  padding:8px 10px;margin-top:8px;font-size:12.5px;
-}
-.unit-selected-banner.on{display:flex}
-.unit-selected-banner .name{font-weight:700;font-family:var(--mono);color:var(--ok);flex:1;min-width:0;word-break:break-word}
-.unit-mode-tabs{display:flex;gap:4px;margin-bottom:8px}
-.unit-mode-tab{
-  flex:1;padding:7px 6px;border-radius:8px;border:1px solid var(--line);
-  background:var(--bg-2);font-size:11.5px;font-weight:600;text-align:center;
-  color:var(--ink-dim);transition:all var(--tr);
-}
-.unit-mode-tab.active{background:var(--signal);border-color:var(--signal);color:#161207}
-.unit-mode-tab:active{transform:scale(.97)}
 
 @media print{
   .header,.bottom-nav,.desktop-nav,.btn-row{display:none !important}
@@ -347,6 +327,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
     <button data-view="trash" onclick="UI.showView('trash',this)">Trash</button>
   </nav>
 
+  <!-- ══════ DASHBOARD ══════ -->
   <section id="dashboard" class="view active">
     <div class="stats" id="statsContainer">
       <div class="stat"><small>Requests</small><b id="kRecords">0</b></div>
@@ -374,6 +355,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
     </div>
   </section>
 
+  <!-- ══════ RECORDS ══════ -->
   <section id="records" class="view">
     <div class="panel">
       <div class="panel-title">Filter &amp; search</div>
@@ -419,6 +401,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
     </div>
   </section>
 
+  <!-- ══════ APPROVAL ══════ -->
   <section id="approval" class="view">
     <div class="panel">
       <div class="panel-title">Approval center <span class="count" id="pendingCount">0</span></div>
@@ -426,6 +409,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
     </div>
   </section>
 
+  <!-- ══════ SITES ══════ -->
   <section id="sites" class="view">
     <div class="panel">
       <input class="field mb-8" id="siteSearch" placeholder="Search sites…" oninput="UI.renderSites()">
@@ -434,6 +418,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
     <div class="panel"><div id="sitesList" class="card-list"></div></div>
   </section>
 
+  <!-- ══════ QUALITY ══════ -->
   <section id="quality" class="view">
     <div class="panel">
       <div class="panel-title">Duplicate serial numbers</div>
@@ -450,6 +435,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
     </div>
   </section>
 
+  <!-- ══════ REPORTS ══════ -->
   <section id="reports" class="view">
     <div class="panel">
       <div class="panel-title">Management report</div>
@@ -460,6 +446,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
     </div>
   </section>
 
+  <!-- ══════ BACKUP ══════ -->
   <section id="backup" class="view">
     <div class="panel">
       <div class="panel-title">Backup &amp; restore</div>
@@ -482,6 +469,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
     </div>
   </section>
 
+  <!-- ══════ UNITS MANAGEMENT ══════ -->
   <section id="units" class="view">
     <div class="panel">
       <div class="panel-title">Unit Families (Models)</div>
@@ -512,6 +500,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
     </div>
   </section>
 
+  <!-- ══════ TRASH ══════ -->
   <section id="trash" class="view">
     <div class="panel">
       <div class="panel-title">Trash <span class="count" id="trashCount">0</span></div>
@@ -523,6 +512,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
     </div>
   </section>
 
+  <!-- ══════ IMPORT (accessible from Backup > More) ══════ -->
   <section id="importview" class="view">
     <div class="panel">
       <div class="panel-title">Import from text</div>
@@ -533,6 +523,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
     </div>
   </section>
 
+  <!-- ══════ BOTTOM NAV ══════ -->
   <nav class="bottom-nav">
     <button class="nav-item active" data-view="dashboard" onclick="UI.showView('dashboard',this)"><span class="icon">▦</span><span>Dashboard</span></button>
     <button class="nav-item" data-view="records" onclick="UI.showView('records',this)"><span class="icon">☰</span><span>Records</span></button>
@@ -542,6 +533,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
     <button class="nav-item" data-view="more" onclick="UI.showMoreMenu()"><span class="icon">⋯</span><span>More</span></button>
   </nav>
 
+  <!-- More sheet -->
   <div id="moreSheet" class="modal-bg" onclick="if(event.target===this)UI.closeMore()">
     <div class="modal" style="max-height:64dvh">
       <div class="modal-handle"></div>
@@ -558,6 +550,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
     </div>
   </div>
 
+  <!-- ══════ RECORD MODAL ══════ -->
   <div id="modalbg" class="modal-bg">
     <div class="modal">
       <div class="modal-handle"></div>
@@ -586,40 +579,17 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
           </div>
 
           <div class="fg full">
-            <label>Unit selection</label>
-            <div class="unit-selector-box">
-              <div class="unit-mode-tabs">
-                <button type="button" class="unit-mode-tab active" id="modeSearch" onclick="UI.setUnitMode('search')">🔍 Search catalog</button>
-                <button type="button" class="unit-mode-tab" id="modeBuild" onclick="UI.setUnitMode('build')">⚙ Build from family</button>
-              </div>
-
-              <div id="unitSearchMode">
-                <div class="unit-search-wrap">
-                  <input class="field" id="unitSearchInput" placeholder="Type to search units… (e.g. NCR48, CLU, Envicool)" autocomplete="off"
-                    oninput="UI.onUnitSearch()" onfocus="UI.onUnitSearch()" onkeydown="UI.unitSearchKey(event)">
-                  <div class="unit-search-results" id="unitSearchResults"></div>
-                </div>
-                <div class="unit-selected-banner" id="unitSelectedBanner">
-                  <span class="name" id="unitSelectedName"></span>
-                  <span class="badge info" id="unitSelectedFamily"></span>
-                  <button type="button" class="btn btn-xs btn-outline" onclick="UI.clearSelectedUnit()">Clear</button>
-                </div>
-              </div>
-
-              <div id="unitBuildMode" style="display:none">
-                <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
-                  <select class="field" id="unitFamily" onchange="UI.onFamilyChange()" style="flex:1">
-                    <option value="">-- Select family --</option>
-                  </select>
-                  <button type="button" class="btn btn-sm btn-primary" onclick="UI.openAddFamily()" title="Add new family">＋</button>
-                </div>
-                <input class="field" id="unitSuggestionFilter" placeholder="Filter suggestions…" style="margin-bottom:6px;display:none"
-                  oninput="UI.filterUnitSuggestions()">
-                <div class="unit-suggestions" id="unitSuggestions"></div>
-                <div class="fg full" id="familyFields" style="margin-top:8px"></div>
-              </div>
+            <label>Unit family</label>
+            <div style="display:flex;gap:6px;align-items:center">
+              <select class="field" id="unitFamily" onchange="UI.onFamilyChange()" style="flex:1">
+                <option value="">-- Select family --</option>
+              </select>
+              <button type="button" class="btn btn-sm btn-primary" onclick="UI.openAddFamily()" title="Add new family">＋</button>
             </div>
+            <div class="unit-suggestions" id="unitSuggestions"></div>
           </div>
+
+          <div class="fg full" id="familyFields"></div>
 
           <div class="fg"><label>Fault affect</label><input class="field" id="fault" value="Faulty" oninput="UI.updateOutputText()"></div>
           <div class="fg"><label>QTY</label><input class="field" id="qty" type="number" min="1" value="1" required oninput="UI.updateOutputText()"></div>
@@ -636,7 +606,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
           <div class="fg full"><label>Notes</label><textarea class="field" id="notes" rows="2" oninput="UI.updateOutputText()"></textarea></div>
         </div>
 
-        <div class="unit-preview" id="unitPreview">Select or build a unit</div>
+        <div class="unit-preview" id="unitPreview">Select a family and fill in the fields</div>
         <div class="copy-area" id="copyArea">Output will appear here<button type="button" class="copy-btn" onclick="UI.copyOutput()">Copy</button></div>
         <div id="historyBox" style="display:none" class="mt-8">
           <label style="font-size:10.5px;font-weight:600;color:var(--ink-dim);font-family:var(--mono);text-transform:uppercase">Activity</label>
@@ -651,6 +621,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
     </div>
   </div>
 
+  <!-- ══════ FAMILY / UNIT MODAL ══════ -->
   <div id="familyModal" class="modal-bg">
     <div class="modal" style="max-width:460px">
       <div class="modal-handle"></div>
@@ -676,6 +647,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
     </div>
   </div>
 
+  <!-- ══════ UNIT EDIT MODAL (for managing units) ══════ -->
   <div id="unitEditModal" class="modal-bg">
     <div class="modal" style="max-width:460px">
       <div class="modal-handle"></div>
@@ -701,6 +673,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
     </div>
   </div>
 
+  <!-- ══════ CONFIRM MODAL ══════ -->
   <div id="confirmbg" class="modal-bg center">
     <div class="confirm-box">
       <h3 id="confirmTitle">Are you sure?</h3>
@@ -717,6 +690,9 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
 
 <script>
 'use strict';
+/* ═══════════════════════════════════════════════════════════════════
+   DATA MODULE — extended with unit management
+   ═══════════════════════════════════════════════════════════════════ */
 var Data = (function(){
   var STORAGE_KEY = 'FaultConsole_records_v10';
   var TRASH_KEY = 'FaultConsole_trash_v10';
@@ -729,245 +705,123 @@ var Data = (function(){
   var records = [];
   var trash = [];
   var families = [];
-  var units = [];
+  var units = []; // {id, name, familyId}
 
   function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
 
-  /* ── Canonical name mapping (updated per user table) ── */
+  /* ── canonical unit name (alias mapping) ── */
   function canonicalUnitName(n){
     if(!n) return '';
     var norm = String(n).replace(/\s+/g,' ').trim();
-
     var ALIAS_MAP = {
-      // NCR → NCR48U 3KW (Family: NCR, Nian)
-      "NCR48U - 3KW":"NCR48U 3KW",
-      "NCR48U - 3KW - Nian":"NCR48U 3KW",
-      "NCR48U - Nian":"NCR48U 3KW",
-      "NCR48U - NIAN":"NCR48U 3KW",
-      "NCR48U 3KW":"NCR48U 3KW",
-      "NCR48U - 3KW":"NCR48U 3KW",
-      "NCR48U G/01- 3KW - Nian":"NCR48U 3KW",
-      "NCR48U G/01-3KW - Nian":"NCR48U 3KW",
-      "NCR48U G/01 - 3KW - Nian":"NCR48U 3KW",
-      "NCR48U G/01 - 3KW":"NCR48U 3KW",
-      "NCR48U":"NCR48U 3KW",
-      "NCR48U G/01":"NCR48U 3KW",
-
-      // NCU → NCU48 (Family: NCU, Nian)
-      "NCU48U - 2KW - Nian":"NCU48",
-      "NCU48U":"NCU48",
-      "NCU48S":"NCU48",
-      "NCU48U - 2KW":"NCU48",
-      "NCU48":"NCU48",
-
-      // CLU / BBU → BBU6102 CLU (Family: CLU, Ericsson)
-      "BBU CLU":"BBU6102 CLU",
-      "BBU6102 CLU":"BBU6102 CLU",
-      "BBU6102 CLU - Ericsson":"BBU6102 CLU",
-      "BBU6102 CLU - ERICSSON":"BBU6102 CLU",
-      "BBU6102":"BBU6102 CLU",
-      "CLU":"BBU6102 CLU",
-      "CLU - ERICSSON":"BBU6102 CLU",
-      "CLU ERICSSON":"BBU6102 CLU",
-      "CLU - Ericsson":"BBU6102 CLU",
-      "CLU - BBUB102 CLU - Ericsson":"BBU6102 CLU",
-      "CLU - BBUB102":"BBU6102 CLU",
-      "CLU BBUB102":"BBU6102 CLU",
-
-      // CCU → CCU Climate Control (Family: CCU)
-      "Climat Control Board":"CCU Climate Control",
-      "Climat Control Board - Ericsson":"CCU Climate Control",
-      "Climate Control Board":"CCU Climate Control",
-      "Climate Control Board - CCU":"CCU Climate Control",
-      "CCU - Climate Control Board":"CCU Climate Control",
-      "CCU Climate Control Board":"CCU Climate Control",
-      "CCU - Climate Control Board":"CCU Climate Control",
-      "Thermo Electric Co - CCU":"CCU Climate Control",
-      "CCU - Thermo Electric Co":"CCU Climate Control",
-      "Thermo Electric":"CCU Climate Control",
-      "CCU Climate Control":"CCU Climate Control",
-
-      // PSU → PSU AC 03 (Family: PSU, Ericsson)
-      "PSU AC 03":"PSU AC 03",
-      "PSU AC03":"PSU AC 03",
-      "PSU AC 03 Ericsson":"PSU AC 03",
-      "PSU AC 03 - Ericsson":"PSU AC 03",
-      "PSU AC 01":"PSU AC 01",
-      "PSU AC 02":"PSU AC 02",
-      "PSU AC 01 - Ericsson":"PSU AC 01",
-      "PSU AC 02 - Ericsson":"PSU AC 02",
-
-      // Envicool → DC Cabinet AC Envicool (Family: AC)
-      "DC cabinet air conditioner - Envicool":"DC Cabinet AC Envicool",
-      "DC Cabinet Air Conditioner - Envicool":"DC Cabinet AC Envicool",
-      "DC Cabinet Air Conditioner Envicool":"DC Cabinet AC Envicool",
-      "Envicool":"DC Cabinet AC Envicool",
-      "DC Cabinet AC Envicool":"DC Cabinet AC Envicool",
-
-      // ITMC Air Conditioner → Air Conditioner ITMC (Family: AC)
-      "Air Conditioner - ITMC":"Air Conditioner ITMC",
-      "DC Cabinet Air Conditioner - ITMC":"Air Conditioner ITMC",
-      "Air Conditioner ITMC":"Air Conditioner ITMC",
-
-      // DCC Porsoo → DCC Porsoo (Family: DCC)
-      "DCC-PORSOO ELECTRONIC":"DCC Porsoo",
-      "DCC-PORSOO ELECTRONIC - Cabinet Conditioner":"DCC Porsoo",
-      "DCC-Equipment_Confirmation ELECTRONIC":"DCC Porsoo",
-      "DCC-Equipment_Confirmation ELECTRONIC - Cabinet Conditioner":"DCC Porsoo",
-      "DCC Equipment Confirmation Electronic":"DCC Porsoo",
-      "DCC Porsoo":"DCC Porsoo",
-      "DCC - Equipment_Confirmation Electronic":"DCC Porsoo",
-      "DCC - Equipment_Confirmation Electronic - Cabinet Conditioner":"DCC Porsoo",
-
-      // NAC*D series → NAC DC Air Conditioner (Family: NAC, Nian)
-      "NAC550D - Nian DC Air Conditioner":"NAC DC Air Conditioner",
-      "NAC650D - Nian DC Air Conditioner":"NAC DC Air Conditioner",
-      "NAC1250D - Nian DC Air Conditioner":"NAC DC Air Conditioner",
-      "NAC2000D - Nian DC Air Conditioner":"NAC DC Air Conditioner",
-      "NAC2400D - Nian DC Air Conditioner":"NAC DC Air Conditioner",
-      "NAC3000D - Nian DC Air Conditioner":"NAC DC Air Conditioner",
-      "NAC3300D - Nian DC Air Conditioner":"NAC DC Air Conditioner",
-      "NAC3500D - Nian DC Air Conditioner":"NAC DC Air Conditioner",
-      "NAC550D":"NAC DC Air Conditioner",
-      "NAC650D":"NAC DC Air Conditioner",
-      "NAC1250D":"NAC DC Air Conditioner",
-      "NAC2000D":"NAC DC Air Conditioner",
-      "NAC2400D":"NAC DC Air Conditioner",
-      "NAC3000D":"NAC DC Air Conditioner",
-      "NAC3300D":"NAC DC Air Conditioner",
-      "NAC3500D":"NAC DC Air Conditioner",
-      "NAC DC Air Conditioner":"NAC DC Air Conditioner",
-
-      // Rectifier ITMC → Rectifier 48V 3000W ITMC (Family: Rectifier)
-      "RECTIFIER 48VDC3000 - ITMC":"Rectifier 48V 3000W ITMC",
-      "RECTIFIER 48VDC3000":"Rectifier 48V 3000W ITMC",
-      "Rectifier 48V 3000W ITMC":"Rectifier 48V 3000W ITMC",
-
-      // PEC / PECSU Porsoo → PEC Rectifier Porsoo (Family: Rectifier)
-      "PEC- 4860 - Rectifier Equipment_Confirmation":"PEC Rectifier Porsoo",
-      "PEC 4860":"PEC Rectifier Porsoo",
-      "PEC-4860":"PEC Rectifier Porsoo",
-      "PEC-4860 - Rectifier Equipment_Confirmation":"PEC Rectifier Porsoo",
-      "PECSU - 2020 - Equipment_Confirmation":"PEC Rectifier Porsoo",
-      "PECSU-2020":"PEC Rectifier Porsoo",
-      "PEC Rectifier Porsoo":"PEC Rectifier Porsoo",
-
-      // Flatpack2 / Smartpack → Flatpack2 / Smartpack (Family: Rectifier, Eltek)
-      "Rectifier - Flatpack2 2000W 48V BF":"Flatpack2 / Smartpack",
-      "Flatpack2":"Flatpack2 / Smartpack",
-      "Smartpack Extended - ELTEK":"Flatpack2 / Smartpack",
-      "Smartpack Extended":"Flatpack2 / Smartpack",
-      "Flatpack2 / Smartpack":"Flatpack2 / Smartpack",
-
-      // SCU → SCU Ericsson (Family: SCU)
-      "SCU 01 01 - Ericsson":"SCU Ericsson",
-      "SCU 01 01":"SCU Ericsson",
-      "SCU Ericsson":"SCU Ericsson",
-
-      // Controller → Controller Unit ITMC (Family: Controller)
-      "Controller Unit - ITMC":"Controller Unit ITMC",
-      "Controller Unit ITMC":"Controller Unit ITMC",
-
-      // PDU → PDU (Family: PDU)
-      "PDU 01 01":"PDU",
-      "PDU 02 01":"PDU",
-      "PDU":"PDU"
+      "BBU CLU":"BBU6102 CLU - Ericsson","BBU6102 CLU":"BBU6102 CLU - Ericsson","BBU6102 CLU - ERICSSON":"BBU6102 CLU - Ericsson",
+      "CLU":"CLU - Ericsson","CLU - ERICSSON":"CLU - Ericsson","CLU - BBUB102 CLU - Ericsson":"CLU - Ericsson",
+      "Climat Control Board":"CCU - Climate Control Board","Climat Control Board - Ericsson":"CCU - Climate Control Board",
+      "Climate Control Board - CCU":"CCU - Climate Control Board","CCU - Climate Control Board":"CCU - Climate Control Board",
+      "Thermo Electric Co - CCU":"CCU - Thermo Electric Co",
+      "DC cabinet air conditioner - Envicool":"DC Cabinet Air Conditioner - Envicool","DC Cabinet Air Conditioner - Envicool":"DC Cabinet Air Conditioner - Envicool",
+      "DCC-Equipment_Confirmation ELECTRONIC":"DCC - Equipment_Confirmation Electronic",
+      "DCC-Equipment_Confirmation ELECTRONIC - Cabinet Conditioner":"DCC - Equipment_Confirmation Electronic - Cabinet Conditioner",
+      "PSU AC 03":"PSU AC 03 - Ericsson","PEC- 4860 - Rectifier Equipment_Confirmation":"PEC-4860 - Rectifier Equipment_Confirmation",
+      "PECSU - 2020 - Equipment_Confirmation":"PECSU-2020 - Equipment_Confirmation",
+      "NCR48U - Nian":"NCR48U - 3KW - Nian","NCR48U - NIAN":"NCR48U - 3KW - Nian","NCR48U 3KW":"NCR48U - 3KW - Nian","NCR48U - 3KW":"NCR48U - 3KW - Nian"
     };
-
     if(ALIAS_MAP[norm]) return ALIAS_MAP[norm];
     var low = norm.toLowerCase();
     for(var k in ALIAS_MAP){ if(k.toLowerCase()===low) return ALIAS_MAP[k]; }
-
-    // Fuzzy patterns
-    if(/^NCR48U/i.test(norm)) return "NCR48U 3KW";
-    if(/^NCU48/i.test(norm)) return "NCU48";
-    if(/BBU6102|^\s*CLU\b/i.test(norm)) return "BBU6102 CLU";
-    if(/Climate Control|Climat Control|Thermo Electric|^\s*CCU\b/i.test(norm)) return "CCU Climate Control";
-    if(/^PSU\s*AC\s*03/i.test(norm)) return "PSU AC 03";
-    if(/^PSU\s*AC\s*01/i.test(norm)) return "PSU AC 01";
-    if(/^PSU\s*AC\s*02/i.test(norm)) return "PSU AC 02";
-    if(/Envicool/i.test(norm)) return "DC Cabinet AC Envicool";
-    if(/Air Conditioner.*ITMC|DC Cabinet Air Conditioner.*ITMC/i.test(norm)) return "Air Conditioner ITMC";
-    if(/DCC.*PORSOO|DCC.*Equipment_Confirmation/i.test(norm)) return "DCC Porsoo";
-    if(/^NAC\d+D/i.test(norm)) return "NAC DC Air Conditioner";
-    if(/RECTIFIER\s*48VDC3000|48VDC3000.*ITMC/i.test(norm)) return "Rectifier 48V 3000W ITMC";
-    if(/PEC[-\s]*4860|PECSU/i.test(norm)) return "PEC Rectifier Porsoo";
-    if(/Flatpack2|Smartpack/i.test(norm)) return "Flatpack2 / Smartpack";
-    if(/^SCU\s*01/i.test(norm)) return "SCU Ericsson";
-    if(/Controller Unit.*ITMC/i.test(norm)) return "Controller Unit ITMC";
-    if(/^PDU\s*\d+/i.test(norm)) return "PDU";
-
-    // Light clean
-    norm = norm.replace(/\s*-\s*/g,' - ').replace(/\s+/g,' ').trim();
     return norm;
   }
 
-  function detectFamily(name){
-    if(!name) return 'CUSTOM';
-    var n = name.toUpperCase();
-    if(n.indexOf('NCR48U')!==-1 || n.indexOf('NCR ')===0) return 'NCR';
-    if(n.indexOf('NCU48')!==-1 || n.indexOf('NCU ')===0) return 'NCU';
-    if(n.indexOf('BBU6102')!==-1 || n.indexOf('CLU')!==-1) return 'CLU';
-    if(n.indexOf('CCU')!==-1 || n.indexOf('CLIMATE')!==-1) return 'CCU';
-    if(n.indexOf('PSU')===0) return 'PSU';
-    if(n.indexOf('NAC')===0 || n.indexOf('NAC DC')!==-1) return 'NAC';
-    if(n.indexOf('DC CABINET AC ENVICOOL')!==-1 || n.indexOf('AIR CONDITIONER ITMC')!==-1 || n.indexOf('ENVICOOL')!==-1) return 'AC';
-    if(n.indexOf('DCC')===0 || n.indexOf('DCC PORSOO')!==-1) return 'DCC';
-    if(n.indexOf('RECTIFIER')!==-1 || n.indexOf('PEC ')!==-1 || n.indexOf('FLATPACK')!==-1 || n.indexOf('SMARTPACK')!==-1) return 'RECTIFIER';
-    if(n.indexOf('SCU')===0) return 'SCU';
-    if(n.indexOf('CONTROLLER')!==-1) return 'CONTROLLER';
-    if(n.indexOf('PDU')===0) return 'PDU';
-    return 'CUSTOM';
-  }
-
+  /* ── families ── */
   function defaultFamilies(){
     return [
-      {id:'NCR', label:'NCR (Nian)', fields:[
-        {id:'ncrModel',type:'text',label:'Model',default:'NCR48U 3KW',placeholder:'NCR48U 3KW'}
-      ], build:function(v){ return v.ncrModel || 'NCR48U 3KW'; }},
-      {id:'NCU', label:'NCU (Nian)', fields:[
-        {id:'ncuModel',type:'text',label:'Model',default:'NCU48',placeholder:'NCU48'}
-      ], build:function(v){ return v.ncuModel || 'NCU48'; }},
-      {id:'CLU', label:'CLU / BBU (Ericsson)', fields:[
-        {id:'cluModel',type:'text',label:'Model',default:'BBU6102 CLU',placeholder:'BBU6102 CLU'}
-      ], build:function(v){ return v.cluModel || 'BBU6102 CLU'; }},
-      {id:'CCU', label:'CCU / Climate Control', fields:[
-        {id:'ccuModel',type:'text',label:'Model',default:'CCU Climate Control',placeholder:'CCU Climate Control'}
-      ], build:function(v){ return v.ccuModel || 'CCU Climate Control'; }},
-      {id:'PSU', label:'PSU AC (Ericsson)', fields:[
-        {id:'psuVersion',type:'select',label:'Version',options:['PSU AC 03','PSU AC 01','PSU AC 02'],default:'PSU AC 03'}
-      ], build:function(v){ return v.psuVersion || 'PSU AC 03'; }},
-      {id:'NAC', label:'NAC DC Air Conditioner (Nian)', fields:[
-        {id:'nacModel',type:'text',label:'Model',default:'NAC DC Air Conditioner',placeholder:'NAC DC Air Conditioner'}
-      ], build:function(v){ return v.nacModel || 'NAC DC Air Conditioner'; }},
-      {id:'AC', label:'Air Conditioner (Envicool / ITMC)', fields:[
-        {id:'acModel',type:'select',label:'Model',options:['DC Cabinet AC Envicool','Air Conditioner ITMC'],default:'DC Cabinet AC Envicool'}
-      ], build:function(v){ return v.acModel || 'DC Cabinet AC Envicool'; }},
-      {id:'DCC', label:'DCC (Porsoo)', fields:[
-        {id:'dccModel',type:'text',label:'Model',default:'DCC Porsoo',placeholder:'DCC Porsoo'}
-      ], build:function(v){ return v.dccModel || 'DCC Porsoo'; }},
+      {id:'NCU_NCR', label:'NCU / NCR', fields:[
+        {id:'ncuPrefix',type:'select',label:'Type',options:['NCU','NCR'],default:'NCR'},
+        {id:'ncuVoltage',type:'text',label:'Voltage',default:'48',placeholder:'48'},
+        {id:'ncuVersion',type:'text',label:'Version',default:'U',placeholder:'U'},
+        {id:'ncuSubtype',type:'text',label:'Subtype (e.g. C/11)',placeholder:'C/11'},
+        {id:'ncuPower',type:'select',label:'Power',options:['3KW','2KW','1.5KW','N/A'],default:'3KW'}
+      ], build:function(v){ var p=v.ncuPrefix||'NCR',vol=v.ncuVoltage||'48',ver=v.ncuVersion||'U';
+        var sub=v.ncuSubtype?' '+v.ncuSubtype.trim():'';var pw=(v.ncuPower&&v.ncuPower!=='N/A')?' - '+v.ncuPower:'';
+        return p+vol+ver+sub+pw; }},
+      {id:'PSU', label:'PSU AC', fields:[
+        {id:'psuVersion',type:'select',label:'Version',options:['AC 01 (1KW)','AC 02 (2KW)','AC 03 (3KW)'],default:'AC 03 (3KW)'},
+        {id:'psuSuffix',type:'text',label:'Suffix',placeholder:'- Ericsson (optional)'}
+      ], build:function(v){ var base=v.psuVersion?v.psuVersion.split('(')[0].trim():'PSU AC 03';return 'PSU '+base+(v.psuSuffix?' '+v.psuSuffix.trim():'');}},
+      {id:'CLU', label:'CLU / BBU', fields:[
+        {id:'cluType',type:'select',label:'Type',options:['CLU','BBU6102 CLU'],default:'CLU'},
+        {id:'cluSuffix',type:'text',label:'Suffix',placeholder:'- Ericsson (or empty)'}
+      ], build:function(v){ var base=v.cluType||'CLU',suff=v.cluSuffix?' '+v.cluSuffix.trim():'';if(base==='CLU'&&!suff)suff=' - Ericsson';return base+suff;}},
+      {id:'CCU', label:'CCU / Climate control', fields:[
+        {id:'ccuType',type:'select',label:'Type',options:['CCU - Climate Control Board','CCU - Thermo Electric Co','Climate Control Board - CCU','Climat Control Board'],default:'CCU - Climate Control Board'},
+        {id:'ccuSuffix',type:'text',label:'Extra',placeholder:'- Ericsson etc.'}
+      ], build:function(v){return (v.ccuType||'CCU - Climate Control Board')+(v.ccuSuffix?' '+v.ccuSuffix.trim():'');}},
+      {id:'DC_AC', label:'DC Air Conditioner', fields:[
+        {id:'dcacModel',type:'select',label:'Model',options:['DC Cabinet Air Conditioner - Envicool','DC Cabinet Air Conditioner - ITMC','NAC550D - DC Air Conditioner - Nian','NAC650D - DC Air Conditioner - Nian','NAC1250D - DC Air Conditioner - Nian','NAC2400D - DC Air Conditioner - Nian','NAC3000D - DC Air Conditioner - Nian','NAC3500D - DC Air Conditioner - Nian'],default:'DC Cabinet Air Conditioner - Envicool'},
+        {id:'dcacSuffix',type:'text',label:'Suffix',placeholder:'e.g. - Cooler, - Compressor'}
+      ], build:function(v){return (v.dcacModel||'DC Cabinet Air Conditioner - Envicool')+(v.dcacSuffix?' '+v.dcacSuffix.trim():'');}},
       {id:'RECTIFIER', label:'Rectifier', fields:[
-        {id:'recModel',type:'select',label:'Model',options:['Rectifier 48V 3000W ITMC','PEC Rectifier Porsoo','Flatpack2 / Smartpack'],default:'Rectifier 48V 3000W ITMC'}
-      ], build:function(v){ return v.recModel || 'Rectifier 48V 3000W ITMC'; }},
-      {id:'SCU', label:'SCU (Ericsson)', fields:[
-        {id:'scuModel',type:'text',label:'Model',default:'SCU Ericsson',placeholder:'SCU Ericsson'}
-      ], build:function(v){ return v.scuModel || 'SCU Ericsson'; }},
-      {id:'CONTROLLER', label:'Controller (ITMC)', fields:[
-        {id:'ctrlModel',type:'text',label:'Model',default:'Controller Unit ITMC',placeholder:'Controller Unit ITMC'}
-      ], build:function(v){ return v.ctrlModel || 'Controller Unit ITMC'; }},
-      {id:'PDU', label:'PDU', fields:[
-        {id:'pduModel',type:'text',label:'Model',default:'PDU',placeholder:'PDU'}
-      ], build:function(v){ return v.pduModel || 'PDU'; }},
-      {id:'CUSTOM', label:'Custom (free text)', fields:[
-        {id:'customName',type:'text',label:'Full unit name',placeholder:'Enter exact unit name',required:true}
-      ], build:function(v){ return v.customName || ''; }}
+        {id:'recType',type:'select',label:'Type',options:['RECTIFIER 48VDC3000 - ITMC','Rectifier - Flatpack2 2000W 48V BF','PEC-4860 - Rectifier Equipment_Confirmation'],default:'RECTIFIER 48VDC3000 - ITMC'},
+        {id:'recSuffix',type:'text',label:'Suffix',placeholder:''}
+      ], build:function(v){return (v.recType||'RECTIFIER 48VDC3000 - ITMC')+(v.recSuffix?' '+v.recSuffix.trim():'');}},
+      {id:'DCC', label:'DCC', fields:[
+        {id:'dccType',type:'select',label:'Type',options:['DCC - Equipment_Confirmation Electronic','DCC - Equipment_Confirmation Electronic - Cabinet Conditioner'],default:'DCC - Equipment_Confirmation Electronic'}
+      ], build:function(v){return v.dccType||'DCC - Equipment_Confirmation Electronic';}},
+      {id:'PDU', label:'PDU', fields:[{id:'pduType',type:'text',label:'PDU type',default:'PDU 01 01',placeholder:'PDU 01 01'}], build:function(v){return v.pduType||'PDU 01 01';}},
+      {id:'AIRCOND', label:'Air conditioner - ITMC', fields:[{id:'airType',type:'text',label:'Model',default:'Air Conditioner - ITMC',placeholder:'Air Conditioner - ITMC'}], build:function(v){return v.airType||'Air Conditioner - ITMC';}},
+      {id:'CONTROLLER', label:'Controller unit', fields:[{id:'ctrlType',type:'text',label:'Model',default:'Controller Unit - ITMC',placeholder:'Controller Unit - ITMC'}], build:function(v){return v.ctrlType||'Controller Unit - ITMC';}},
+      {id:'SMARTPACK', label:'Smartpack', fields:[{id:'smartType',type:'text',label:'Model',default:'Smartpack Extended - ELTEK',placeholder:'Smartpack Extended - ELTEK'}], build:function(v){return v.smartType||'Smartpack Extended - ELTEK';}},
+      {id:'SCU', label:'SCU', fields:[{id:'scuType',type:'text',label:'Model',default:'SCU 01 01 - Ericsson',placeholder:'SCU 01 01 - Ericsson'}], build:function(v){return v.scuType||'SCU 01 01 - Ericsson';}},
+      {id:'CUSTOM', label:'Custom (free text)', fields:[{id:'customName',type:'text',label:'Full unit name',placeholder:'Enter exact unit name',required:true}], build:function(v){return v.customName||'';}}
     ];
+  }
+
+  /* ── rebuild a `build()` function from a stored pattern string ── */
+  function buildFnFromPattern(pattern){
+    var matches = pattern.match(/\{([^}]+)\}/g);
+    if(matches){
+      return new Function('v', 'return "'+pattern.replace(/\{([^}]+)\}/g, '" + (v["$1"]||"") + "') + '";');
+    }
+    return function(){ return pattern; };
+  }
+
+  /* ── reattach `build()` functions lost during JSON (de)serialization ──
+     localStorage can only hold JSON, and JSON.stringify silently drops
+     function properties. Every time families are loaded back from
+     localStorage they arrive WITHOUT their `build` method, which is what
+     turns the selected family + fields into the final unit name. This
+     restores it, for both built-in and user-created families. */
+  function reviveFamilies(list){
+    var defaults = defaultFamilies();
+    var defaultsById = {};
+    defaults.forEach(function(f){ defaultsById[f.id] = f; });
+    return (list||[]).map(function(f){
+      if(!f) return f;
+      if(typeof f.build === 'function') return f;
+      if(defaultsById[f.id]){
+        // built-in family: reuse its original generator, keep any other
+        // saved data (e.g. a renamed label) as-is
+        f.build = defaultsById[f.id].build;
+        if(!f.fields || !f.fields.length) f.fields = defaultsById[f.id].fields;
+        return f;
+      }
+      if(f.pattern && f.pattern.trim()){
+        f.build = buildFnFromPattern(f.pattern);
+        return f;
+      }
+      // fallback: plain free-text family
+      if(!f.fields || !f.fields.length){
+        f.fields = [{id:'customName', type:'text', label:'Full unit name', placeholder:'Enter exact unit name', required:true}];
+      }
+      f.build = function(v){ return v.customName || ''; };
+      return f;
+    });
   }
 
   function loadFamilies(){
     try{
       var raw = localStorage.getItem(FAMILY_KEY);
-      if(raw){ families = JSON.parse(raw); }
+      if(raw){ families = reviveFamilies(JSON.parse(raw)); }
       else { families = defaultFamilies(); saveFamilies(); }
     }catch(e){ families = defaultFamilies(); saveFamilies(); }
   }
@@ -975,17 +829,25 @@ var Data = (function(){
   function getFamily(id){ return families.find(function(f){return f.id===id;}); }
   function addFamily(name, pattern){
     var id = uid();
-    var f = { id:id, label:name, fields:[], build:function(v){ return v.customName || ''; } };
+    var f = {
+      id:id,
+      label:name,
+      pattern: pattern || '',
+      fields: [],
+      build: function(v){ return v.customName || ''; }
+    };
     if(pattern && pattern.trim()){
       var matches = pattern.match(/\{([^}]+)\}/g);
       if(matches){
         var seen = {};
         matches.forEach(function(m){
           var key = m.slice(1,-1);
-          if(!seen[key]){ f.fields.push({id:key, type:'text', label:key, default:'', placeholder:key}); seen[key]=true; }
+          if(!seen[key]){
+            f.fields.push({id:key, type:'text', label:key, default:'', placeholder:key});
+            seen[key]=true;
+          }
         });
-        var buildFn = new Function('v', 'return "'+pattern.replace(/\{([^}]+)\}/g, '" + (v["$1"]||"") + "') + '";');
-        f.build = buildFn;
+        f.build = buildFnFromPattern(pattern);
       } else {
         f.fields.push({id:'customName', type:'text', label:'Full unit name', placeholder:'Enter exact unit name', required:true});
         f.build = function(v){ return pattern; };
@@ -1002,6 +864,7 @@ var Data = (function(){
     var f = getFamily(id);
     if(!f) return;
     f.label = name;
+    f.pattern = pattern || '';
     if(pattern && pattern.trim()){
       var matches = pattern.match(/\{([^}]+)\}/g);
       var newFields = [];
@@ -1009,10 +872,12 @@ var Data = (function(){
       if(matches){
         matches.forEach(function(m){
           var key = m.slice(1,-1);
-          if(!seen[key]){ newFields.push({id:key, type:'text', label:key, default:'', placeholder:key}); seen[key]=true; }
+          if(!seen[key]){
+            newFields.push({id:key, type:'text', label:key, default:'', placeholder:key});
+            seen[key]=true;
+          }
         });
-        var buildFn = new Function('v', 'return "'+pattern.replace(/\{([^}]+)\}/g, '" + (v["$1"]||"") + "') + '";');
-        f.build = buildFn;
+        f.build = buildFnFromPattern(pattern);
       } else {
         newFields.push({id:'customName', type:'text', label:'Full unit name', placeholder:'Enter exact unit name', required:true});
         f.build = function(v){ return pattern; };
@@ -1029,19 +894,30 @@ var Data = (function(){
     saveFamilies();
   }
 
+  /* ── units ── */
+  // Sample units for each family (to seed the catalog)
   var SAMPLE_UNITS = {
-    'NCR': ['NCR48U 3KW'],
-    'NCU': ['NCU48'],
-    'CLU': ['BBU6102 CLU'],
-    'CCU': ['CCU Climate Control'],
-    'PSU': ['PSU AC 03', 'PSU AC 01', 'PSU AC 02'],
-    'NAC': ['NAC DC Air Conditioner'],
-    'AC': ['DC Cabinet AC Envicool', 'Air Conditioner ITMC'],
-    'DCC': ['DCC Porsoo'],
-    'RECTIFIER': ['Rectifier 48V 3000W ITMC', 'PEC Rectifier Porsoo', 'Flatpack2 / Smartpack'],
-    'SCU': ['SCU Ericsson'],
-    'CONTROLLER': ['Controller Unit ITMC'],
-    'PDU': ['PDU']
+    'NCU_NCR': ['NCR48U - 3KW - Nian', 'NCU48U - 2KW - Nian', 'NCR24U - 1.5KW - Nian', 'NCR48U G/01 - 3KW - Nian'],
+    'PSU': ['PSU AC 03 - Ericsson', 'PSU AC 01 - Ericsson', 'PSU AC 02 - Ericsson', 'PSU AC 03 - Nian'],
+    'CLU': ['CLU - Ericsson', 'BBU6102 CLU - Ericsson', 'CLU - BBUB102 - Ericsson'],
+    'CCU': ['CCU - Climate Control Board', 'CCU - Thermo Electric Co', 'Climate Control Board - CCU', 'Climat Control Board - Ericsson'],
+    'DC_AC': [
+      'DC Cabinet Air Conditioner - Envicool',
+      'DC Cabinet Air Conditioner - ITMC',
+      'NAC550D - DC Air Conditioner - Nian',
+      'NAC650D - DC Air Conditioner - Nian',
+      'NAC1250D - DC Air Conditioner - Nian',
+      'NAC2400D - DC Air Conditioner - Nian',
+      'NAC3000D - DC Air Conditioner - Nian',
+      'NAC3500D - DC Air Conditioner - Nian'
+    ],
+    'RECTIFIER': ['RECTIFIER 48VDC3000 - ITMC', 'Rectifier - Flatpack2 2000W 48V BF', 'PEC-4860 - Rectifier Equipment_Confirmation'],
+    'DCC': ['DCC - Equipment_Confirmation Electronic', 'DCC - Equipment_Confirmation Electronic - Cabinet Conditioner'],
+    'PDU': ['PDU 01 01', 'PDU 02 01'],
+    'AIRCOND': ['Air Conditioner - ITMC', 'Air Conditioner - Envicool'],
+    'CONTROLLER': ['Controller Unit - ITMC', 'Controller Unit - Envicool'],
+    'SMARTPACK': ['Smartpack Extended - ELTEK', 'Smartpack Compact - ELTEK'],
+    'SCU': ['SCU 01 01 - Ericsson', 'SCU 02 01 - Ericsson']
   };
 
   function loadUnits(){
@@ -1051,57 +927,28 @@ var Data = (function(){
       else { units = []; }
     }catch(e){ units = []; }
 
-    // Seed samples only if family is empty
+    // Ensure each family has at least its sample units
     for(var fid in SAMPLE_UNITS){
       if(SAMPLE_UNITS.hasOwnProperty(fid)){
         var existing = units.filter(function(u){return u.familyId===fid;});
         if(existing.length === 0){
-          SAMPLE_UNITS[fid].forEach(function(name){
-            units.push({id:uid(), name:canonicalUnitName(name), familyId:fid});
+          var sampleList = SAMPLE_UNITS[fid];
+          sampleList.forEach(function(name){
+            units.push({id:uid(), name:name, familyId:fid});
           });
         }
       }
     }
-    cleanUnits();
-  }
-
-  function cleanUnits(){
-    // 1. Normalize every name
-    units.forEach(function(u){
-      u.name = canonicalUnitName(u.name);
-      if(!u.familyId || u.familyId==='CUSTOM'){
-        u.familyId = detectFamily(u.name);
-      }
-    });
-    // 2. Deduplicate by canonical name (keep first occurrence, prefer non-CUSTOM family)
-    var seen = {};
-    var cleaned = [];
-    units.forEach(function(u){
-      var key = u.name.toLowerCase();
-      if(!seen[key]){
-        seen[key] = u;
-        cleaned.push(u);
-      } else {
-        // Prefer better family
-        if(seen[key].familyId==='CUSTOM' && u.familyId!=='CUSTOM'){
-          seen[key].familyId = u.familyId;
-        }
-      }
-    });
-    units = cleaned;
     saveUnits();
   }
-
   function saveUnits(){ try{ localStorage.setItem(UNIT_KEY, JSON.stringify(units)); }catch(e){} }
   function getUnits(){ return units; }
   function getUnitsByFamily(familyId){ return units.filter(function(u){return u.familyId===familyId;}); }
   function getUnitById(id){ return units.find(function(u){return u.id===id;}); }
   function getUnitByName(name){ return units.find(function(u){return u.name===name;}); }
   function addUnit(name, familyId){
-    if(!name) return null;
-    name = canonicalUnitName(name);
-    if(!familyId) familyId = detectFamily(name);
-    if(units.some(function(u){return u.name===name;})) return null;
+    if(!name || !familyId) return null;
+    if(units.some(function(u){return u.name===name && u.familyId===familyId;})) return null;
     var u = {id:uid(), name:name, familyId:familyId};
     units.push(u);
     saveUnits();
@@ -1110,13 +957,12 @@ var Data = (function(){
   function editUnit(id, newName, newFamilyId){
     var u = getUnitById(id);
     if(!u) return;
-    newName = canonicalUnitName(newName);
     if(newName !== u.name || newFamilyId !== u.familyId){
-      var dup = units.some(function(x){ return x.id!==id && x.name===newName; });
+      var dup = units.some(function(x){ return x.id!==id && x.name===newName && x.familyId===newFamilyId; });
       if(dup) return false;
     }
     u.name = newName;
-    u.familyId = newFamilyId || detectFamily(newName);
+    u.familyId = newFamilyId;
     saveUnits();
     return true;
   }
@@ -1125,6 +971,7 @@ var Data = (function(){
     saveUnits();
   }
 
+  /* ── record normalization ── */
   function normalize(r){
     var sns = Array.isArray(r.serialNumbers) ? r.serialNumbers :
       String(r.serialNumbers||'').split(/[\n,;]+/).map(function(x){return x.trim();}).filter(Boolean);
@@ -1168,23 +1015,18 @@ var Data = (function(){
     records = records.filter(Boolean).map(normalize);
     var uniq={}; records.forEach(function(r){ if(!uniq[r.id]) uniq[r.id]=r; });
     records = Object.values(uniq);
-
     try{ trash = JSON.parse(localStorage.getItem(TRASH_KEY)||'[]'); }catch(e){ trash=[]; }
     trash = trash.filter(Boolean).map(normalize);
-
     loadFamilies();
     loadUnits();
-
-    // Force every record unit into catalog with correct family
+    // Ensure all record unit names exist in units (if not, add to CUSTOM)
     records.forEach(function(r){
-      if(r.unitName){
-        var existing = getUnitByName(r.unitName);
-        if(!existing){
-          addUnit(r.unitName, detectFamily(r.unitName));
-        }
+      if(r.unitName && !getUnitByName(r.unitName)){
+        // try to find a matching family by checking if any family's build can produce this name? hard.
+        // we'll assign to CUSTOM
+        addUnit(r.unitName, 'CUSTOM');
       }
     });
-    cleanUnits();
     persist(true);
   }
 
@@ -1248,6 +1090,7 @@ var Data = (function(){
     persist();
   }
 
+  /* ── backups ── */
   function backupIndex(){
     try{ return JSON.parse(localStorage.getItem(BACKUP_INDEX_KEY)||'[]'); }catch(e){ return []; }
   }
@@ -1276,9 +1119,9 @@ var Data = (function(){
       records = (blob.records||[]).map(normalize);
       trash = (blob.trash||[]).map(normalize);
       if(blob.units) units = blob.units;
-      if(blob.families) families = blob.families;
+      if(blob.families) families = reviveFamilies(blob.families);
       saveFamilies();
-      cleanUnits();
+      saveUnits();
       persist();
       UI.toast('Restored from backup');
     }catch(e){ UI.toast('Restore failed: corrupted backup'); }
@@ -1291,6 +1134,7 @@ var Data = (function(){
     UI.renderBackup();
   }
 
+  /* ── export / import ── */
   function download(content, filename, mime){
     var a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([content],{type:mime}));
@@ -1354,23 +1198,21 @@ var Data = (function(){
             var r = normalize(item);
             var idx = records.findIndex(function(x){return x.id===r.id;});
             if(idx>=0) records[idx]=r; else { records.push(r); added++; }
-            if(r.unitName && !getUnitByName(r.unitName)){ addUnit(r.unitName); }
+            if(r.unitName && !getUnitByName(r.unitName)){ addUnit(r.unitName, 'CUSTOM'); }
           });
-          cleanUnits();
           persist();
           UI.toast(added+' record(s) restored');
           snapshot('JSON restore');
           UI.renderBackup();
         } else if(data.records && Array.isArray(data.records)){
-          if(data.families) { families = data.families; saveFamilies(); }
-          if(data.units) { units = data.units; }
+          if(data.families) { families = reviveFamilies(data.families); saveFamilies(); }
+          if(data.units) { units = data.units; saveUnits(); }
           var added2=0;
           data.records.forEach(function(item){
             var r = normalize(item);
             var idx = records.findIndex(function(x){return x.id===r.id;});
             if(idx>=0) records[idx]=r; else { records.push(r); added2++; }
           });
-          cleanUnits();
           persist();
           UI.toast(added2+' record(s) restored with families & units');
           snapshot('JSON restore');
@@ -1417,9 +1259,8 @@ var Data = (function(){
           var norm = normalize(r);
           var idx = records.findIndex(function(x){return x.id===norm.id;});
           if(idx>=0) records[idx]=norm; else { records.push(norm); added++; }
-          if(norm.unitName && !getUnitByName(norm.unitName)){ addUnit(norm.unitName); }
+          if(norm.unitName && !getUnitByName(norm.unitName)){ addUnit(norm.unitName, 'CUSTOM'); }
         }
-        cleanUnits();
         persist();
         UI.toast(added+' record(s) restored from CSV');
         snapshot('CSV restore');
@@ -1458,7 +1299,7 @@ var Data = (function(){
       var siteMatch = line.match(/^Code Site\s*[:：]\s*(.*)/i);
       if(siteMatch){ current.site = siteMatch[1].trim().toUpperCase(); continue; }
       var unitMatch = line.match(/^UNIT Name\s*[:：]\s*(.*)/i);
-      if(unitMatch){ var u=unitMatch[1].trim(); current.unit=canonicalUnitName(u); continue; }
+      if(unitMatch){ var u=unitMatch[1].trim(); current.unit=canonicalUnitName(u); if(!getUnitByName(current.unit)){ addUnit(current.unit, 'CUSTOM'); } continue; }
       var faultMatch = line.match(/^Fault Affect\s*[:：]\s*(.*)/i);
       if(faultMatch){ current.fault = faultMatch[1].trim(); continue; }
       var qtyMatch = line.match(/^QTY\s*[:：]\s*(\d+)/i);
@@ -1483,10 +1324,9 @@ var Data = (function(){
       });
       addHistory(newRecord,'Imported');
       records.push(newRecord);
-      if(newRecord.unitName && !getUnitByName(newRecord.unitName)){ addUnit(newRecord.unitName); }
+      if(newRecord.unitName && !getUnitByName(newRecord.unitName)){ addUnit(newRecord.unitName, 'CUSTOM'); }
       added++;
     });
-    cleanUnits();
     persist();
 
     var resultDiv = document.getElementById('importResult');
@@ -1505,7 +1345,7 @@ var Data = (function(){
   return {
     get records(){ return records; }, get trash(){ return trash; },
     get families(){ return families; }, get units(){ return units; },
-    uid: uid, canonicalUnitName: canonicalUnitName, detectFamily: detectFamily,
+    uid: uid, canonicalUnitName: canonicalUnitName,
     load: load, persist: persist, upsert: upsert, softDelete: softDelete,
     restoreFromTrash: restoreFromTrash, purgeTrash: purgeTrash, decision: decision,
     backupIndex: backupIndex, snapshot: snapshot, restoreSnapshot: restoreSnapshot, deleteSnapshot: deleteSnapshot,
@@ -1513,26 +1353,26 @@ var Data = (function(){
     importJSON: importJSON, importCSV: importCSV, importFromText: importFromText,
     getFamily: getFamily, addFamily: addFamily, editFamily: editFamily, deleteFamily: deleteFamily, saveFamilies: saveFamilies,
     getUnits: getUnits, getUnitsByFamily: getUnitsByFamily, getUnitById: getUnitById, getUnitByName: getUnitByName,
-    addUnit: addUnit, editUnit: editUnit, deleteUnit: deleteUnit, saveUnits: saveUnits, cleanUnits: cleanUnits,
+    addUnit: addUnit, editUnit: editUnit, deleteUnit: deleteUnit, saveUnits: saveUnits,
     THEME_KEY: THEME_KEY
   };
 })();
 
-/* ── UI module ── */
+/* ═══════════════════════════════════════════════════════════════════
+   UI MODULE — extended with units management
+   ═══════════════════════════════════════════════════════════════════ */
 var UI = (function(){
   var chartInstances = {};
   var _debounceTimer = null;
   var selection = {};
   var confirmCb = null;
-  var currentUnitMode = 'search';
-  var selectedUnitName = null;
-  var selectedFamilyId = null;
 
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
   function formatDate(s){ if(!s) return '—'; var d=new Date(s+'T00:00:00'); return isNaN(d)?s:d.toLocaleDateString('en-US'); }
   function formatDateTime(iso){ if(!iso) return ''; var d=new Date(iso); return isNaN(d)?iso:d.toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
   function badge(st){ var cls = st==='Approved'?'approved':st==='Rejected'?'rejected':'pending'; return '<span class="badge '+cls+'">'+st+'</span>'; }
 
+  /* ── theme ── */
   function toggleTheme(){
     var isLight = document.body.getAttribute('data-theme')==='light';
     if(isLight){ document.body.removeAttribute('data-theme'); document.getElementById('themeBtn').textContent='🌙'; localStorage.setItem(Data.THEME_KEY,'dark'); }
@@ -1543,6 +1383,7 @@ var UI = (function(){
     if(localStorage.getItem(Data.THEME_KEY)==='light'){ document.body.setAttribute('data-theme','light'); document.getElementById('themeBtn').textContent='☀️'; }
   }
 
+  /* ── toast ── */
   function toast(msg, actionLabel, actionFn){
     var el = document.getElementById('toast');
     el.innerHTML = esc(msg) + (actionLabel ? ' <button type="button" id="toastAction">'+esc(actionLabel)+'</button>' : '');
@@ -1552,6 +1393,7 @@ var UI = (function(){
     window._tt = setTimeout(function(){ el.classList.remove('show'); }, actionLabel?4200:2600);
   }
 
+  /* ── confirm ── */
   function confirm(title, msg, okLabel, cb){
     document.getElementById('confirmTitle').textContent = title;
     document.getElementById('confirmMsg').textContent = msg;
@@ -1563,6 +1405,7 @@ var UI = (function(){
   function confirmOk(){ document.getElementById('confirmbg').classList.remove('on'); if(confirmCb) confirmCb(); confirmCb=null; }
   function confirmCancel(){ document.getElementById('confirmbg').classList.remove('on'); confirmCb=null; }
 
+  /* ── SC select ── */
   function toggleScCustom(){
     var sel = document.getElementById('scSelect'), custom = document.getElementById('scCustom');
     if(sel.value==='custom'){ custom.style.display='block'; custom.focus(); } else { custom.style.display='none'; custom.value=''; }
@@ -1579,128 +1422,7 @@ var UI = (function(){
     else { sel.value='custom'; custom.style.display='block'; custom.value=val||''; }
   }
 
-  function setUnitMode(mode){
-    currentUnitMode = mode;
-    document.getElementById('modeSearch').classList.toggle('active', mode==='search');
-    document.getElementById('modeBuild').classList.toggle('active', mode==='build');
-    document.getElementById('unitSearchMode').style.display = mode==='search' ? 'block' : 'none';
-    document.getElementById('unitBuildMode').style.display = mode==='build' ? 'block' : 'none';
-    if(mode==='build'){
-      populateFamilySelect();
-      onFamilyChange();
-    }
-    updatePreview();
-  }
-
-  function onUnitSearch(){
-    var q = (document.getElementById('unitSearchInput').value||'').trim().toLowerCase();
-    var box = document.getElementById('unitSearchResults');
-    if(!q){ box.classList.remove('on'); box.innerHTML=''; return; }
-
-    var all = Data.getUnits();
-    var matches = all.filter(function(u){
-      return u.name.toLowerCase().indexOf(q) !== -1;
-    }).slice(0, 18);
-
-    if(!matches.length){
-      box.innerHTML = '<div class="unit-result-item" style="color:var(--ink-faint)">No matching units. Switch to “Build from family” to create one.</div>';
-      box.classList.add('on');
-      return;
-    }
-
-    box.innerHTML = matches.map(function(u){
-      var fam = Data.getFamily(u.familyId);
-      var famLabel = fam ? fam.label : 'Unknown';
-      return '<div class="unit-result-item" onclick="UI.selectUnitFromSearch(\''+esc(u.name).replace(/'/g,"\\'")+'\',\''+u.familyId+'\')">'+
-        '<div class="name">'+esc(u.name)+'</div>'+
-        '<div class="meta">'+esc(famLabel)+'</div></div>';
-    }).join('');
-    box.classList.add('on');
-  }
-
-  function unitSearchKey(e){
-    if(e.key === 'Escape'){
-      document.getElementById('unitSearchResults').classList.remove('on');
-    }
-  }
-
-  function selectUnitFromSearch(name, familyId){
-    selectedUnitName = name;
-    selectedFamilyId = familyId;
-    document.getElementById('unitSearchInput').value = name;
-    document.getElementById('unitSearchResults').classList.remove('on');
-
-    var banner = document.getElementById('unitSelectedBanner');
-    document.getElementById('unitSelectedName').textContent = name;
-    var fam = Data.getFamily(familyId);
-    document.getElementById('unitSelectedFamily').textContent = fam ? fam.label : 'Custom';
-    banner.classList.add('on');
-
-    document.getElementById('unitFamily').value = familyId || '';
-    onFamilyChange();
-    tryFillFieldsFromName(name, familyId);
-
-    updatePreview();
-    updateOutputText();
-  }
-
-  function clearSelectedUnit(){
-    selectedUnitName = null;
-    selectedFamilyId = null;
-    document.getElementById('unitSearchInput').value = '';
-    document.getElementById('unitSelectedBanner').classList.remove('on');
-    document.getElementById('unitPreview').textContent = 'Select or build a unit';
-    updateOutputText();
-  }
-
-  function tryFillFieldsFromName(name, famId){
-    if(!name || !famId) return;
-    var fam = Data.getFamily(famId);
-    if(!fam) return;
-
-    if(famId === 'CUSTOM' || (fam.fields && fam.fields.some(function(f){return f.id==='customName';}))){
-      var el = document.getElementById('customName');
-      if(el) el.value = name;
-      return;
-    }
-
-    // Simple families with single text field
-    if(fam.fields && fam.fields.length === 1 && fam.fields[0].type === 'text'){
-      var only = document.getElementById(fam.fields[0].id);
-      if(only) only.value = name;
-      return;
-    }
-
-    if(famId === 'PSU'){
-      var sel = document.getElementById('psuVersion');
-      if(sel){
-        if(/AC\s*01/i.test(name)) sel.value = 'PSU AC 01';
-        else if(/AC\s*02/i.test(name)) sel.value = 'PSU AC 02';
-        else sel.value = 'PSU AC 03';
-      }
-      return;
-    }
-
-    if(famId === 'AC'){
-      var acSel = document.getElementById('acModel');
-      if(acSel){
-        if(/Envicool/i.test(name)) acSel.value = 'DC Cabinet AC Envicool';
-        else acSel.value = 'Air Conditioner ITMC';
-      }
-      return;
-    }
-
-    if(famId === 'RECTIFIER'){
-      var recSel = document.getElementById('recModel');
-      if(recSel){
-        if(/PEC/i.test(name)) recSel.value = 'PEC Rectifier Porsoo';
-        else if(/Flatpack|Smartpack/i.test(name)) recSel.value = 'Flatpack2 / Smartpack';
-        else recSel.value = 'Rectifier 48V 3000W ITMC';
-      }
-      return;
-    }
-  }
-
+  /* ── family dropdown ── */
   function populateFamilySelect(){
     var sel = document.getElementById('unitFamily');
     var current = sel.value;
@@ -1711,21 +1433,15 @@ var UI = (function(){
     });
     if(current && Data.getFamily(current)) sel.value = current;
     if(!sel.value && families.length) sel.value = families[0].id;
+    onFamilyChange();
   }
 
+  /* ── unit family form ── */
   function onFamilyChange(){
     var famId = document.getElementById('unitFamily').value;
     var f = Data.getFamily(famId);
     var container = document.getElementById('familyFields');
-    var filterEl = document.getElementById('unitSuggestionFilter');
-    if(!f){ 
-      container.innerHTML=''; 
-      document.getElementById('unitSuggestions').innerHTML=''; 
-      filterEl.style.display='none';
-      updatePreview(); 
-      return; 
-    }
-
+    if(!f){ container.innerHTML=''; document.getElementById('unitSuggestions').innerHTML=''; updatePreview(); return; }
     var html = '<div class="fg full"><label>'+esc(f.label)+' — fields</label><div class="unit-structure">';
     (f.fields||[]).forEach(function(fld){
       var id=fld.id,label=fld.label||'',val=fld.default||'',ph=fld.placeholder||'',req=fld.required?' required':'';
@@ -1741,53 +1457,37 @@ var UI = (function(){
     });
     html += '</div></div>';
     container.innerHTML = html;
-
+    // Show unit suggestions for this family
     var suggestions = Data.getUnitsByFamily(famId);
-    filterEl.style.display = suggestions.length > 6 ? 'block' : 'none';
-    filterEl.value = '';
-    renderSuggestionChips(suggestions);
-    updatePreview();
-  }
-
-  function renderSuggestionChips(list){
     var sugContainer = document.getElementById('unitSuggestions');
-    if(!list.length){
-      sugContainer.innerHTML = '<span style="font-size:11px;color:var(--ink-faint)">No units in this family yet</span>';
-      return;
+    if(suggestions.length){
+      sugContainer.innerHTML = suggestions.map(function(u){
+        return '<span class="unit-suggestion" onclick="UI.applyUnitSuggestion(\''+u.name.replace(/'/g,"\\'")+'\', \''+famId+'\')">'+esc(u.name)+'</span>';
+      }).join('');
+    } else {
+      sugContainer.innerHTML = '';
     }
-    sugContainer.innerHTML = list.map(function(u){
-      var isActive = selectedUnitName === u.name ? ' active' : '';
-      return '<span class="unit-suggestion'+isActive+'" onclick="UI.applyUnitSuggestion(\''+u.name.replace(/'/g,"\\'")+'\', \''+u.familyId+'\')">'+esc(u.name)+'</span>';
-    }).join('');
-  }
-
-  function filterUnitSuggestions(){
-    var q = (document.getElementById('unitSuggestionFilter').value||'').toLowerCase().trim();
-    var famId = document.getElementById('unitFamily').value;
-    var all = Data.getUnitsByFamily(famId);
-    var filtered = q ? all.filter(function(u){ return u.name.toLowerCase().indexOf(q)!==-1; }) : all;
-    renderSuggestionChips(filtered);
+    updatePreview();
   }
 
   function applyUnitSuggestion(name, famId){
-    selectedUnitName = name;
-    selectedFamilyId = famId;
-    tryFillFieldsFromName(name, famId);
-    updatePreview();
-
-    document.getElementById('unitSearchInput').value = name;
-    var banner = document.getElementById('unitSelectedBanner');
-    document.getElementById('unitSelectedName').textContent = name;
+    var unitObj = Data.getUnitByName(name);
+    if(!unitObj) return;
     var fam = Data.getFamily(famId);
-    document.getElementById('unitSelectedFamily').textContent = fam ? fam.label : 'Custom';
-    banner.classList.add('on');
-
-    filterUnitSuggestions();
+    if(!fam) return;
+    var customField = fam.fields.find(function(ff){ return ff.id==='customName'; });
+    if(customField){
+      var el = document.getElementById('customName');
+      if(el){ el.value = name; updatePreview(); }
+    } else {
+      toast('Unit applied. Please adjust fields if needed.');
+    }
+    document.getElementById('unitSuggestions').innerHTML='';
   }
 
   function updatePreview(){
     var name = buildUnitName();
-    document.getElementById('unitPreview').textContent = name || 'Select or build a unit';
+    document.getElementById('unitPreview').textContent = name || 'Select a family and fill in the fields';
     updateOutputText();
   }
 
@@ -1801,17 +1501,14 @@ var UI = (function(){
   }
 
   function buildUnitName(){
-    if(currentUnitMode === 'search' && selectedUnitName){
-      return selectedUnitName;
-    }
     var famId = document.getElementById('unitFamily').value;
     var f = Data.getFamily(famId);
-    if(!f) return selectedUnitName || '';
+    if(!f) return '';
     var vals = getFamilyValues();
     try {
       var name = f.build(vals);
-      return Data.canonicalUnitName(name) || selectedUnitName || '';
-    } catch(e){ return selectedUnitName || ''; }
+      return Data.canonicalUnitName(name);
+    } catch(e){ return ''; }
   }
 
   function getCurrentRecord(){
@@ -1878,6 +1575,7 @@ var UI = (function(){
     document.body.removeChild(ta);
   }
 
+  /* ── charts ── */
   function destroyChart(id){ if(chartInstances[id]){ chartInstances[id].destroy(); delete chartInstances[id]; } }
   function getChartColors(){
     var isLight = document.body.getAttribute('data-theme')==='light';
@@ -1924,6 +1622,7 @@ var UI = (function(){
         plugins:{legend:{position:'bottom',labels:{color:cc.text,font:{size:10.5},padding:10}}},cutout:'62%'}});
   }
 
+  /* ── stats + dashboard ── */
   function stats(){
     var q=0,sites=new Set(),types=new Set(),a=0,p=0,rej=0;
     Data.records.forEach(function(r){
@@ -1984,6 +1683,7 @@ var UI = (function(){
       : '<div class="list-item" style="color:var(--ok)">✓ All clear</div>';
   }
 
+  /* ── records ── */
   function filtered(){
     var q=(document.getElementById('q')?.value||'').toLowerCase().trim();
     var site=(document.getElementById('fs')?.value||'').toLowerCase().trim();
@@ -2057,6 +1757,7 @@ var UI = (function(){
     });
   }
 
+  /* ── approvals ── */
   function renderApprovals(){
     var list = Data.records.filter(function(r){return r.status==='Pending';}).sort(function(a,b){return b.date.localeCompare(a.date);});
     var el = document.getElementById('approvalsList'), cnt=document.getElementById('pendingCount');
@@ -2074,6 +1775,7 @@ var UI = (function(){
     }).join('');
   }
 
+  /* ── sites ── */
   function renderSites(){
     var q = (document.getElementById('siteSearch')?.value||'').toLowerCase().trim();
     var map={};
@@ -2098,6 +1800,7 @@ var UI = (function(){
   }
   function siteFilter(s){ showView('records'); document.getElementById('fs').value=s; renderRecords(); }
 
+  /* ── quality ── */
   function renderQuality(){
     var dup = duplicateSN();
     var dupEl = document.getElementById('dupSN');
@@ -2132,6 +1835,7 @@ var UI = (function(){
     if(catList.length>40) catalogEl.innerHTML += '<div class="text-muted text-center" style="padding:6px;font-size:11px">… and '+(catList.length-40)+' more</div>';
   }
 
+  /* ── reports ── */
   function renderReport(){
     var x = stats();
     var html = '<div class="stats" style="grid-template-columns:repeat(3,1fr);margin-bottom:12px">'+
@@ -2159,6 +1863,7 @@ var UI = (function(){
     document.getElementById('reportContent').innerHTML = html;
   }
 
+  /* ── backup ── */
   function renderBackup(){
     var backups = Data.backupIndex();
     var el = document.getElementById('backupList'), cnt=document.getElementById('backupCount');
@@ -2174,6 +1879,7 @@ var UI = (function(){
     confirm('Restore this backup?','This replaces all current records and trash with the saved snapshot.','Restore',function(){ Data.restoreSnapshot(id); });
   }
 
+  /* ── trash ── */
   function renderTrash(){
     var el = document.getElementById('trashList'), cnt=document.getElementById('trashCount');
     if(cnt) cnt.textContent = Data.trash.length;
@@ -2195,11 +1901,10 @@ var UI = (function(){
     confirm('Empty trash?','All '+Data.trash.length+' record(s) will be permanently deleted.','Empty trash',function(){ Data.purgeTrash(); toast('Trash emptied'); });
   }
 
+  /* ── CRUD modal ── */
   var editId = null;
   function openAdd(){
     editId=null;
-    selectedUnitName = null;
-    selectedFamilyId = null;
     document.getElementById('form').reset();
     document.getElementById('eid').value='';
     document.getElementById('date').value=new Date().toISOString().slice(0,10);
@@ -2207,10 +1912,10 @@ var UI = (function(){
     document.getElementById('fault').value='Faulty';
     document.getElementById('status').value='Pending';
     document.getElementById('qty').value=1;
-    document.getElementById('unitSearchInput').value='';
-    document.getElementById('unitSelectedBanner').classList.remove('on');
-    document.getElementById('unitSearchResults').classList.remove('on');
-    setUnitMode('search');
+    populateFamilySelect();
+    document.getElementById('familyFields').innerHTML='';
+    document.getElementById('unitSuggestions').innerHTML='';
+    document.getElementById('unitPreview').textContent='Select a family and fill in the fields';
     document.getElementById('mtitle').textContent='New fault record';
     document.getElementById('historyBox').style.display='none';
     document.getElementById('siteErr').style.display='none';
@@ -2224,10 +1929,6 @@ var UI = (function(){
     var r = Data.records.find(function(x){return x.id===id;});
     if(!r) return;
     editId=id;
-    selectedUnitName = r.unitName;
-    var unitObj = Data.getUnitByName(r.unitName);
-    selectedFamilyId = unitObj ? unitObj.familyId : Data.detectFamily(r.unitName);
-
     document.getElementById('eid').value=id;
     document.getElementById('date').value=r.date||'';
     setScValue(r.sc||'Porsoo');
@@ -2238,21 +1939,24 @@ var UI = (function(){
     document.getElementById('status').value=r.status||'Pending';
     document.getElementById('approver').value=r.approvedBy||'';
     document.getElementById('notes').value=r.notes||'';
-
-    document.getElementById('unitSearchInput').value = r.unitName || '';
-    var banner = document.getElementById('unitSelectedBanner');
-    document.getElementById('unitSelectedName').textContent = r.unitName || '';
-    var fam = Data.getFamily(selectedFamilyId);
-    document.getElementById('unitSelectedFamily').textContent = fam ? fam.label : 'Custom';
-    banner.classList.add('on');
-
-    setUnitMode('search');
-    if(selectedFamilyId){
-      document.getElementById('unitFamily').value = selectedFamilyId;
+    var unitObj = Data.getUnitByName(r.unitName);
+    var famId = unitObj ? unitObj.familyId : 'CUSTOM';
+    var fam = Data.getFamily(famId);
+    if(fam){
+      document.getElementById('unitFamily').value = famId;
       onFamilyChange();
-      tryFillFieldsFromName(r.unitName, selectedFamilyId);
+      var customField = fam.fields.find(function(ff){ return ff.id==='customName'; });
+      if(customField){
+        var cn = document.getElementById('customName');
+        if(cn) cn.value = r.unitName;
+      }
+      updatePreview();
+    } else {
+      if(Data.families.length) {
+        document.getElementById('unitFamily').value = Data.families[0].id;
+        onFamilyChange();
+      }
     }
-
     document.getElementById('mtitle').textContent='Edit fault record';
     var hbox = document.getElementById('historyBox'), hlist=document.getElementById('historyList');
     if(r.history && r.history.length){
@@ -2270,7 +1974,6 @@ var UI = (function(){
   function closeModal(){
     document.getElementById('modalbg').classList.remove('on');
     document.body.style.overflow='';
-    document.getElementById('unitSearchResults').classList.remove('on');
     document.getElementById('unitSuggestions').innerHTML='';
   }
 
@@ -2278,7 +1981,7 @@ var UI = (function(){
     e.preventDefault();
     var unitName = buildUnitName();
     var rec0 = getCurrentRecord(); rec0.unit = unitName;
-    if(!unitName){ toast('Please select or build a unit.'); return; }
+    if(!unitName){ toast('Select a unit family and fill in the fields.'); return; }
     if(!validateForm(rec0, true)) { toast('Fix the highlighted fields.'); return; }
 
     var qty = parseInt(document.getElementById('qty').value)||1;
@@ -2302,7 +2005,8 @@ var UI = (function(){
     if(record.status==='Approved') record.approvedAt=new Date().toISOString();
 
     var wasUpdate = Data.upsert(record, id ? 'Edited' : 'Created');
-    var currentFamId = selectedFamilyId || document.getElementById('unitFamily').value || Data.detectFamily(unitName);
+    // Add the unit to catalog if not exists, with the current family
+    var currentFamId = document.getElementById('unitFamily').value;
     if(currentFamId && !Data.getUnitByName(unitName)){
       Data.addUnit(unitName, currentFamId);
     }
@@ -2323,6 +2027,7 @@ var UI = (function(){
     renderRecords();
   }
 
+  /* ── Units Management View ── */
   function renderUnitsView(){
     var families = Data.families;
     var fl = document.getElementById('familyList');
@@ -2388,6 +2093,7 @@ var UI = (function(){
     if(catList.length>50) ucl.innerHTML += '<div class="text-muted text-center" style="padding:6px;font-size:11px">… and '+(catList.length-50)+' more</div>';
   }
 
+  /* ── Family management ── */
   function openAddFamily(){
     document.getElementById('familyEditId').value='';
     document.getElementById('familyModalTitle').textContent='Add Unit Family';
@@ -2405,12 +2111,7 @@ var UI = (function(){
     document.getElementById('familyModalTitle').textContent='Edit Unit Family';
     document.getElementById('familyModalSub').textContent='Update family name and pattern.';
     document.getElementById('familyName').value=f.label;
-    var pattern = '';
-    if(f.fields && f.fields.length){
-      var placeholders = f.fields.map(function(fld){ return '{'+fld.id+'}'; }).join('');
-      pattern = placeholders || '';
-    }
-    document.getElementById('familyPattern').value=pattern;
+    document.getElementById('familyPattern').value = f.pattern || '';
     document.getElementById('familyModal').classList.add('on');
     document.body.style.overflow='hidden';
   }
@@ -2449,12 +2150,13 @@ var UI = (function(){
     });
   }
 
+  /* ── Unit management ── */
   function openAddUnitForFamily(){
     var famId = document.getElementById('unitMgmtFamily').value;
     if(!famId){ toast('Select a family first'); return; }
     var name = prompt('Enter new unit name:');
     if(name && name.trim()){
-      var trimmed = Data.canonicalUnitName(name.trim());
+      var trimmed = name.trim();
       var existing = Data.getUnitsByFamily(famId).some(function(u){return u.name===trimmed;});
       if(existing){ toast('Unit already exists in this family'); return; }
       var u = Data.addUnit(trimmed, famId);
@@ -2492,7 +2194,7 @@ var UI = (function(){
     if(!name){ toast('Unit name is required'); return; }
     if(!famId){ toast('Please select a family'); return; }
     var success = Data.editUnit(id, name, famId);
-    if(success === false) { toast('A unit with this name already exists'); return; }
+    if(success === false) { toast('A unit with this name already exists in the chosen family'); return; }
     if(success !== undefined) {
       toast('Unit updated');
       closeUnitEditModal();
@@ -2512,6 +2214,7 @@ var UI = (function(){
     });
   }
 
+  /* ── view switching ── */
   function showView(id, btn){
     document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
     var view=document.getElementById(id); if(view) view.classList.add('active');
@@ -2536,28 +2239,17 @@ var UI = (function(){
     w.document.close(); w.print();
   }
 
+  /* ── keyboard shortcuts ── */
   function initKeys(){
     document.addEventListener('keydown', function(e){
       var tag = (e.target.tagName||'').toLowerCase();
       var typing = tag==='input'||tag==='textarea'||tag==='select';
-      if(e.key==='Escape'){ 
-        closeModal(); closeMore(); confirmCancel(); closeFamilyModal(); closeUnitEditModal(); 
-        document.getElementById('unitSearchResults').classList.remove('on');
-        return; 
-      }
+      if(e.key==='Escape'){ closeModal(); closeMore(); confirmCancel(); closeFamilyModal(); closeUnitEditModal(); return; }
       if(typing) return;
       if(e.key==='/'){ e.preventDefault(); showView('records'); setTimeout(function(){document.getElementById('q').focus();},60); }
       else if(e.key==='n'||e.key==='N'){ openAdd(); }
     });
   }
-
-  document.addEventListener('click', function(e){
-    var box = document.getElementById('unitSearchResults');
-    var input = document.getElementById('unitSearchInput');
-    if(box && input && !box.contains(e.target) && e.target !== input){
-      box.classList.remove('on');
-    }
-  });
 
   return {
     esc:esc, toast:toast, toggleTheme:toggleTheme, loadTheme:loadTheme,
@@ -2575,13 +2267,13 @@ var UI = (function(){
     saveFamily:saveFamily, confirmDeleteFamily:confirmDeleteFamily,
     openAddUnitForFamily:openAddUnitForFamily, openEditUnit:openEditUnit, closeUnitEditModal:closeUnitEditModal,
     saveUnitEdit:saveUnitEdit, confirmDeleteUnit:confirmDeleteUnit,
-    populateFamilySelect:populateFamilySelect,
-    setUnitMode:setUnitMode, onUnitSearch:onUnitSearch, unitSearchKey:unitSearchKey,
-    selectUnitFromSearch:selectUnitFromSearch, clearSelectedUnit:clearSelectedUnit,
-    filterUnitSuggestions:filterUnitSuggestions
+    populateFamilySelect:populateFamilySelect
   };
 })();
 
+/* ═══════════════════════════════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════════════════════════════ */
 document.getElementById('modalbg').addEventListener('click', function(e){ if(e.target.id==='modalbg') UI.closeModal(); });
 document.getElementById('confirmbg').addEventListener('click', function(e){ if(e.target.id==='confirmbg') UI.confirmCancel(); });
 document.getElementById('familyModal').addEventListener('click', function(e){ if(e.target.id==='familyModal') UI.closeFamilyModal(); });
