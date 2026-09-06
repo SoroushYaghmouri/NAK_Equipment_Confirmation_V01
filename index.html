@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="mobile-web-app-capable" content="yes" />
-<title>Fault Console — Equipment Fault Manager v10</title>
+<title>Fault Console — Equipment Fault Manager v10.1</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -484,7 +484,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
       <div class="logo">FC</div>
       <div class="brand-text">
         <h1>Fault Console</h1>
-        <p>equipment fault manager · v10</p>
+        <p>equipment fault manager · v10.1 — detailed units</p>
       </div>
     </div>
     <div class="header-actions">
@@ -931,24 +931,96 @@ var Data = (function(){
     if(!n) return '';
     var norm = String(n).replace(/\s+/g,' ').trim();
     var ALIAS_MAP = {
-      "BBU CLU":"BBU6102 CLU - Ericsson","BBU6102 CLU":"BBU6102 CLU - Ericsson","BBU6102 CLU - ERICSSON":"BBU6102 CLU - Ericsson",
-      "CLU":"CLU - Ericsson","CLU - ERICSSON":"CLU - Ericsson","CLU - BBUB102 CLU - Ericsson":"CLU - Ericsson",
-      "Climat Control Board":"CCU - Climate Control Board","Climat Control Board - Ericsson":"CCU - Climate Control Board",
-      "Climate Control Board - CCU":"CCU - Climate Control Board","CCU - Climate Control Board":"CCU - Climate Control Board",
+      // CLU / BBU
+      "BBU CLU":"BBU6102 CLU - Ericsson",
+      "BBU6102 CLU":"BBU6102 CLU - Ericsson",
+      "BBU6102 CLU - ERICSSON":"BBU6102 CLU - Ericsson",
+      "CLU":"CLU - Ericsson",
+      "CLU - ERICSSON":"CLU - Ericsson",
+      "CLU - BBUB102 CLU - Ericsson":"CLU - BBUB102 CLU - Ericsson",
+
+      // CCU / Climate
+      "Climat Control Board":"CCU - Climate Control Board",
+      "Climat Control Board - Ericsson":"Climat Control Board - Ericsson",
+      "Climate Control Board - CCU":"Climate Control Board - CCU",
+      "CCU - Climate Control Board":"CCU - Climate Control Board",
       "Thermo Electric Co - CCU":"CCU - Thermo Electric Co",
-      "DC cabinet air conditioner - Envicool":"DC Cabinet Air Conditioner - Envicool","DC Cabinet Air Conditioner - Envicool":"DC Cabinet Air Conditioner - Envicool",
-      "DCC-Equipment_Confirmation ELECTRONIC":"DCC - Equipment_Confirmation Electronic",
-      "DCC-Equipment_Confirmation ELECTRONIC - Cabinet Conditioner":"DCC - Equipment_Confirmation Electronic - Cabinet Conditioner",
-      "PSU AC 03":"PSU AC 03 - Ericsson","PEC- 4860 - Rectifier Equipment_Confirmation":"PEC-4860 - Rectifier Equipment_Confirmation",
-      "PECSU - 2020 - Equipment_Confirmation":"PECSU-2020 - Equipment_Confirmation",
-      "NCR48U - Nian":"NCR48U - 3KW - Nian","NCR48U - NIAN":"NCR48U - 3KW - Nian","NCR48U 3KW":"NCR48U - 3KW - Nian","NCR48U - 3KW":"NCR48U - 3KW - Nian"
-    };
+
+      // DC AC / NAC — NEVER collapse model numbers
+      "DC cabinet air conditioner - Envicool":"DC Cabinet Air Conditioner - Envicool",
+      "DC Cabinet Air Conditioner - Envicool":"DC Cabinet Air Conditioner - Envicool",
+      "DC Cabinet Air Conditioner - ITMC":"DC Cabinet Air Conditioner - ITMC",
+      "NAC550D - DC Air Conditioner - Nian":"NAC550D - DC Air Conditioner - Nian",
+      "NAC650D - DC Air Conditioner - Nian":"NAC650D - DC Air Conditioner - Nian",
+      "NAC1250D - DC Air Conditioner - Nian":"NAC1250D - DC Air Conditioner - Nian",
+      "NAC2400D - DC Air Conditioner - Nian":"NAC2400D - DC Air Conditioner - Nian",
+      "NAC3000D - DC Air Conditioner - Nian":"NAC3000D - DC Air Conditioner - Nian",
+      "NAC3500D - DC Air Conditioner - Nian":"NAC3500D - DC Air Conditioner - Nian",
+
+      // DCC — correct Porsoo spelling
+      "DCC-PORSOO ELECTRONIC":"DCC-PORSOO ELECTRONIC",
+      "DCC-PORSOO ELECTRONIC - Cabinet Conditioner":"DCC-PORSOO ELECTRONIC - Cabinet Conditioner",
+      "DCC - Porsoo Electronic":"DCC-PORSOO ELECTRONIC",
+      "DCC - Porsoo Electronic - Cabinet Conditioner":"DCC-PORSOO ELECTRONIC - Cabinet Conditioner",
+
+      // PSU — do not force Ericsson on bare names
+      "PSU AC 03":"PSU AC 03",
+      "PSU AC 03 - Ericsson":"PSU AC 03 - Ericsson",
+
+      // Rectifier / PEC
+      "PEC- 4860 - Rectifier Porsoo":"PEC-4860 - Rectifier Porsoo",
+      "PEC-4860 - Rectifier Porsoo":"PEC-4860 - Rectifier Porsoo",
+      "PECSU - 2020 - Porsoo":"PECSU - 2020 - Porsoo",
+      "RECTIFIER 48VDC3000 - ITMC":"RECTIFIER 48VDC3000 - ITMC",
+      "Rectifier - Flatpack2 2000W 48V BF":"Rectifier - Flatpack2 2000W 48V BF",
+
+      // NCR / NCU — preserve subtype & power; only normalize minor variants
+      "NCR48U - Nian":"NCR48U - 3KW - Nian",
+      "NCR48U - NIAN":"NCR48U - 3KW - Nian",
+      "NCR48U 3KW":"NCR48U - 3KW - Nian",
+      "NCR48U - 3KW":"NCR48U - 3KW - Nian",
+      "NCR48U - 3KW - Nian":"NCR48U - 3KW - Nian",
+      "NCR48U G/01- 3KW - Nian":"NCR48U G/01- 3KW - Nian",
+      "NCR48U G/01 - 3KW - Nian":"NCR48U G/01- 3KW - Nian",
+      "NCR48U J/01- 3KW - Nian":"NCR48U J/01- 3KW - Nian",
+      "NCR48U D/03- 3KW - Nian":"NCR48U D/03- 3KW - Nian",
+      "NCU48U C/11":"NCU48U C/11",
+      "NCU48U M/12 - NS042264-R01":"NCU48U M/12 - NS042264-R01",
+      "NCU48S M/12":"NCU48S M/12",
+
+      // Others
+      "Air Conditioner - ITMC":"Air Conditioner - ITMC",
+      "Smartpack Extended - ELTEK":"Smartpack Extended - ELTEK",
+      "SCU 01 01 - Ericsson":"SCU 01 01 - Ericsson",
+      "PDU 01 01":"PDU 01 01",
+      "Controller Unit  - ITMC":"Controller Unit - ITMC",
+      "Controller Unit - ITMC":"Controller Unit - ITMC"
+    }
     if(ALIAS_MAP[norm]) return ALIAS_MAP[norm];
     var low = norm.toLowerCase();
     for(var k in ALIAS_MAP){ if(k.toLowerCase()===low) return ALIAS_MAP[k]; }
     return norm;
   }
  
+  /* ── smart family detection (so imported units get proper structured details instead of landing in generic CUSTOM) ── */
+  function detectFamilyForUnitName(name){
+    if(!name) return 'CUSTOM';
+    var n = String(name).trim();
+    if(/^NC[RU]\s*\d/i.test(n)) return 'NCU_NCR';                                   // NCR48U, NCU48S, NCU48U ...
+    if(/^NAC\s*\d/i.test(n) || /DC\s*(Cabinet\s*)?Air\s*Conditioner/i.test(n)) return 'DC_AC'; // NAC550D.. + DC (Cabinet) Air Conditioner
+    if(/^Air\s*Conditioner/i.test(n)) return 'AIRCOND';                             // plain "Air Conditioner - ITMC"
+    if(/^PSU\b/i.test(n)) return 'PSU';
+    if(/^BBU|\bCLU\b/i.test(n)) return 'CLU';
+    if(/^CCU\b|Climat(e)?\s*Control/i.test(n)) return 'CCU';
+    if(/^RECTIFIER\b|Rectifier|^PEC\b|^PEC-/i.test(n)) return 'RECTIFIER';
+    if(/^DCC\b|^DCC-/i.test(n)) return 'DCC';
+    if(/^PDU\b/i.test(n)) return 'PDU';
+    if(/^Controller\b/i.test(n)) return 'CONTROLLER';
+    if(/^Smartpack/i.test(n)) return 'SMARTPACK';
+    if(/^SCU\b/i.test(n)) return 'SCU';
+    return 'CUSTOM';
+  }
+
   /* ── families ── */
   function defaultFamilies(){
     return [
@@ -959,8 +1031,12 @@ var Data = (function(){
         {id:'ncuSubtype',type:'text',label:'Subtype (e.g. C/11)',placeholder:'C/11'},
         {id:'ncuPower',type:'select',label:'Power',options:['3KW','2KW','1.5KW','N/A'],default:'3KW'}
       ], build:function(v){ var p=v.ncuPrefix||'NCR',vol=v.ncuVoltage||'48',ver=v.ncuVersion||'U';
-        var sub=v.ncuSubtype?' '+v.ncuSubtype.trim():'';var pw=(v.ncuPower&&v.ncuPower!=='N/A')?' - '+v.ncuPower:'';
-        return p+vol+ver+sub+pw; }},
+        var sub=v.ncuSubtype?(' '+v.ncuSubtype.trim()):'';
+        var pw=(v.ncuPower&&v.ncuPower!=='N/A')?(' - '+v.ncuPower):'';
+        // Match real tickets: NCR48U G/01- 3KW - Nian  |  NCU48U C/11
+        var name = p+vol+ver+sub+pw;
+        if(p==='NCR' && pw) name += ' - Nian';
+        return name.replace(/\s+/g,' ').trim(); }},
       {id:'PSU', label:'PSU AC', fields:[
         {id:'psuVersion',type:'select',label:'Version',options:['AC 01 (1KW)','AC 02 (2KW)','AC 03 (3KW)'],default:'AC 03 (3KW)'},
         {id:'psuSuffix',type:'text',label:'Suffix',placeholder:'- Ericsson (optional)'}
@@ -978,12 +1054,12 @@ var Data = (function(){
         {id:'dcacSuffix',type:'text',label:'Suffix',placeholder:'e.g. - Cooler, - Compressor'}
       ], build:function(v){return (v.dcacModel||'DC Cabinet Air Conditioner - Envicool')+(v.dcacSuffix?' '+v.dcacSuffix.trim():'');}},
       {id:'RECTIFIER', label:'Rectifier', fields:[
-        {id:'recType',type:'select',label:'Type',options:['RECTIFIER 48VDC3000 - ITMC','Rectifier - Flatpack2 2000W 48V BF','PEC-4860 - Rectifier Equipment_Confirmation'],default:'RECTIFIER 48VDC3000 - ITMC'},
+        {id:'recType',type:'select',label:'Type',options:['RECTIFIER 48VDC3000 - ITMC','Rectifier - Flatpack2 2000W 48V BF','PEC-4860 - Rectifier Porsoo','PECSU - 2020 - Porsoo'],default:'RECTIFIER 48VDC3000 - ITMC'},
         {id:'recSuffix',type:'text',label:'Suffix',placeholder:''}
       ], build:function(v){return (v.recType||'RECTIFIER 48VDC3000 - ITMC')+(v.recSuffix?' '+v.recSuffix.trim():'');}},
       {id:'DCC', label:'DCC', fields:[
-        {id:'dccType',type:'select',label:'Type',options:['DCC - Equipment_Confirmation Electronic','DCC - Equipment_Confirmation Electronic - Cabinet Conditioner'],default:'DCC - Equipment_Confirmation Electronic'}
-      ], build:function(v){return v.dccType||'DCC - Equipment_Confirmation Electronic';}},
+        {id:'dccType',type:'select',label:'Type',options:['DCC-PORSOO ELECTRONIC','DCC-PORSOO ELECTRONIC - Cabinet Conditioner'],default:'DCC-PORSOO ELECTRONIC'}
+      ], build:function(v){return v.dccType||'DCC-PORSOO ELECTRONIC';}},
       {id:'PDU', label:'PDU', fields:[{id:'pduType',type:'text',label:'PDU type',default:'PDU 01 01',placeholder:'PDU 01 01'}], build:function(v){return v.pduType||'PDU 01 01';}},
       {id:'AIRCOND', label:'Air conditioner - ITMC', fields:[{id:'airType',type:'text',label:'Model',default:'Air Conditioner - ITMC',placeholder:'Air Conditioner - ITMC'}], build:function(v){return v.airType||'Air Conditioner - ITMC';}},
       {id:'CONTROLLER', label:'Controller unit', fields:[{id:'ctrlType',type:'text',label:'Model',default:'Controller Unit - ITMC',placeholder:'Controller Unit - ITMC'}], build:function(v){return v.ctrlType||'Controller Unit - ITMC';}},
@@ -1103,10 +1179,37 @@ var Data = (function(){
  
   /* ── units ── */
   var SAMPLE_UNITS = {
-    'NCU_NCR': ['NCR48U - 3KW - Nian', 'NCU48U - 2KW - Nian', 'NCR24U - 1.5KW - Nian', 'NCR48U G/01 - 3KW - Nian'],
-    'PSU': ['PSU AC 03 - Ericsson', 'PSU AC 01 - Ericsson', 'PSU AC 02 - Ericsson', 'PSU AC 03 - Nian'],
-    'CLU': ['CLU - Ericsson', 'BBU6102 CLU - Ericsson', 'CLU - BBUB102 - Ericsson'],
-    'CCU': ['CCU - Climate Control Board', 'CCU - Thermo Electric Co', 'Climate Control Board - CCU', 'Climat Control Board - Ericsson'],
+    'NCU_NCR': [
+      'NCR48U - 3KW - Nian',
+      'NCR48U G/01- 3KW - Nian',
+      'NCR48U J/01- 3KW - Nian',
+      'NCR48U D/03- 3KW - Nian',
+      'NCU48U C/11',
+      'NCU48U M/12 - NS042264-R01',
+      'NCU48S M/12',
+      'NCU48U - 2KW - Nian',
+      'NCR24U - 1.5KW - Nian'
+    ],
+    'PSU': [
+      'PSU AC 03',
+      'PSU AC 03 - Ericsson',
+      'PSU AC 01 - Ericsson',
+      'PSU AC 02 - Ericsson',
+      'PSU AC 03 - Nian'
+    ],
+    'CLU': [
+      'CLU - Ericsson',
+      'BBU6102 CLU - Ericsson',
+      'CLU - BBUB102 CLU - Ericsson',
+      'BBU CLU'
+    ],
+    'CCU': [
+      'CCU - Climate Control Board',
+      'CCU - Thermo Electric Co',
+      'Climate Control Board - CCU',
+      'Climat Control Board',
+      'Climat Control Board - Ericsson'
+    ],
     'DC_AC': [
       'DC Cabinet Air Conditioner - Envicool',
       'DC Cabinet Air Conditioner - ITMC',
@@ -1117,14 +1220,22 @@ var Data = (function(){
       'NAC3000D - DC Air Conditioner - Nian',
       'NAC3500D - DC Air Conditioner - Nian'
     ],
-    'RECTIFIER': ['RECTIFIER 48VDC3000 - ITMC', 'Rectifier - Flatpack2 2000W 48V BF', 'PEC-4860 - Rectifier Equipment_Confirmation'],
-    'DCC': ['DCC - Equipment_Confirmation Electronic', 'DCC - Equipment_Confirmation Electronic - Cabinet Conditioner'],
+    'RECTIFIER': [
+      'RECTIFIER 48VDC3000 - ITMC',
+      'Rectifier - Flatpack2 2000W 48V BF',
+      'PEC-4860 - Rectifier Porsoo',
+      'PECSU - 2020 - Porsoo'
+    ],
+    'DCC': [
+      'DCC-PORSOO ELECTRONIC',
+      'DCC-PORSOO ELECTRONIC - Cabinet Conditioner'
+    ],
     'PDU': ['PDU 01 01', 'PDU 02 01'],
-    'AIRCOND': ['Air Conditioner - ITMC', 'Air Conditioner - Envicool'],
-    'CONTROLLER': ['Controller Unit - ITMC', 'Controller Unit - Envicool'],
-    'SMARTPACK': ['Smartpack Extended - ELTEK', 'Smartpack Compact - ELTEK'],
-    'SCU': ['SCU 01 01 - Ericsson', 'SCU 02 01 - Ericsson']
-  };
+    'AIRCOND': ['Air Conditioner - ITMC'],
+    'CONTROLLER': ['Controller Unit - ITMC'],
+    'SMARTPACK': ['Smartpack Extended - ELTEK'],
+    'SCU': ['SCU 01 01 - Ericsson']
+  }
  
   function loadUnits(){
     try{
@@ -1135,15 +1246,30 @@ var Data = (function(){
  
     for(var fid in SAMPLE_UNITS){
       if(SAMPLE_UNITS.hasOwnProperty(fid)){
-        var existing = units.filter(function(u){return u.familyId===fid;});
-        if(existing.length === 0){
-          var sampleList = SAMPLE_UNITS[fid];
-          sampleList.forEach(function(name){
+        var sampleList = SAMPLE_UNITS[fid];
+        sampleList.forEach(function(name){
+          // Always ensure every detailed sample unit exists (never collapse NAC/NCR models)
+          var already = units.some(function(u){ return u.name === name; });
+          if(!already){
             units.push({id:uid(), name:name, familyId:fid});
-          });
-        }
+          }
+        });
       }
     }
+    /* one-time cleanup: units previously mis-filed under generic CUSTOM
+       (e.g. NAC air conditioners, NCR/PSU/CLU/... units imported before
+       the family auto-detection fix) get re-filed into their proper
+       detailed family, so they show up with full structured fields. */
+    units.forEach(function(u){
+      if(u.familyId === 'CUSTOM'){
+        var detected = detectFamilyForUnitName(u.name);
+        if(detected !== 'CUSTOM'){
+          var dup = units.some(function(x){ return x!==u && x.name===u.name && x.familyId===detected; });
+          if(!dup) u.familyId = detected; else u._dupRemove = true;
+        }
+      }
+    });
+    units = units.filter(function(u){ return !u._dupRemove; });
     saveUnits();
   }
   function saveUnits(){ try{ localStorage.setItem(UNIT_KEY, JSON.stringify(units)); }catch(e){} }
@@ -1198,7 +1324,7 @@ var Data = (function(){
   }
  
   function migrateLegacy(){
-    var legacyKeys = ['Equipment_ConfirmationFaultManager_v9','Equipment_ConfirmationFaultManager_v8'];
+    var legacyKeys = ['PorsooFaultManager_v9','PorsooFaultManager_v8'];
     if(localStorage.getItem(STORAGE_KEY)) return;
     for(var i=0;i<legacyKeys.length;i++){
       var raw = localStorage.getItem(legacyKeys[i]);
@@ -1226,7 +1352,7 @@ var Data = (function(){
     loadUnits();
     records.forEach(function(r){
       if(r.unitName && !getUnitByName(r.unitName)){
-        addUnit(r.unitName, 'CUSTOM');
+        addUnit(r.unitName, detectFamilyForUnitName(r.unitName));
       }
     });
     persist(true);
@@ -1400,7 +1526,7 @@ var Data = (function(){
             var r = normalize(item);
             var idx = records.findIndex(function(x){return x.id===r.id;});
             if(idx>=0) records[idx]=r; else { records.push(r); added++; }
-            if(r.unitName && !getUnitByName(r.unitName)){ addUnit(r.unitName, 'CUSTOM'); }
+            if(r.unitName && !getUnitByName(r.unitName)){ addUnit(r.unitName, detectFamilyForUnitName(r.unitName)); }
           });
           persist();
           UI.toast(added+' record(s) restored');
@@ -1461,7 +1587,7 @@ var Data = (function(){
           var norm = normalize(r);
           var idx = records.findIndex(function(x){return x.id===norm.id;});
           if(idx>=0) records[idx]=norm; else { records.push(norm); added++; }
-          if(norm.unitName && !getUnitByName(norm.unitName)){ addUnit(norm.unitName, 'CUSTOM'); }
+          if(norm.unitName && !getUnitByName(norm.unitName)){ addUnit(norm.unitName, detectFamilyForUnitName(norm.unitName)); }
         }
         persist();
         UI.toast(added+' record(s) restored from CSV');
@@ -1501,7 +1627,7 @@ var Data = (function(){
       var siteMatch = line.match(/^Code Site\s*[:：]\s*(.*)/i);
       if(siteMatch){ current.site = siteMatch[1].trim().toUpperCase(); continue; }
       var unitMatch = line.match(/^UNIT Name\s*[:：]\s*(.*)/i);
-      if(unitMatch){ var u=unitMatch[1].trim(); current.unit=canonicalUnitName(u); if(!getUnitByName(current.unit)){ addUnit(current.unit, 'CUSTOM'); } continue; }
+      if(unitMatch){ var u=unitMatch[1].trim(); current.unit=canonicalUnitName(u); if(current.unit && !getUnitByName(current.unit)){ addUnit(current.unit, detectFamilyForUnitName(current.unit)); } continue; }
       var faultMatch = line.match(/^Fault Affect\s*[:：]\s*(.*)/i);
       if(faultMatch){ current.fault = faultMatch[1].trim(); continue; }
       var qtyMatch = line.match(/^QTY\s*[:：]\s*(\d+)/i);
@@ -1526,7 +1652,7 @@ var Data = (function(){
       });
       addHistory(newRecord,'Imported');
       records.push(newRecord);
-      if(newRecord.unitName && !getUnitByName(newRecord.unitName)){ addUnit(newRecord.unitName, 'CUSTOM'); }
+      if(newRecord.unitName && !getUnitByName(newRecord.unitName)){ addUnit(newRecord.unitName, detectFamilyForUnitName(newRecord.unitName)); }
       added++;
     });
     persist();
@@ -1547,7 +1673,7 @@ var Data = (function(){
   return {
     get records(){ return records; }, get trash(){ return trash; },
     get families(){ return families; }, get units(){ return units; },
-    uid: uid, canonicalUnitName: canonicalUnitName,
+    uid: uid, canonicalUnitName: canonicalUnitName, detectFamilyForUnitName: detectFamilyForUnitName,
     load: load, persist: persist, upsert: upsert, softDelete: softDelete,
     restoreFromTrash: restoreFromTrash, purgeTrash: purgeTrash, decision: decision,
     backupIndex: backupIndex, snapshot: snapshot, restoreSnapshot: restoreSnapshot, deleteSnapshot: deleteSnapshot,
