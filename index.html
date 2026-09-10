@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="mobile-web-app-capable" content="yes" />
-<title>Fault Console — Equipment Fault Manager v10.1</title>
+<title>Fault Console — Equipment Fault Manager v10.2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -484,7 +484,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
       <div class="logo">FC</div>
       <div class="brand-text">
         <h1>Fault Console</h1>
-        <p>equipment fault manager · v10.1 — detailed units</p>
+        <p>equipment fault manager · v10.2 — smart units</p>
       </div>
     </div>
     <div class="header-actions">
@@ -654,6 +654,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
       <p class="text-muted" style="font-size:11.5px;margin-bottom:10px">Manage unit families/models. Adding a new family will appear in the record form.</p>
       <div class="btn-row mb-8">
         <button class="btn btn-primary btn-sm" onclick="UI.openAddFamily()">➕ Add Family</button>
+        <button class="btn btn-outline btn-sm" onclick="UI.recategorizeAll()">♻ Recategorize all units</button>
       </div>
       <div id="familyList" class="card-list"></div>
     </div>
@@ -908,7 +909,7 @@ th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;font-size:10px;po
 <script>
 'use strict';
 /* ═══════════════════════════════════════════════════════════════════
-   DATA MODULE — extended with unit management
+   DATA MODULE — v10.2 with smart unit categorization
    ═══════════════════════════════════════════════════════════════════ */
 var Data = (function(){
   var STORAGE_KEY = 'FaultConsole_records_v10';
@@ -926,98 +927,180 @@ var Data = (function(){
  
   function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
  
-  /* ── canonical unit name (alias mapping) ── */
+  /* ── canonical unit name (alias mapping + pattern normalization) ── */
   function canonicalUnitName(n){
     if(!n) return '';
     var norm = String(n).replace(/\s+/g,' ').trim();
+    if(!norm) return '';
+ 
+    /* Case-insensitive alias map — keys stored lowercase for fast lookup */
     var ALIAS_MAP = {
-      // CLU / BBU
-      "BBU CLU":"BBU6102 CLU - Ericsson",
-      "BBU6102 CLU":"BBU6102 CLU - Ericsson",
-      "BBU6102 CLU - ERICSSON":"BBU6102 CLU - Ericsson",
-      "CLU":"CLU - Ericsson",
-      "CLU - ERICSSON":"CLU - Ericsson",
-      "CLU - BBUB102 CLU - Ericsson":"CLU - BBUB102 CLU - Ericsson",
-
-      // CCU / Climate
-      "Climat Control Board":"CCU - Climate Control Board",
-      "Climat Control Board - Ericsson":"Climat Control Board - Ericsson",
-      "Climate Control Board - CCU":"Climate Control Board - CCU",
-      "CCU - Climate Control Board":"CCU - Climate Control Board",
-      "Thermo Electric Co - CCU":"CCU - Thermo Electric Co",
-
-      // DC AC / NAC — NEVER collapse model numbers
-      "DC cabinet air conditioner - Envicool":"DC Cabinet Air Conditioner - Envicool",
-      "DC Cabinet Air Conditioner - Envicool":"DC Cabinet Air Conditioner - Envicool",
-      "DC Cabinet Air Conditioner - ITMC":"DC Cabinet Air Conditioner - ITMC",
-      "NAC550D - DC Air Conditioner - Nian":"NAC550D - DC Air Conditioner - Nian",
-      "NAC650D - DC Air Conditioner - Nian":"NAC650D - DC Air Conditioner - Nian",
-      "NAC1250D - DC Air Conditioner - Nian":"NAC1250D - DC Air Conditioner - Nian",
-      "NAC2400D - DC Air Conditioner - Nian":"NAC2400D - DC Air Conditioner - Nian",
-      "NAC3000D - DC Air Conditioner - Nian":"NAC3000D - DC Air Conditioner - Nian",
-      "NAC3500D - DC Air Conditioner - Nian":"NAC3500D - DC Air Conditioner - Nian",
-
-      // DCC — correct Porsoo spelling
-      "DCC-PORSOO ELECTRONIC":"DCC-PORSOO ELECTRONIC",
-      "DCC-PORSOO ELECTRONIC - Cabinet Conditioner":"DCC-PORSOO ELECTRONIC - Cabinet Conditioner",
-      "DCC - Porsoo Electronic":"DCC-PORSOO ELECTRONIC",
-      "DCC - Porsoo Electronic - Cabinet Conditioner":"DCC-PORSOO ELECTRONIC - Cabinet Conditioner",
-
-      // PSU — do not force Ericsson on bare names
-      "PSU AC 03":"PSU AC 03",
-      "PSU AC 03 - Ericsson":"PSU AC 03 - Ericsson",
-
-      // Rectifier / PEC
-      "PEC- 4860 - Rectifier Porsoo":"PEC-4860 - Rectifier Porsoo",
-      "PEC-4860 - Rectifier Porsoo":"PEC-4860 - Rectifier Porsoo",
-      "PECSU - 2020 - Porsoo":"PECSU - 2020 - Porsoo",
-      "RECTIFIER 48VDC3000 - ITMC":"RECTIFIER 48VDC3000 - ITMC",
-      "Rectifier - Flatpack2 2000W 48V BF":"Rectifier - Flatpack2 2000W 48V BF",
-
-      // NCR / NCU — preserve subtype & power; only normalize minor variants
-      "NCR48U - Nian":"NCR48U - 3KW - Nian",
-      "NCR48U - NIAN":"NCR48U - 3KW - Nian",
-      "NCR48U 3KW":"NCR48U - 3KW - Nian",
-      "NCR48U - 3KW":"NCR48U - 3KW - Nian",
-      "NCR48U - 3KW - Nian":"NCR48U - 3KW - Nian",
-      "NCR48U G/01- 3KW - Nian":"NCR48U G/01- 3KW - Nian",
-      "NCR48U G/01 - 3KW - Nian":"NCR48U G/01- 3KW - Nian",
-      "NCR48U J/01- 3KW - Nian":"NCR48U J/01- 3KW - Nian",
-      "NCR48U D/03- 3KW - Nian":"NCR48U D/03- 3KW - Nian",
-      "NCU48U C/11":"NCU48U C/11",
-      "NCU48U M/12 - NS042264-R01":"NCU48U M/12 - NS042264-R01",
-      "NCU48S M/12":"NCU48S M/12",
-
-      // Others
-      "Air Conditioner - ITMC":"Air Conditioner - ITMC",
-      "Smartpack Extended - ELTEK":"Smartpack Extended - ELTEK",
-      "SCU 01 01 - Ericsson":"SCU 01 01 - Ericsson",
-      "PDU 01 01":"PDU 01 01",
-      "Controller Unit  - ITMC":"Controller Unit - ITMC",
-      "Controller Unit - ITMC":"Controller Unit - ITMC"
-    }
-    if(ALIAS_MAP[norm]) return ALIAS_MAP[norm];
+      /* ── NCR / NCU ── */
+      "ncr48u":"NCR48U - 3KW - Nian",
+      "ncr48u - nian":"NCR48U - 3KW - Nian",
+      "ncr48u - nian":"NCR48U - 3KW - Nian",
+      "ncr48u 3kw":"NCR48U - 3KW - Nian",
+      "ncr48u - 3kw":"NCR48U - 3KW - Nian",
+      "ncr48u - 3kw - nian":"NCR48U - 3KW - Nian",
+      "ncr48u g/01- 3kw - nian":"NCR48U G/01- 3KW - Nian",
+      "ncr48u g/01 - 3kw - nian":"NCR48U G/01- 3KW - Nian",
+      "ncr48u j/01- 3kw - nian":"NCR48U J/01- 3KW - Nian",
+      "ncr48u j/01 - 3kw - nian":"NCR48U J/01- 3KW - Nian",
+      "ncr48u d/03- 3kw - nian":"NCR48U D/03- 3KW - Nian",
+      "ncr48u d/03 - 3kw - nian":"NCR48U D/03- 3KW - Nian",
+      "ncr48s d/01 - 2kw - nian":"NCR48S D/01 - 2KW - Nian",
+      "ncr48s d/01- 2kw - nian":"NCR48S D/01 - 2KW - Nian",
+      "ncr24u - 1.5kw - nian":"NCR24U - 1.5KW - Nian",
+      "ncu48":"NCU48",
+      "ncu48u":"NCU48U",
+      "ncu48u c/11":"NCU48U C/11",
+      "ncu48u m/12 - ns042264-r01":"NCU48U M/12 - NS042264-R01",
+      "ncu48s m/12":"NCU48S M/12",
+ 
+      /* ── PSU (also PCU typo) ── */
+      "psu":"PSU AC 03",
+      "psu ac":"PSU AC 03",
+      "psu ac 03":"PSU AC 03",
+      "psu ac 03 - ericsson":"PSU AC 03 - Ericsson",
+      "psu ac 01 - ericsson":"PSU AC 01 - Ericsson",
+      "psu ac 02 - ericsson":"PSU AC 02 - Ericsson",
+      "psu ac 03 - nian":"PSU AC 03 - Nian",
+      "pcu ac 06":"PSU AC 03",
+ 
+      /* ── CLU / BBU ── */
+      "clu":"CLU - Ericsson",
+      "clu - ericsson":"CLU - Ericsson",
+      "bbu clu":"BBU6102 CLU - Ericsson",
+      "bbu6102 clu":"BBU6102 CLU - Ericsson",
+      "bbu6102 clu - ericsson":"BBU6102 CLU - Ericsson",
+      "clu - bbub102 clu - ericsson":"CLU - BBUB102 CLU - Ericsson",
+ 
+      /* ── CCU / Climate ── */
+      "ccu climate control":"CCU - Climate Control Board",
+      "ccu climate control board":"CCU - Climate Control Board",
+      "ccu - climate control board":"CCU - Climate Control Board",
+      "ccu - thermo electric co":"CCU - Thermo Electric Co",
+      "climate control board - ccu":"Climate Control Board - CCU",
+      "climat control board":"Climat Control Board",
+      "climat control board - ericsson":"Climat Control Board - Ericsson",
+ 
+      /* ── DC Air Conditioner (NAC + DC Cabinet) ── */
+      "dc cabinet ac envicool":"DC Cabinet Air Conditioner - Envicool",
+      "dc cabinet ac - envicool":"DC Cabinet Air Conditioner - Envicool",
+      "dc cabinet air conditioner":"DC Cabinet Air Conditioner - Envicool",
+      "dc cabinet air conditioner - envicool":"DC Cabinet Air Conditioner - Envicool",
+      "dc cabinet ac itmc":"DC Cabinet Air Conditioner - ITMC",
+      "dc cabinet air conditioner - itmc":"DC Cabinet Air Conditioner - ITMC",
+      "nac dc air conditioner":"DC Cabinet Air Conditioner - Envicool",
+      "nac650d - nian air conditioner dc":"NAC650D - DC Air Conditioner - Nian",
+      "nac650d - dc air conditioner - nian":"NAC650D - DC Air Conditioner - Nian",
+      "nac550d - dc air conditioner - nian":"NAC550D - DC Air Conditioner - Nian",
+      "nac1250d - dc air conditioner - nian":"NAC1250D - DC Air Conditioner - Nian",
+      "nac2400d - dc air conditioner - nian":"NAC2400D - DC Air Conditioner - Nian",
+      "nac3000d - dc air conditioner - nian":"NAC3000D - DC Air Conditioner - Nian",
+      "nac3500d - dc air conditioner - nian":"NAC3500D - DC Air Conditioner - Nian",
+ 
+      /* ── Air Conditioner (plain ITMC) ── */
+      "air conditioner itmc":"Air Conditioner - ITMC",
+      "air conditioner - itmc":"Air Conditioner - ITMC",
+ 
+      /* ── DCC ── */
+      "dcc porsoo":"DCC-PORSOO ELECTRONIC",
+      "dcc-porsoo":"DCC-PORSOO ELECTRONIC",
+      "dcc - porsoo":"DCC-PORSOO ELECTRONIC",
+      "dcc-porsoo electronic":"DCC-PORSOO ELECTRONIC",
+      "dcc-porsoo electronic - cabinet conditioner":"DCC-PORSOO ELECTRONIC - Cabinet Conditioner",
+ 
+      /* ── Rectifier / Flatpack / PEC ── */
+      "pec rectifier porsoo":"PEC-4860 - Rectifier Porsoo",
+      "pec-4860 - rectifier porsoo":"PEC-4860 - Rectifier Porsoo",
+      "pecsu - 2020 - porsoo":"PECSU - 2020 - Porsoo",
+      "rectifier 48v 3000w itmc":"RECTIFIER 48VDC3000 - ITMC",
+      "rectifier 48vdc3000 - itmc":"RECTIFIER 48VDC3000 - ITMC",
+      "rectifier - flatpack2 2000w 48v bf":"Rectifier - Flatpack2 2000W 48V BF",
+      "flatpack2 48/3000 he":"Rectifier - Flatpack2 3000W 48V HE",
+      "flatpack2 / smartpack":"Rectifier - Flatpack2 2000W 48V BF",
+ 
+      /* ── Controller ── */
+      "controller unit itmc":"Controller Unit - ITMC",
+      "controller unit - itmc":"Controller Unit - ITMC",
+ 
+      /* ── Smartpack / SCU / PDU ── */
+      "smartpack extended - eltek":"Smartpack Extended - ELTEK",
+      "smartpack extended":"Smartpack Extended - ELTEK",
+      "scu ericsson":"SCU 01 01 - Ericsson",
+      "scu 01 01 - ericsson":"SCU 01 01 - Ericsson",
+      "pdu":"PDU 01 01",
+      "pdu 01 01":"PDU 01 01"
+    };
+ 
     var low = norm.toLowerCase();
-    for(var k in ALIAS_MAP){ if(k.toLowerCase()===low) return ALIAS_MAP[k]; }
+    if(ALIAS_MAP[low]) return ALIAS_MAP[low];
+ 
+    /* ── pattern-based fallback (for variants we haven't seen yet) ── */
+    var m = norm.match(/^(NC[RU])(\d+)([A-Z]?)(?:\s+([A-Z]\/\d+))?(?:\s*-?\s*(\d+(?:\.\d+)?)\s*(KW))?(?:\s*-\s*(\S.*))?$/i);
+    if(m){
+      var prefix = m[1].toUpperCase();
+      var volt   = m[2];
+      var ver    = m[3] || 'U';
+      var sub    = m[4] ? ' '+m[4] : '';
+      var power  = m[5] ? (' - '+m[5].toUpperCase()+'KW') : '';
+      var brand  = m[7] ? (' - '+m[7].trim()) : (prefix==='NCR' ? ' - Nian' : '');
+      return prefix+volt+ver+sub+power+brand;
+    }
+ 
+    // NAC + suffix
+    var nac = norm.match(/^(NAC\d+[A-Z]?)(?:\s*-\s*)(.+)$/i);
+    if(nac) return nac[1].toUpperCase()+' - '+nac[2].trim();
+ 
     return norm;
   }
  
-  /* ── smart family detection (so imported units get proper structured details instead of landing in generic CUSTOM) ── */
+  /* ── smart family detection ── */
   function detectFamilyForUnitName(name){
     if(!name) return 'CUSTOM';
-    var n = String(name).trim();
-    if(/^NC[RU]\s*\d/i.test(n)) return 'NCU_NCR';                                   // NCR48U, NCU48S, NCU48U ...
-    if(/^NAC\s*\d/i.test(n) || /DC\s*(Cabinet\s*)?Air\s*Conditioner/i.test(n)) return 'DC_AC'; // NAC550D.. + DC (Cabinet) Air Conditioner
-    if(/^Air\s*Conditioner/i.test(n)) return 'AIRCOND';                             // plain "Air Conditioner - ITMC"
-    if(/^PSU\b/i.test(n)) return 'PSU';
-    if(/^BBU|\bCLU\b/i.test(n)) return 'CLU';
-    if(/^CCU\b|Climat(e)?\s*Control/i.test(n)) return 'CCU';
-    if(/^RECTIFIER\b|Rectifier|^PEC\b|^PEC-/i.test(n)) return 'RECTIFIER';
-    if(/^DCC\b|^DCC-/i.test(n)) return 'DCC';
-    if(/^PDU\b/i.test(n)) return 'PDU';
-    if(/^Controller\b/i.test(n)) return 'CONTROLLER';
-    if(/^Smartpack/i.test(n)) return 'SMARTPACK';
-    if(/^SCU\b/i.test(n)) return 'SCU';
+    var n = String(name).replace(/\s+/g,' ').trim();
+    var u = n.toUpperCase();
+ 
+    // NCU / NCR (NCU48, NCR48U, NCR48S, NCU48U …)
+    if(/^NC[RU]\d/i.test(u)) return 'NCU_NCR';
+ 
+    // PSU / PCU (typo tolerant)
+    if(/^PSU\b/i.test(u) || /^PCU\b/i.test(u)) return 'PSU';
+ 
+    // CLU / BBU
+    if(/^BBU/i.test(u) || /^CLU\b/i.test(u) || /\bCLU\b/.test(u)) return 'CLU';
+ 
+    // CCU / Climate control board
+    if(/^CCU\b/i.test(u) || /CLIMAT/i.test(u)) return 'CCU';
+ 
+    // DC Air Conditioner (NAC model + DC Cabinet …)
+    if(/^NAC\d/i.test(u)) return 'DC_AC';
+    if(/DC\s*(CABINET\s*)?(AC|AIR\s*CONDITIONER)/i.test(u)) return 'DC_AC';
+ 
+    // Plain Air Conditioner (ITMC and similar) — must come AFTER DC check
+    if(/^AIR\s*CONDITIONER/i.test(u)) return 'AIRCOND';
+ 
+    // DCC
+    if(/^DCC\b/i.test(u) || /^DCC-/i.test(u)) return 'DCC';
+ 
+    // Rectifier / Flatpack / PEC
+    if(/^RECTIFIER\b/i.test(u) || /RECTIFIER/i.test(u)) return 'RECTIFIER';
+    if(/^PEC\b/i.test(u) || /^PEC-/i.test(u)) return 'RECTIFIER';
+    if(/FLATPACK/i.test(u)) return 'RECTIFIER';
+ 
+    // PDU
+    if(/^PDU\b/i.test(u)) return 'PDU';
+ 
+    // Controller unit
+    if(/^CONTROLLER\b/i.test(u)) return 'CONTROLLER';
+ 
+    // Smartpack
+    if(/^SMARTPACK/i.test(u)) return 'SMARTPACK';
+ 
+    // SCU
+    if(/^SCU\b/i.test(u)) return 'SCU';
+ 
     return 'CUSTOM';
   }
 
@@ -1033,7 +1116,6 @@ var Data = (function(){
       ], build:function(v){ var p=v.ncuPrefix||'NCR',vol=v.ncuVoltage||'48',ver=v.ncuVersion||'U';
         var sub=v.ncuSubtype?(' '+v.ncuSubtype.trim()):'';
         var pw=(v.ncuPower&&v.ncuPower!=='N/A')?(' - '+v.ncuPower):'';
-        // Match real tickets: NCR48U G/01- 3KW - Nian  |  NCU48U C/11
         var name = p+vol+ver+sub+pw;
         if(p==='NCR' && pw) name += ' - Nian';
         return name.replace(/\s+/g,' ').trim(); }},
@@ -1054,7 +1136,7 @@ var Data = (function(){
         {id:'dcacSuffix',type:'text',label:'Suffix',placeholder:'e.g. - Cooler, - Compressor'}
       ], build:function(v){return (v.dcacModel||'DC Cabinet Air Conditioner - Envicool')+(v.dcacSuffix?' '+v.dcacSuffix.trim():'');}},
       {id:'RECTIFIER', label:'Rectifier', fields:[
-        {id:'recType',type:'select',label:'Type',options:['RECTIFIER 48VDC3000 - ITMC','Rectifier - Flatpack2 2000W 48V BF','PEC-4860 - Rectifier Porsoo','PECSU - 2020 - Porsoo'],default:'RECTIFIER 48VDC3000 - ITMC'},
+        {id:'recType',type:'select',label:'Type',options:['RECTIFIER 48VDC3000 - ITMC','Rectifier - Flatpack2 2000W 48V BF','Rectifier - Flatpack2 3000W 48V HE','PEC-4860 - Rectifier Porsoo','PECSU - 2020 - Porsoo'],default:'RECTIFIER 48VDC3000 - ITMC'},
         {id:'recSuffix',type:'text',label:'Suffix',placeholder:''}
       ], build:function(v){return (v.recType||'RECTIFIER 48VDC3000 - ITMC')+(v.recSuffix?' '+v.recSuffix.trim():'');}},
       {id:'DCC', label:'DCC', fields:[
@@ -1184,11 +1266,13 @@ var Data = (function(){
       'NCR48U G/01- 3KW - Nian',
       'NCR48U J/01- 3KW - Nian',
       'NCR48U D/03- 3KW - Nian',
+      'NCR48S D/01 - 2KW - Nian',
+      'NCR24U - 1.5KW - Nian',
+      'NCU48',
+      'NCU48U',
       'NCU48U C/11',
       'NCU48U M/12 - NS042264-R01',
-      'NCU48S M/12',
-      'NCU48U - 2KW - Nian',
-      'NCR24U - 1.5KW - Nian'
+      'NCU48S M/12'
     ],
     'PSU': [
       'PSU AC 03',
@@ -1200,8 +1284,7 @@ var Data = (function(){
     'CLU': [
       'CLU - Ericsson',
       'BBU6102 CLU - Ericsson',
-      'CLU - BBUB102 CLU - Ericsson',
-      'BBU CLU'
+      'CLU - BBUB102 CLU - Ericsson'
     ],
     'CCU': [
       'CCU - Climate Control Board',
@@ -1223,6 +1306,7 @@ var Data = (function(){
     'RECTIFIER': [
       'RECTIFIER 48VDC3000 - ITMC',
       'Rectifier - Flatpack2 2000W 48V BF',
+      'Rectifier - Flatpack2 3000W 48V HE',
       'PEC-4860 - Rectifier Porsoo',
       'PECSU - 2020 - Porsoo'
     ],
@@ -1235,7 +1319,7 @@ var Data = (function(){
     'CONTROLLER': ['Controller Unit - ITMC'],
     'SMARTPACK': ['Smartpack Extended - ELTEK'],
     'SCU': ['SCU 01 01 - Ericsson']
-  }
+  };
  
   function loadUnits(){
     try{
@@ -1248,7 +1332,6 @@ var Data = (function(){
       if(SAMPLE_UNITS.hasOwnProperty(fid)){
         var sampleList = SAMPLE_UNITS[fid];
         sampleList.forEach(function(name){
-          // Always ensure every detailed sample unit exists (never collapse NAC/NCR models)
           var already = units.some(function(u){ return u.name === name; });
           if(!already){
             units.push({id:uid(), name:name, familyId:fid});
@@ -1256,17 +1339,17 @@ var Data = (function(){
         });
       }
     }
-    /* one-time cleanup: units previously mis-filed under generic CUSTOM
-       (e.g. NAC air conditioners, NCR/PSU/CLU/... units imported before
-       the family auto-detection fix) get re-filed into their proper
-       detailed family, so they show up with full structured fields. */
+ 
+    /* Re-file every unit whose family doesn't match its detected family.
+       Runs on load — fixes imported units that landed in CUSTOM. */
     units.forEach(function(u){
-      if(u.familyId === 'CUSTOM'){
-        var detected = detectFamilyForUnitName(u.name);
-        if(detected !== 'CUSTOM'){
-          var dup = units.some(function(x){ return x!==u && x.name===u.name && x.familyId===detected; });
-          if(!dup) u.familyId = detected; else u._dupRemove = true;
-        }
+      var canon = canonicalUnitName(u.name);
+      if(canon && canon !== u.name) u.name = canon;
+      var detected = detectFamilyForUnitName(u.name);
+      if(detected !== 'CUSTOM' && u.familyId !== detected){
+        var dup = units.some(function(x){ return x!==u && x.name===u.name && x.familyId===detected; });
+        if(dup) u._dupRemove = true;
+        else u.familyId = detected;
       }
     });
     units = units.filter(function(u){ return !u._dupRemove; });
@@ -1300,6 +1383,36 @@ var Data = (function(){
   function deleteUnit(id){
     units = units.filter(function(u){return u.id!==id;});
     saveUnits();
+  }
+ 
+  /* ── re-categorize all units into their proper families ── */
+  function recategorizeAll(){
+    var changed = 0;
+    units.forEach(function(u){
+      var canon = canonicalUnitName(u.name);
+      if(canon && canon !== u.name){ u.name = canon; changed++; }
+      var detected = detectFamilyForUnitName(u.name);
+      if(detected !== 'CUSTOM' && u.familyId !== detected){
+        u.familyId = detected;
+        changed++;
+      }
+    });
+    // dedupe
+    var seen = {};
+    units = units.filter(function(u){
+      var key = u.name + '||' + u.familyId;
+      if(seen[key]) return false;
+      seen[key] = true;
+      return true;
+    });
+    // also fix records' unit names
+    records.forEach(function(r){
+      var canon = canonicalUnitName(r.unitName);
+      if(canon && canon !== r.unitName) r.unitName = canon;
+    });
+    saveUnits();
+    persist();
+    return changed;
   }
  
   /* ── record normalization ── */
@@ -1350,7 +1463,10 @@ var Data = (function(){
     trash = trash.filter(Boolean).map(normalize);
     loadFamilies();
     loadUnits();
+    /* normalize unit names in existing records too */
     records.forEach(function(r){
+      var canon = canonicalUnitName(r.unitName);
+      if(canon && canon !== r.unitName) r.unitName = canon;
       if(r.unitName && !getUnitByName(r.unitName)){
         addUnit(r.unitName, detectFamilyForUnitName(r.unitName));
       }
@@ -1682,6 +1798,7 @@ var Data = (function(){
     getFamily: getFamily, addFamily: addFamily, editFamily: editFamily, deleteFamily: deleteFamily, saveFamilies: saveFamilies,
     getUnits: getUnits, getUnitsByFamily: getUnitsByFamily, getUnitById: getUnitById, getUnitByName: getUnitByName,
     addUnit: addUnit, editUnit: editUnit, deleteUnit: deleteUnit, saveUnits: saveUnits,
+    recategorizeAll: recategorizeAll,
     THEME_KEY: THEME_KEY
   };
 })();
@@ -1872,7 +1989,6 @@ var UI = (function(){
     allUnits.forEach(function(u){
       if(activeFamilyFilter && u.familyId !== activeFamilyFilter) return;
       if(q){
-        // search only on unit model name — not family label
         if(u.name.toLowerCase().indexOf(q) === -1) return;
       }
       if(groups[u.familyId]) groups[u.familyId].units.push(u);
@@ -1974,9 +2090,7 @@ var UI = (function(){
   }
  
   function buildUnitName(){
-    // Prefer the explicitly selected unit name (from browse mode)
     if(unitMode === 'browse' && selectedUnitName) return selectedUnitName;
-    // Build mode
     var famId = document.getElementById('unitFamily').value;
     var f = Data.getFamily(famId);
     if(!f) return selectedUnitName || '';
@@ -2394,7 +2508,6 @@ var UI = (function(){
     document.getElementById('fault').value='Faulty';
     document.getElementById('status').value='Pending';
     document.getElementById('qty').value=1;
-    // Reset unit picker
     selectedUnitName = '';
     selectedUnitFamilyId = '';
     activeFamilyFilter = '';
@@ -2430,7 +2543,6 @@ var UI = (function(){
     document.getElementById('approver').value=r.approvedBy||'';
     document.getElementById('notes').value=r.notes||'';
  
-    // Set unit selection
     var unitObj = Data.getUnitByName(r.unitName);
     selectedUnitName = r.unitName || '';
     selectedUnitFamilyId = unitObj ? unitObj.familyId : 'CUSTOM';
@@ -2442,7 +2554,6 @@ var UI = (function(){
     updateUnitBanner();
     renderUnitPicker();
  
-    // Also prepare build mode in case user switches
     if(selectedUnitFamilyId && Data.getFamily(selectedUnitFamilyId)){
       document.getElementById('unitFamily').value = selectedUnitFamilyId;
       onFamilyChange();
@@ -2502,7 +2613,6 @@ var UI = (function(){
     if(record.status==='Approved') record.approvedAt=new Date().toISOString();
  
     var wasUpdate = Data.upsert(record, id ? 'Edited' : 'Created');
-    // Add the unit to catalog if not exists
     var famId = selectedUnitFamilyId || document.getElementById('unitFamily').value || 'CUSTOM';
     if(famId && !Data.getUnitByName(unitName)){
       Data.addUnit(unitName, famId);
@@ -2588,6 +2698,19 @@ var UI = (function(){
         '</div></div>';
     }).join('');
     if(catList.length>50) ucl.innerHTML += '<div class="text-muted text-center" style="padding:6px;font-size:11px">… and '+(catList.length-50)+' more</div>';
+  }
+ 
+  /* ── recategorize ── */
+  function recategorizeAll(){
+    confirm('Re-categorize all units?',
+      'Every unit will be re-detected against its proper family (NCU/NCR, PSU, CLU, CCU, DC_AC, RECTIFIER, …). Existing records keep their data but unit names will be normalized.',
+      'Re-categorize',
+      function(){
+        var changed = Data.recategorizeAll();
+        renderUnitsView();
+        renderQuality();
+        toast(changed + ' unit(s) recategorized');
+      });
   }
  
   /* ── Family management ── */
@@ -2768,7 +2891,7 @@ var UI = (function(){
     openAddUnitForFamily:openAddUnitForFamily, openEditUnit:openEditUnit, closeUnitEditModal:closeUnitEditModal,
     saveUnitEdit:saveUnitEdit, confirmDeleteUnit:confirmDeleteUnit,
     populateFamilySelect:populateFamilySelect,
-    // New unit picker API
+    recategorizeAll:recategorizeAll,
     setUnitMode:setUnitMode, onUnitSearch:onUnitSearch, onUnitSearchKey:onUnitSearchKey,
     onFamilyFilterChange:onFamilyFilterChange, toggleFamilyCollapse:toggleFamilyCollapse,
     selectUnit:selectUnit, clearUnitSelection:clearUnitSelection, onBuildFieldChange:onBuildFieldChange,
